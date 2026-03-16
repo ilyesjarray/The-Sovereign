@@ -1,0 +1,30 @@
+{
+  "name": "the-sovereign-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo build",
+    "vercel-build": "turbo run build --filter=web",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+  },
+  "devDependencies": {
+    "prettier": "latest",
+    "turbo": "^2.8.7",
+    "typescript": "^5.7.2"
+  },
+  "packageManager": "npm@10.0.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@parcel/watcher": "^2.5.6",
+    "@webgpu/types": "^0.1.69",
+    "is-extglob": "^2.1.1",
+    "zustand": "^5.0.11"
+  }
+}

@@ -1,0 +1,18 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" fill="#020617"/>
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Crown -->
+  <path d="M256 120 L200 200 L150 160 L120 240 L392 240 L362 160 L312 200 Z" fill="url(#gold)" stroke="#06b6d4" stroke-width="3"/>
+  <rect x="120" y="240" width="272" height="40" fill="url(#gold)" stroke="#06b6d4" stroke-width="3"/>
+  <!-- Diamonds -->
+  <circle cx="256" cy="140" r="12" fill="#06b6d4"/>
+  <circle cx="200" cy="180" r="8" fill="#06b6d4"/>
+  <circle cx="312" cy="180" r="8" fill="#06b6d4"/>
+  <!-- S Letter -->
+  <text x="256" y="380" font-family="Arial, sans-serif" font-size="140" font-weight="bold" fill="url(#gold)" text-anchor="middle">S</text>
+</svg>
