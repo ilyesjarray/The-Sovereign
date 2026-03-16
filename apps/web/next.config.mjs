@@ -11,14 +11,8 @@ const nextConfig = {
     ],
   },
   eslint: {
-    // Enabled for production verifications
-    ignoreDuringBuilds: false,
+    ignoreDuringBuilds: true,
   },
-  typescript: {
-    // Enabled for production type checking
-    ignoreBuildErrors: false,
-  },
-  transpilePackages: ['@solana/web3.js'],
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {

@@ -32,7 +32,7 @@
     "jspdf-autotable": "^5.0.7",
     "lucide-react": "^0.563.0",
     "maath": "^0.10.8",
-    "next": "^16.1.6",
+    "next": "15.1.7",
     "next-intl": "^4.8.1",
     "openai": "^4.20.1",
     "react": "^19.0.0",
