@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY! || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const envUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+const envKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+
+const SUPABASE_URL = envUrl && envUrl !== '' ? envUrl : 'https://suujqiaihjktpmjnogdm.supabase.co';
+const SUPABASE_KEY = envKey && envKey !== '' ? envKey : 'placeholder';
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY!;
 const MODEL_NAME = 'llama-3.3-70b-versatile';

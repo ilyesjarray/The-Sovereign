@@ -1,6 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/client';
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+const supabase = createClient();
 
 export async function getTrilingualSummary(text: string, locale: string) {
     // هنا يمكنك ربط OpenAI أو أي مكتبة ترجمة

@@ -6,9 +6,15 @@ export async function updateSession(request: NextRequest) {
     request,
   });
 
+  const envUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const envKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+  
+  const url = envUrl && envUrl !== '' ? envUrl : 'https://suujqiaihjktpmjnogdm.supabase.co';
+  const key = envKey && envKey !== '' ? envKey : 'placeholder';
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    url,
+    key,
     {
       cookies: {
         getAll() {

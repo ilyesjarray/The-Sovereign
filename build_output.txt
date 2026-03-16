@@ -1,0 +1,54 @@
+
+> build
+> turbo build --filter=web
+
+• turbo 2.8.7
+• Packages in scope: web
+• Running build in 1 packages
+• Remote caching disabled
+web:build: cache miss, executing 761f38bf4554a6fb
+web:build: 
+web:build: > web@1.0.0 build
+web:build: > next build
+web:build: 
+web:build:    ▲ Next.js 15.1.7
+web:build:    - Environments: .env.local
+web:build: 
+web:build:    Creating an optimized production build ...
+web:build:  ✓ Compiled successfully
+web:build:    Skipping linting
+web:build:    Checking validity of types ...
+web:build:    Collecting page data ...
+web:build:  ⚠ Using edge runtime on a page currently disables static generation for that page
+web:build:    Generating static pages (0/26) ...
+web:build: Error occurred prerendering page "/en". Read more: https://nextjs.org/docs/messages/prerender-error
+web:build: Error: supabaseUrl is required.
+web:build:     at E:\the sovereign\apps\web\.next\server\app\[locale]\page.js:37:48146
+web:build:     at new rg (E:\the sovereign\apps\web\.next\server\app\[locale]\page.js:37:48397)
+web:build:     at ry (E:\the sovereign\apps\web\.next\server\app\[locale]\page.js:37:52137)
+web:build:     at E:\the sovereign\apps\web\.next\server\app\[locale]\page.js:37:60233
+web:build:     at rC (E:\the sovereign\apps\web\.next\server\app\[locale]\page.js:37:60534)
+web:build:     at e1 (E:\the sovereign\apps\web\.next\server\app\[locale]\page.js:1:44014)
+web:build:    Generating static pages (6/26) 
+web:build:     at nO (E:\the sovereign\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:20:45959)
+web:build:     at nI (E:\the sovereign\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:20:47734)
+web:build:     at nL (E:\the sovereign\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:20:65533)
+web:build:     at nN (E:\the sovereign\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:20:63164)
+web:build: Export encountered an error on /[locale]/page: /en, exiting the build.
+web:build:  ⨯ Next.js build worker exited with code: 1 and signal: null
+web:build: npm error Lifecycle script `build` failed with error:
+web:build: npm error code 1
+web:build: npm error path E:\the sovereign\apps\web
+web:build: npm error workspace web@1.0.0
+web:build: npm error location E:\the sovereign\apps\web
+web:build: npm error command failed
+web:build: npm error command C:\WINDOWS\system32\cmd.exe /d /s /c next build
+web:build: ERROR: command finished with error: command (E:\the sovereign\apps\web) C:\Program Files\nodejs\npm.cmd run build exited (1)
+web#build: command (E:\the sovereign\apps\web) C:\Program Files\nodejs\npm.cmd run build exited (1)
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    23.364s 
+Failed:    web#build
+
+ ERROR  run failed: command  exited (1)
