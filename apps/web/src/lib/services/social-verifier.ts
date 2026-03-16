@@ -19,10 +19,21 @@ export interface VerifiedIntel {
 
 export class SocialVerifierService {
     private static instance: SocialVerifierService;
-    private groq: Groq;
+    private _groq: Groq | null = null;
+    private apiKey: string;
 
     private constructor() {
-        this.groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+        this.apiKey = process.env.GROQ_API_KEY || '';
+    }
+
+    private getGroq(): Groq {
+        if (!this._groq) {
+            if (!this.apiKey) {
+                console.warn('⚠️ GROQ_API_KEY not found. Social verification will be degraded.');
+            }
+            this._groq = new Groq({ apiKey: this.apiKey || 'mock-key' });
+        }
+        return this._groq;
     }
 
     public static getInstance() {
@@ -63,7 +74,8 @@ Status rules:
 - <40: FAKE`;
 
         try {
-            const completion = await this.groq.chat.completions.create({
+            const groq = this.getGroq();
+            const completion = await groq.chat.completions.create({
                 model: 'llama-3.3-70b-versatile',
                 messages: [
                     { role: 'system', content: systemPrompt },
