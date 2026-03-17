@@ -21,7 +21,10 @@ const LOCALES = [
     { code: 'fr', label: 'FR', flag: '🇫🇷' },
 ];
 
+import { useSound } from '@/providers/SoundProvider';
+
 export default function LandingRoot() {
+    const { playClick, toggleMusic } = useSound();
     const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
     const [showBriefing, setShowBriefing] = useState(false);
     const supabase = createClient();
@@ -70,6 +73,7 @@ export default function LandingRoot() {
 }
 
 function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean, setShowBriefing: (v: boolean) => void }) {
+    const { playClick, toggleMusic, isMusicPlaying } = useSound();
     const [logs, setLogs] = useState<any[]>([]);
     const [inputValue, setInputValue] = useState('');
     const [isScanning, setIsScanning] = useState(true);
@@ -154,7 +158,7 @@ function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean,
     const DIRECTORATES = [
         {
             name: 'DIRECTORATE_NEURAL',
-            label: 'المديرية العصبية',
+            label: 'NEURAL_DIRECTORATE',
             sectors: [
                 { id: 'market-oracle', label: 'THE_HIGH_ORACLE', icon: Binary, color: 'hyper-cyan' },
                 { id: 'war-council', label: 'STRATAGEM_COUNCIL', icon: Sword, color: 'text-amber-400' },
@@ -165,7 +169,7 @@ function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean,
         },
         {
             name: 'DIRECTORATE_SECURITY',
-            label: 'مديرية الأمن السيادي',
+            label: 'SECURITY_DIRECTORATE',
             sectors: [
                 { id: 'the-citadel', label: 'THE_IMPERIAL_BASTION', icon: HardDrive, color: 'hyper-cyan' },
                 { id: 'sovereign-vault', label: 'THE_CRYPT', icon: ShieldAlert, color: 'hyper-cyan' },
@@ -176,7 +180,7 @@ function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean,
         },
         {
             name: 'DIRECTORATE_FINANCE',
-            label: 'مديرية التفوق المالي',
+            label: 'FINANCE_DIRECTORATE',
             sectors: [
                 { id: 'the-armory', label: 'SOVEREIGN_TREASURY', icon: Wallet, color: 'hyper-cyan' },
                 { id: 'wealth-engine', label: 'ASSET_FORGE', icon: Zap, color: 'hyper-cyan' },
@@ -187,7 +191,7 @@ function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean,
         },
         {
             name: 'DIRECTORATE_OPERATIONS',
-            label: 'مديرية العمليات العليا',
+            label: 'OPERATIONS_DIRECTORATE',
             sectors: [
                 { id: 'chronos', label: 'LEGACY_TEMPORAL', icon: Calendar, color: 'hyper-cyan' },
                 { id: 'sovereign-voice', label: 'VOICE_CORE', icon: Mic, color: 'hyper-cyan' },
@@ -253,9 +257,9 @@ function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean,
             {/* OS Header */}
             <header className="flex justify-between items-center h-20 px-8 relative z-20 glass-v-series rounded-2xl mb-8 border border-white/5 bg-white/[0.01]">
                 <div className="flex items-center gap-6">
-                    <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 group cursor-pointer overflow-hidden relative">
+                    <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 group cursor-pointer overflow-hidden relative" onClick={playClick}>
                         <div className="absolute inset-0 bg-amber-500/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                        <Image src="/logo.png" alt="Sovereign Logo" width={36} height={36} className="relative z-10 object-contain" />
+                        <Image src="/assets/icon.png" alt="Sovereign Logo" width={36} height={36} className="relative z-10 object-contain" />
                     </div>
                     <div>
                         <h1 className="text-2xl font-black tracking-tighter uppercase italic text-white flex gap-2">
@@ -270,23 +274,7 @@ function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean,
                 </div>
 
                 <div className="flex items-center gap-6">
-                    {/* Language Switcher */}
-                    <div className="flex items-center gap-1 bg-white/[0.02] border border-white/10 rounded-xl p-1">
-                        {LOCALES.map(l => (
-                            <button
-                                key={l.code}
-                                onClick={() => { window.location.pathname = `/${l.code}`; }}
-                                className={cn(
-                                    'px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all',
-                                    window.location.pathname.startsWith(`/${l.code}`)
-                                        ? 'bg-hyper-cyan text-carbon-black'
-                                        : 'text-white/30 hover:text-white'
-                                )}
-                            >
-                                {l.flag} {l.label}
-                            </button>
-                        ))}
-                    </div>
+                    {/* OS Metrics & Branding */}
                     <div className="flex flex-col items-end">
                         <span className="text-[9px] text-white/20 uppercase font-black tracking-widest font-mono">NEURAL_LOAD</span>
                         <div className="flex items-center gap-3">
@@ -322,7 +310,7 @@ function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean,
                                     <div className="flex items-center gap-3 px-2">
                                         <div className="h-px flex-1 bg-white/5" />
                                         <span className="text-[8px] font-black text-hyper-cyan opacity-40 uppercase tracking-[0.3em] font-mono whitespace-nowrap">
-                                            {useLocale() === 'ar' ? dir.label : dir.name}
+                                            {dir.label}
                                         </span>
                                         <div className="h-px w-4 bg-white/5" />
                                     </div>
@@ -330,7 +318,7 @@ function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean,
                                         {dir.sectors.map((s) => (
                                             <button
                                                 key={`sector-${s.id}`}
-                                                onClick={() => setCurrentSector(s.id)}
+                                                onClick={() => { playClick(); setCurrentSector(s.id); }}
                                                 className={cn(
                                                     "w-full p-3 rounded-2xl flex items-center gap-4 transition-all duration-500 border group",
                                                     currentSector === s.id

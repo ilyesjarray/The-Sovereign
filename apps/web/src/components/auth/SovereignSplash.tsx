@@ -145,7 +145,7 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
                                     className="absolute inset-0 bg-hyper-cyan/20 blur-3xl rounded-full"
                                 />
                                 <div className="w-40 h-40 bg-white/[0.02] border border-white/10 rounded-full flex items-center justify-center relative overflow-hidden shadow-2xl backdrop-blur-xl">
-                                    <span className="text-white text-6xl font-black italic tracking-tighter z-10">S</span>
+                                    <img src="/assets/icon.png" alt="Sovereign Icon" className="w-24 h-24 object-contain z-10" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-hyper-cyan/10 to-transparent" />
                                 </div>
                             </div>
@@ -159,10 +159,10 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
                                     Sovereign_Protocol_Initialize
                                 </motion.div>
                                 <h2 className="text-4xl font-black text-white tracking-tighter uppercase italic">
-                                    أهلاً بك في الإمبراطورية
+                                    Welcome to the Empire
                                 </h2>
                                 <p className="text-white/30 text-xs uppercase tracking-widest max-w-sm mx-auto leading-relaxed">
-                                    بروتوكول الوصول العالي يتطلب التحقق من الهوية العصبية.
+                                    High-access protocol requires neural identity verification.
                                 </p>
                             </div>
 
@@ -334,9 +334,9 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
                             <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-amber-500/40">
                                 <Mail className="w-8 h-8 text-amber-500 animate-bounce" />
                             </div>
-                            <h3 className="text-xl font-black text-white italic uppercase tracking-tighter">التحقق مطلوب</h3>
+                            <h3 className="text-xl font-black text-white italic uppercase tracking-tighter">Verification Required</h3>
                             <p className="text-white/40 text-xs uppercase tracking-widest leading-relaxed">
-                                يرجى التحقق من بريدك الإلكتروني لتنشيط وصولك الإمبراطوري.
+                                Please check your email to activate your imperial access.
                                 <br />
                                 <span className="text-amber-500/60 mt-2 block">({email})</span>
                             </p>
@@ -344,7 +344,7 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
                                 onClick={() => setState('AUTH_FORM')}
                                 className="w-full py-4 bg-white/5 hover:bg-white/10 text-white/40 hover:text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border border-white/5"
                             >
-                                العودة لتسجيل الدخول
+                                Return to Login
                             </button>
                         </motion.div>
                     )}

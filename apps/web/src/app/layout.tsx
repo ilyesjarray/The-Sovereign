@@ -27,6 +27,9 @@ export const metadata: Metadata = {
   title: 'The Sovereign | Intelligence Command',
   description: 'Military-grade Intelligence & Personal Sovereignty Station.',
   manifest: '/manifest.json',
+  icons: {
+    icon: '/assets/icon.png',
+  },
 };
 
 export default function RootLayout({

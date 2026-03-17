@@ -8,11 +8,15 @@ export interface ProvidersProps {
     children: React.ReactNode;
 }
 
+import { SoundProvider } from '@/providers/SoundProvider';
+
 export function Providers({ children }: ProvidersProps) {
     return (
-        <SovereignThemeProvider>
-            {children}
-            <Toaster position="top-right" expand={false} richColors />
-        </SovereignThemeProvider>
+        <SoundProvider>
+            <SovereignThemeProvider>
+                {children}
+                <Toaster position="top-right" expand={false} richColors />
+            </SovereignThemeProvider>
+        </SoundProvider>
     );
 }
