@@ -25,10 +25,33 @@ export const viewport = {
 
 export const metadata: Metadata = {
   title: 'The Sovereign | Intelligence Command',
-  description: 'Military-grade Intelligence & Personal Sovereignty Station.',
+  description: 'Elite Financial Intelligence Platform',
   manifest: '/manifest.json',
   icons: {
     icon: '/assets/icon.png',
+  },
+  openGraph: {
+    title: 'The Sovereign | Intelligence Command',
+    description: 'Elite Financial Intelligence Platform',
+    url: 'thesovereign.vercel.app',
+    siteName: 'The Sovereign',
+    images: [
+      {
+        url: 'https://raw.githubusercontent.com/ilyesjarray/Neydra-assets/main/og-image.jpg',
+        secureUrl: 'https://raw.githubusercontent.com/ilyesjarray/Neydra-assets/main/og-image2.jpg',
+        width: 1200,
+        height: 630,
+        type: 'image/jpeg',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'The Sovereign | Intelligence Command',
+    description: 'Elite Financial Intelligence Platform',
+    images: ['https://raw.githubusercontent.com/ilyesjarray/Neydra-assets/main/og-image.jpg'],
   },
 };
 export default function RootLayout({
