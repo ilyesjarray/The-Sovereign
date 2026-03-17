@@ -7,7 +7,7 @@ export function LocaleHtmlAttributes({
   dir,
 }: {
   locale: string;
-  dir: 'ltr' | 'rtl';
+  dir: 'ltr';
 }) {
   useEffect(() => {
     document.documentElement.lang = locale;

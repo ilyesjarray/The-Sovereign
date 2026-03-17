@@ -19,13 +19,11 @@ export default async function LocaleLayout({ children, params }: Props) {
 
     setRequestLocale(locale);
     const messages = await getMessages();
-    const isRtl = locale === 'ar';
-
     return (
         <NextIntlClientProvider locale={locale} messages={messages}>
             <MarketProvider>
                 <VocalProvider>
-                    <LocaleHtmlAttributes locale={locale} dir={isRtl ? 'rtl' : 'ltr'} />
+                    <LocaleHtmlAttributes locale={locale} dir="ltr" />
                     {children}
                 </VocalProvider>
             </MarketProvider>

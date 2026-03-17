@@ -7,7 +7,7 @@ import { InvoiceEngine } from '@/lib/services/invoice-engine';
 import { toast } from 'sonner';
 
 export function BillingDashboard() {
-    const [currentLang, setCurrentLang] = useState<'EN' | 'AR' | 'FR'>('EN');
+    const [currentLang] = useState<'EN'>('EN');
     const [activeTier, setActiveTier] = useState<string>('ELITE');
 
     const tiers = [
@@ -34,9 +34,9 @@ export function BillingDashboard() {
         const url = InvoiceEngine.generateMockPDF(mockData, currentLang);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `Sovereign_Invoice_${invoiceId}_${currentLang}.txt`;
+        link.download = `Sovereign_Invoice_${invoiceId}.txt`;
         link.click();
-        toast.success('DOCUMENT_GENERATED', { description: `Invoice ${invoiceId} downloaded in ${currentLang}.` });
+        toast.success('DOCUMENT_GENERATED', { description: `Invoice ${invoiceId} generated successfully.` });
     };
 
     return (
@@ -59,22 +59,11 @@ export function BillingDashboard() {
                 ))}
             </div>
 
-            {/* Language Selection for Billing */}
+            {/* Language Selection - DEPRECATED for v-Series Kernel */}
             <div className="flex items-center justify-between border-b border-green-500/20 pb-4">
                 <div className="flex items-center gap-3">
                     <Globe className="w-4 h-4 text-radar" />
-                    <span className="text-[10px] font-mono tracking-widest text-green-500/60 uppercase">LOCALIZATION_PROTOCOL</span>
-                </div>
-                <div className="flex gap-2">
-                    {['EN', 'AR', 'FR'].map((l) => (
-                        <button
-                            key={l}
-                            onClick={() => setCurrentLang(l as any)}
-                            className={`px-3 py-1 text-[8px] font-mono border ${currentLang === l ? 'bg-green-500 text-black border-green-500' : 'border-green-500/30 text-green-500/60'}`}
-                        >
-                            {l}
-                        </button>
-                    ))}
+                    <span className="text-[10px] font-mono tracking-widest text-green-500/60 uppercase">LOCALIZATION_PROTOCOL: FIXED_ENGLISH</span>
                 </div>
             </div>
 

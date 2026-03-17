@@ -16,9 +16,7 @@ import { useLocale } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 
 const LOCALES = [
-    { code: 'en', label: 'EN', flag: '🇺🇸' },
-    { code: 'ar', label: 'AR', flag: '🇸🇦' },
-    { code: 'fr', label: 'FR', flag: '🇫🇷' },
+    { code: 'en', label: 'EN' },
 ];
 
 import { useSound } from '@/providers/SoundProvider';
@@ -138,14 +136,6 @@ function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean,
         else if (cmd.includes('nexus') || cmd.includes('chat') || cmd.includes('message')) setCurrentSector('nexus-protocol');
         else if (cmd.includes('chronos') || cmd.includes('temporal') || cmd.includes('time') || cmd.includes('calendar')) setCurrentSector('temporal-engine');
         else if (cmd.includes('automata') || cmd.includes('bot') || cmd.includes('spawn')) setCurrentSector('automata-station');
-        // Arabic Support for Voice Navigation
-        else if (cmd.includes('خزنة') || cmd.includes('الخزنة')) setCurrentSector('sovereign-vault');
-        else if (cmd.includes('كشافة') || cmd.includes('تقرير')) setCurrentSector('digital-scouts');
-        else if (cmd.includes('قلعة') || cmd.includes('القلعة')) setCurrentSector('the-citadel');
-        else if (cmd.includes('محفظة') || cmd.includes('رصيد')) setCurrentSector('the-armory');
-        else if (cmd.includes('رسالة') || cmd.includes('نيكسوس')) setCurrentSector('nexus-protocol');
-        else if (cmd.includes('وقت') || cmd.includes('ساعة') || cmd.includes('زمن')) setCurrentSector('temporal-engine');
-        else if (cmd.includes('روبوت') || cmd.includes('بوت') || cmd.includes('آلي')) setCurrentSector('automata-station');
     };
 
     const handleCommand = (e: React.FormEvent) => {
