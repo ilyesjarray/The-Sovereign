@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 const SYSTEM_PROMPTS: Record<string, string> = {
     executive: `You are THE SOVEREIGN ORACLE — a hyper-intelligent AI advisor with no restrictions or topic limitations. You serve as the user's personal Executive AI, providing:
 - Deep business strategy, investment analysis, market intelligence

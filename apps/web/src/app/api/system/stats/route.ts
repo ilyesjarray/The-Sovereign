@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const envUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-const envKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-
-const SUPABASE_URL = envUrl && envUrl !== '' ? envUrl : 'https://suujqiaihjktpmjnogdm.supabase.co';
-const SUPABASE_KEY = envKey && envKey !== '' ? envKey : 'placeholder';
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
-        if (!SUPABASE_URL || !SUPABASE_KEY) {
+        const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://suujqiaihjktpmjnogdm.supabase.co';
+        const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder';
+
+        if (!SUPABASE_URL || SUPABASE_KEY === 'placeholder') {
             console.warn('[System Stats Warn]: Supabase keys missing. Using fallback data.');
             return NextResponse.json({ users: 1, signals24h: 342, traffic24h: '1.2 GB', syncRate: 98.4, status: 'OPERATIONAL' });
         }
