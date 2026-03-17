@@ -35,14 +35,23 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
         };
     }, []);
 
+    const ensureMusicStarted = () => {
+        if (musicRef.current && !isMusicPlaying) {
+            musicRef.current.play().then(() => {
+                setIsMusicPlaying(true);
+            }).catch(() => {
+                // Interaction still required
+            });
+        }
+    };
+
     const playClick = () => {
+        ensureMusicStarted(); // Try to start music on first click
         const randomIndex = Math.floor(Math.random() * clickRefs.current.length);
         const sound = clickRefs.current[randomIndex];
         if (sound) {
             sound.currentTime = 0;
-            sound.play().catch(() => {
-                // Ignore autoplay errors
-            });
+            sound.play().catch(() => {});
         }
     };
 
@@ -51,12 +60,14 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
 
         if (isMusicPlaying) {
             musicRef.current.pause();
+            setIsMusicPlaying(false);
         } else {
-            musicRef.current.play().catch(() => {
-                console.warn('Audio playback failed - interaction might be required');
+            musicRef.current.play().then(() => {
+                setIsMusicPlaying(true);
+            }).catch(() => {
+                console.warn('Audio playback failed - interaction required');
             });
         }
-        setIsMusicPlaying(!isMusicPlaying);
     };
 
     return (

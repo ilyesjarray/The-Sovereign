@@ -4,8 +4,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const LOGS = [
-    "ENCRYPTING_NODES_Ω",
-    "SYNCING_NEYDRA_PROXIES...",
+    "ENCRYPTING_NODES",
+    "SYNCING_NEURAL_PROXIES...",
     "BYPASSING_TRADITIONAL_PROTOCOLS...",
     "ESTABLISHING_ZULU_RELAY...",
     "NEURAL_LINK_STABILIZED",

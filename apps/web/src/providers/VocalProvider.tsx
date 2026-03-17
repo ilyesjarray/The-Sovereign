@@ -83,7 +83,7 @@ export const VocalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
         const utter = new SpeechSynthesisUtterance(processed);
         utter.pitch = 0.6;       // Very low pitch for robotic authority
-        utter.rate = 0.82;       // Slightly slower than normal — deliberate
+        utter.rate = 0.82;       // Slightly slower than normal - deliberate
         utter.volume = 0.85;
 
         // Wait for voices to load

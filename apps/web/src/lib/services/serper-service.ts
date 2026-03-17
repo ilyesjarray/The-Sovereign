@@ -41,7 +41,7 @@ class SerperService {
     constructor() {
         this.apiKey = process.env.SERPER_API_KEY || '';
         if (!this.apiKey && typeof window === 'undefined') {
-            console.warn('⚠️ SERPER_API_KEY not found. Using fallback data.');
+            console.warn('SYSTEM_WARNING: SERPER_API_KEY not found. Using fallback data.');
         }
     }
 

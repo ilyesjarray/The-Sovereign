@@ -26,7 +26,7 @@ export class TemporalService {
     private getGroq(): Groq {
         if (!this._groq) {
             if (!this.apiKey) {
-                console.warn('⚠️ GROQ_API_KEY not found. Temporal branching will be degraded.');
+                console.warn('SYSTEM_WARNING: GROQ_API_KEY not found. Temporal branching will be degraded.');
             }
             this._groq = new Groq({ apiKey: this.apiKey || 'mock-key' });
         }

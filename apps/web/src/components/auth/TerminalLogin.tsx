@@ -114,7 +114,7 @@ export function TerminalLogin() {
                             {mode === 'LOGIN' ? 'IDENTIFY_SELF' : 'REQUEST_CITIZENSHIP'}
                         </h1>
                         <p className="text-neon-blue/40 text-[9px] tracking-[0.4em] font-mono uppercase">
-                            SOVEREIGN_ACCESS_NODE_ZULU_Ω
+                            SOVEREIGN_ACCESS_NODE_ZULU
                         </p>
                     </div>
 
@@ -122,7 +122,7 @@ export function TerminalLogin() {
                     <form onSubmit={handleAuth} className="space-y-6 relative z-10">
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <label className="text-[8px] font-black uppercase text-neon-blue/40 tracking-[0.3em] ml-1">COMMS_ID_Ω</label>
+                                <label className="text-[8px] font-black uppercase text-neon-blue/40 tracking-[0.3em] ml-1">COMMS_ID</label>
                                 <input
                                     type="email"
                                     required

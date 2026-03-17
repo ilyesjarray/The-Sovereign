@@ -3,14 +3,11 @@ import { createClient } from '@/lib/supabase/client';
 const supabase = createClient();
 
 export async function getTrilingualSummary(text: string, locale: string) {
-    // هنا يمكنك ربط OpenAI أو أي مكتبة ترجمة
-    // حالياً سنقوم بمحاكاة العملية (Mock Logic)
+    // Neural Link intelligent summary simulation
     const summaries = {
         en: "AI Analysis: Market showing strong bullish signals in tech sectors.",
-        ar: "تحليل الذكاء الاصطناعي: يظهر السوق إشارات صعودية قوية في القطاعات التكنولوجية.",
-        fr: "Analyse IA: Le marché affiche de fortress signaux haussiers dans les secteurs tech."
     };
-    return summaries[locale as keyof typeof summaries] || summaries.en;
+    return summaries.en;
 }
 
 export async function saveIntel(userId: string, article: any) {

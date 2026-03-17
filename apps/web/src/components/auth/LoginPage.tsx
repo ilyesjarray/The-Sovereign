@@ -141,7 +141,7 @@ export default function LoginPage() {
         <div
             className="min-h-screen flex overflow-hidden bg-black"
         >
-            {/* ─── Left Brand Panel ─── */}
+            {/* --- Left Brand Panel --- */}
             <motion.div
                 initial={{ opacity: 0, x: -40 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -170,7 +170,7 @@ export default function LoginPage() {
                         <span
                             className="text-sm font-black tracking-[0.4em] uppercase text-neon-blue italic"
                         >
-                            THE_SOVEREIGN_Ω
+                            THE_SOVEREIGN
                         </span>
                     </div>
                 </div>
@@ -220,7 +220,7 @@ export default function LoginPage() {
                 </div>
             </motion.div>
 
-            {/* ─── Right Auth Panel ─── */}
+            {/* --- Right Auth Panel --- */}
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -243,7 +243,7 @@ export default function LoginPage() {
 
                     <AnimatePresence mode="wait">
 
-                        {/* ── Mode: Login ── */}
+                        {/* --- Mode: Login --- */}
                         {mode === 'login' && (
                             <motion.div
                                 key="login"
@@ -311,7 +311,7 @@ export default function LoginPage() {
                             </motion.div>
                         )}
 
-                        {/* ── Mode: Register ── */}
+                        {/* --- Mode: Register --- */}
                         {mode === 'register' && (
                             <motion.div
                                 key="register"
@@ -378,7 +378,7 @@ export default function LoginPage() {
                             </motion.div>
                         )}
 
-                        {/* ── Mode: Choose ── */}
+                        {/* --- Mode: Choose --- */}
                         {mode === 'choose' && (
                             <motion.div
                                 key="choose"
@@ -478,7 +478,7 @@ export default function LoginPage() {
                             </motion.div>
                         )}
 
-                        {/* ── Mode: Magic Link ── */}
+                        {/* --- Mode: Magic Link --- */}
                         {mode === 'magic' && (
                             <motion.div
                                 key="email"
@@ -544,7 +544,7 @@ export default function LoginPage() {
                             </motion.div>
                         )}
 
-                        {/* ── Mode: Link Sent ── */}
+                        {/* --- Mode: Link Sent --- */}
                         {mode === 'sent' && (
                             <motion.div
                                 key="sent"

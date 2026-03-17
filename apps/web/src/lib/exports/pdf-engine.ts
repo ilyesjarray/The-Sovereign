@@ -71,7 +71,7 @@ export async function exportToSovereignPDF({
         pdf.setFontSize(8);
         pdf.setTextColor(212, 175, 55); // neon-blue #00F3FF
         pdf.text(
-            `${watermark} — GENERATED_SYSTEM_LOG_${new Date().getTime()}`,
+            `${watermark} - GENERATED_SYSTEM_LOG_${new Date().getTime()}`,
             pdfWidth / 2,
             pdfHeight - 10,
             { align: 'center' }

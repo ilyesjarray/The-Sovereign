@@ -7,7 +7,10 @@ interface SovereignSplashProps {
     onComplete: () => void;
 }
 
+import { useSound } from '@/providers/SoundProvider';
+
 export function SovereignSplash({ onComplete }: SovereignSplashProps) {
+    const { playClick } = useSound();
     const [state, setState] = useState<'INITIAL' | 'AUTH_FORM' | 'SCANNING' | 'GRANTED' | 'VERIFY_EMAIL' | 'BIOMETRIC'>('INITIAL');
     const [authMode, setAuthMode] = useState<'LOGIN' | 'SIGNUP'>('LOGIN');
     const [progress, setProgress] = useState(0);
@@ -138,7 +141,7 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
                             exit={{ opacity: 0, scale: 0.95 }}
                             className="flex flex-col items-center space-y-12"
                         >
-                            <div className="relative group cursor-pointer" onClick={() => setState('AUTH_FORM')}>
+                            <div className="relative group cursor-pointer" onClick={() => { playClick(); setState('AUTH_FORM'); }}>
                                 <motion.div
                                     animate={{ scale: [1, 1.05, 1], opacity: [0.3, 0.6, 0.3] }}
                                     transition={{ duration: 4, repeat: Infinity }}
@@ -168,14 +171,14 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
 
                             <div className="flex flex-col gap-4 w-full max-w-xs">
                                 <button
-                                    onClick={handleBiometric}
+                                    onClick={() => { playClick(); handleBiometric(); }}
                                     className="group flex items-center justify-center gap-4 px-10 py-5 bg-hyper-cyan text-carbon-black rounded-2xl font-black text-sm tracking-widest transition-all shadow-neon-cyan/40 hover:scale-105 active:scale-95"
                                 >
                                     <Fingerprint className="w-6 h-6" />
                                     <span>BIOMETRIC_ACCESS</span>
                                 </button>
                                 <button
-                                    onClick={() => setState('AUTH_FORM')}
+                                    onClick={() => { playClick(); setState('AUTH_FORM'); }}
                                     className="group flex items-center justify-center gap-4 px-10 py-4 bg-white/5 hover:bg-white/10 text-white/40 hover:text-white border border-white/10 rounded-2xl font-black text-[10px] tracking-widest transition-all"
                                 >
                                     <ShieldCheck className="w-4 h-4" />

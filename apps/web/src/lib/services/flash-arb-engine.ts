@@ -141,7 +141,7 @@ export class FlashArbEngine {
             this.sessionLoss += opp.expectedProfit < 0 ? Math.abs(opp.expectedProfit) : 0;
 
             toast.success(`Arb Executed: ${opp.pair} +$${opp.expectedProfit.toFixed(2)}`, {
-                description: `Exchanges: ${opp.exchanges[0]} → ${opp.exchanges[1]} | TX: 0x${Math.random().toString(16).slice(2, 10)}...`
+                description: `Exchanges: ${opp.exchanges[0]} -> ${opp.exchanges[1]} | TX: 0x${Math.random().toString(16).slice(2, 10)}...`
             });
 
             return trade;

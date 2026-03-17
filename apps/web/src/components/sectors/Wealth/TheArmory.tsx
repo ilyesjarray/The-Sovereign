@@ -265,7 +265,7 @@ export function TheArmory() {
                                 <h2 className="text-3xl font-black text-white italic">
                                     ${portfolioValue > 0 ? portfolioValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '1,284,590.00'}
                                 </h2>
-                                <p className="text-[10px] text-emerald-500 font-black mt-4 uppercase tracking-widest">🛡️ Assets_Under_Sovereign_Control</p>
+                                <p className="text-[10px] text-emerald-500 font-black mt-4 uppercase tracking-widest">Assets_Under_Sovereign_Control</p>
                             </div>
                             <div className="p-8 glass-v-series rounded-[2.5rem] bg-white/[0.02] border border-white/5 relative overflow-hidden group">
                                 <Zap size={80} className="absolute -top-4 -right-4 text-hyper-cyan opacity-5 group-hover:opacity-10 transition-opacity" />

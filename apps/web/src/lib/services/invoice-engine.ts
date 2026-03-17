@@ -1,6 +1,6 @@
 'use client';
 
-export type SupportedLanguage = 'AR' | 'EN' | 'FR';
+export type SupportedLanguage = 'EN';
 
 export interface InvoiceData {
     invoiceId: string;
@@ -20,22 +20,6 @@ const TEMPLATES: Record<SupportedLanguage, any> = {
         totalLabel: 'TOTAL_DUE',
         statusActive: 'DEPOSIT_CONFIRMED',
         descriptionLabel: 'ASSET_DESCRIPTION',
-    },
-    AR: {
-        title: 'فاتورة_سيادية',
-        idLabel: 'رقم_الفاتورة',
-        dateLabel: 'تاريخ_الإصدار',
-        totalLabel: 'المبلغ_الإجمالي',
-        statusActive: 'تم_تأكيد_الإيداع',
-        descriptionLabel: 'وصف_الأصل',
-    },
-    FR: {
-        title: 'FACTURE_SOUVERAINE',
-        idLabel: 'ID_FACTURE',
-        dateLabel: 'DATE_ÉMISSION',
-        totalLabel: 'TOTAL_DUE',
-        statusActive: 'DÉPÔT_CONFIRMÉ',
-        descriptionLabel: 'DESCRIPTION_ACTIF',
     }
 };
 

@@ -7,9 +7,7 @@ import { Globe, Check } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
 const LANGUAGES = [
-  { code: 'en', label: 'English', flag: '🇺🇸' },
-  { code: 'ar', label: 'العربية', flag: '🇸🇦', rtl: true },
-  { code: 'fr', label: 'Français', flag: '🇫🇷' },
+  { code: 'en', label: 'English' },
 ] as const;
 
 export function LanguageSwitcher() {
@@ -63,7 +61,6 @@ export function LanguageSwitcher() {
                 className="w-full flex items-center justify-between gap-4 px-4 py-3 hover:bg-neon-blue/5 transition-all text-left"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-base grayscale hover:grayscale-0 transition-all">{lang.flag}</span>
                   <span className="text-[10px] font-black text-neon-blue/60 uppercase tracking-widest">{lang.label}</span>
                 </div>
                 {locale === lang.code && (

@@ -312,40 +312,28 @@ export function SovereignSettings() {
                             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
                                 <div className="glass-v-series p-8 rounded-3xl border border-white/5 bg-white/[0.01] space-y-6">
                                     <p className="text-white/40 text-xs font-bold uppercase tracking-widest italic leading-relaxed">
-                                        Select the primary linguistic protocol for the V-Series kernel. Changes will re-initialize the UI.
+                                        Linguistic protocol is fixed to English for v-Series kernel operations.
                                     </p>
-                                    <div className="grid grid-cols-2 gap-4 mt-8">
+                                    <div className="grid grid-cols-1 gap-4 mt-8">
                                         {[
-                                            { code: 'en', label: 'ENGLISH', flag: '🇺🇸' },
-                                            { code: 'ar', label: 'ARABIC', flag: '🇸🇦' },
-                                            { code: 'fr', label: 'FRENCH', flag: '🇫🇷' },
-                                            { code: 'zh', label: 'CHINESE', flag: '🇨🇳' },
+                                            { code: 'en', label: 'ENGLISH' },
                                         ].map(lang => (
                                             <button
                                                 key={lang.code}
-                                                onClick={() => {
-                                                    setLanguage(lang.code);
-                                                    setTimeout(() => {
-                                                        window.location.pathname = `/${lang.code}`;
-                                                    }, 300);
-                                                }}
                                                 className={cn(
                                                     "p-6 rounded-2xl border flex items-center justify-between group transition-all",
-                                                    language === lang.code
-                                                        ? "bg-hyper-cyan/10 border-hyper-cyan/30 text-white"
-                                                        : "bg-white/[0.01] border-white/5 text-white/30 hover:bg-white/5 hover:border-white/10"
+                                                    "bg-hyper-cyan/10 border-hyper-cyan/30 text-white"
                                                 )}
                                             >
                                                 <div className="flex items-center gap-3">
-                                                    <span className="text-2xl">{lang.flag}</span>
                                                     <span className="text-[11px] font-black uppercase tracking-widest italic">{lang.label}</span>
                                                 </div>
-                                                {language === lang.code && <div className="w-2 h-2 rounded-full bg-hyper-cyan shadow-neon-cyan animate-pulse" />}
+                                                <div className="w-2 h-2 rounded-full bg-hyper-cyan shadow-neon-cyan animate-pulse" />
                                             </button>
                                         ))}
                                     </div>
                                     <div className="flex items-center gap-3 p-4 bg-hyper-cyan/5 border border-hyper-cyan/10 rounded-2xl">
-                                        <span className="text-[9px] text-hyper-cyan/60 font-black uppercase tracking-widest">Current Locale: {language.toUpperCase()} — Click to switch language instantly</span>
+                                        <span className="text-[9px] text-hyper-cyan/60 font-black uppercase tracking-widest">Current Protocol: ENGLISH — System-wide enforcement active</span>
                                     </div>
                                 </div>
                             </div>

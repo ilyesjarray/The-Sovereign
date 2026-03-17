@@ -31,7 +31,7 @@ export function SovereignVoice() {
         const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
         const recognition = new SpeechRecognition();
 
-        recognition.lang = 'ar-SA'; // Primary support for Arabic as requested
+        recognition.lang = 'en-US'; // English-only project
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
 
@@ -170,11 +170,11 @@ export function SovereignVoice() {
                 <div className="grid grid-cols-2 gap-6 w-full opacity-40">
                     <div className="flex items-center gap-4 p-4 border border-white/5 rounded-2xl">
                         <Zap size={16} className="text-hyper-cyan" />
-                        <span className="text-[8px] font-black uppercase tracking-widest text-white">"إظهار الخزنة"</span>
+                        <span className="text-[8px] font-black uppercase tracking-widest text-white">"OPEN_VAULT"</span>
                     </div>
                     <div className="flex items-center gap-4 p-4 border border-white/5 rounded-2xl">
                         <Radio size={16} className="text-hyper-cyan" />
-                        <span className="text-[8px] font-black uppercase tracking-widest text-white">"تقرير الكشافة"</span>
+                        <span className="text-[8px] font-black uppercase tracking-widest text-white">"SCOUT_REPORT"</span>
                     </div>
                 </div>
 

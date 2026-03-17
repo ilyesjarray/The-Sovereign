@@ -35,34 +35,34 @@ const AI_SERVICES = [
 
 const QUICK_PROMPTS: Record<string, string[]> = {
     executive: [
-        'حلل لي استراتيجية نمو لشركة SaaS',
+        'Analyze a growth strategy for a SaaS company',
         'Analyze my investment portfolio risk',
-        'كيف أبني نظام إنتاجية للمدراء التنفيذيين؟',
+        'How do I build a productivity system for executives?',
         'Best crypto allocation strategy for 2025',
     ],
     academic: [
-        'اشرح لي نظرية الكم بطريقة مبسطة',
+        'Explain quantum theory in simple terms',
         'What caused the fall of the Roman Empire?',
         'Solve: ∫x²sin(x)dx',
-        'كيف يعمل الذكاء الاصطناعي التوليدي؟',
+        'How does generative AI work?',
     ],
     philosophy: [
-        'ما الفرق بين الرواقية والوجودية؟',
+        'What is the difference between Stoicism and Existentialism?',
         'Is free will an illusion?',
-        'كيف أجد هدفي في الحياة؟',
+        'How do I find my purpose in life?',
         'The ethics of AI consciousness',
     ],
     casual: [
-        'اكتب لي قصيدة عن القوة',
+        'Write a poem about power',
         'Recommend a productivity routine',
-        'ترجم هذا إلى الإنجليزية احترافيا',
-        'كيف أتعامل مع الضغط النفسي؟',
+        'Translate this professional text into English',
+        'How do I manage psychological pressure?',
     ],
     code: [
         'Write a React custom hook for auth',
         'Explain async/await vs Promises',
         'Design a scalable database schema',
-        'أكتب API REST بـ Python FastAPI',
+        'Write a REST API in Python FastAPI',
     ],
 };
 
@@ -70,7 +70,7 @@ export function NeuralOracle() {
     const [messages, setMessages] = useState<Message[]>([
         {
             role: 'assistant',
-            content: '⚡ **SOVEREIGN ORACLE — ONLINE**\n\nأنا Oracle، نظام ذكاء اصطناعي إمبراطوري مدعوم بـ **Llama-3.3-70B** (70 مليار معامل، الأقوى مفتوح المصدر).\n\nأتحدث في **أي موضوع** بأي لغة:\n• 📊 الأعمال والاستثمار والتشفير\n• 🎓 العلوم والبحث والرياضيات\n• 💻 البرمجة وهندسة البرمجيات\n• 🧠 الفلسفة وعلم النفس\n• ✍️ الكتابة الإبداعية والترجمة\n• 🌍 أي موضوع آخر بلا قيود\n\nاختر المود المناسب ووجّه أوامرك.',
+            content: '**THE SOVEREIGN ORACLE — ONLINE**\n\nI am Oracle, an imperial AI system powered by **Llama-3.3-70B** (70 billion parameters, state-of-the-art intelligence).\n\nI am capable of addressing **any complex vector** in English:\n• Business, Investment, & Finance\n• Science, Research, & Mathematics\n• Programming & Software Architecture\n• Philosophy & Psychology\n• Strategic Writing & Synthesis\n• General Intelligence without restriction\n\nSelect your protocol and issue your commands.',
             timestamp: new Date()
         }
     ]);
@@ -167,7 +167,7 @@ export function NeuralOracle() {
     const clearChat = () => {
         setMessages([{
             role: 'assistant',
-            content: '🔄 **ORACLE RESET** — محادثة جديدة. ما الذي يريده القائد؟',
+            content: 'ORACLE RESET — Initializing new session. What are the Commander\'s objectives?',
             timestamp: new Date()
         }]);
     };
@@ -492,7 +492,7 @@ export function NeuralOracle() {
                             <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">No Content Limits</span>
                         </div>
                     </div>
-                    <span className="text-[8px] font-mono text-white/10">Llama3.3-70B • 70B params</span>
+                    <span className="text-[8px] font-mono text-white/10">Llama3.3-70B | 70B params</span>
                 </div>
             </div>
         </div>

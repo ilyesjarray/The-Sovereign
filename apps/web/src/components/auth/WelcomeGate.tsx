@@ -98,7 +98,7 @@ export function WelcomeGate({ onInitialize }: WelcomeGateProps) {
                     <div className="w-1 h-1 bg-neon-blue animate-pulse" />
                     <span>PROTOCOL_v4.2.0</span>
                 </div>
-                <span>SYSTEM_READY_Ω</span>
+                <span>SYSTEM_READY</span>
             </motion.div>
         </div>
     );

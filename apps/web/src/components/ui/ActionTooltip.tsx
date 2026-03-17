@@ -27,7 +27,7 @@ export function ActionTooltip({ children, content }: ActionTooltipProps) {
                         className="absolute z-[100] px-3 py-1.5 mb-2 bottom-full left-1/2 -translate-x-1/2 bg-black border border-neon-blue/40 text-[10px] text-neon-blue font-mono uppercase tracking-[0.3em] italic whitespace-nowrap pointer-events-none shadow-glow-gold"
                     >
                         <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-black border-r border-b border-neon-blue/40 rotate-45" />
-                        {content}_Ω
+                        {content}
                     </motion.div>
                 )}
             </AnimatePresence>

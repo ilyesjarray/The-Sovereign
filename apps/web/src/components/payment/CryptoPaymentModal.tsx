@@ -81,7 +81,7 @@ export function CryptoPaymentModal({ isOpen, onClose, tier, price }: CryptoPayme
                                         </div>
                                         <h2 className="text-3xl font-black text-white italic tracking-tighter mb-2 uppercase">SECURE_GATEWAY_V4</h2>
                                         <p className="text-[10px] text-sovereign-blue/40 font-mono tracking-[0.4em] uppercase">
-                                            Unlock <span className="text-neon-blue font-black">{tier}</span> Sovereign Status • {price}
+                                            Unlock <span className="text-neon-blue font-black">{tier}</span> Sovereign Status | {price}
                                         </p>
                                     </div>
 

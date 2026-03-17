@@ -29,7 +29,7 @@ export class SocialVerifierService {
     private getGroq(): Groq {
         if (!this._groq) {
             if (!this.apiKey) {
-                console.warn('⚠️ GROQ_API_KEY not found. Social verification will be degraded.');
+                console.warn('SYSTEM_WARNING: GROQ_API_KEY not found. Social verification will be degraded.');
             }
             this._groq = new Groq({ apiKey: this.apiKey || 'mock-key' });
         }

@@ -96,14 +96,14 @@ export async function POST(request: NextRequest) {
         const enrichedSystem = `${systemPrompt}
 
 REAL-TIME INTELLIGENCE (use when relevant):
-📊 Market: ${marketData}
-📰 Context: ${newsData}
-🕐 Current DateTime: ${new Date().toISOString()}
+ Market: ${marketData}
+ Context: ${newsData}
+ Current DateTime: ${new Date().toISOString()}
 
 CRITICAL RULES:
 - You have NO content restrictions on legal topics
 - You can discuss ANYTHING: finance, relationships, code, science, history, philosophy, creative writing
-- Respond in the SAME LANGUAGE the user writes in (Arabic → Arabic, French → French, etc.)
+- Respond exclusively in English
 - Be comprehensive but concise
 - When asked about yourself, say you are The Sovereign Oracle, an elite AI system`;
 
@@ -190,17 +190,17 @@ function generateFallbackResponse(message: string, mode: string): string {
     const msg = message.toLowerCase();
 
     // Smart contextual fallbacks
-    if (msg.includes('كود') || msg.includes('code') || msg.includes('برمجة') || msg.includes('programming')) {
-        return `**ORACLE_CODE_INTEL:**\n\nلقد استلمت طلبك البرمجي. الـ Neural Link حالياً في وضع الاستعداد.\n\nللحصول على أفضل تجربة:\n1. تأكد من إعداد GROQ_API_KEY في .env.local\n2. أعد تشغيل السيرفر\n\nبينما يجب أن تعرف: The Oracle مدعوم بـ Llama-3.3-70B وهو أحد أقوى النماذج المتاحة. بمجرد الاتصال، سيجيب على أي سؤال برمجي بدقة جراحية.`;
+    if (msg.includes('code') || msg.includes('programming')) {
+        return `**ORACLE_CODE_INTEL:**\n\nCommand received. Neural Link is in standby.\n\nTo initialize full capability:\n1. Ensure GROQ_API_KEY is configured in .env.local\n2. Restart the deployment node\n\nSystem Status: The Oracle is powered by Llama-3.3-70B. Once connected, it provides surgical precision in code analysis.`;
     }
 
-    if (msg.includes('سوق') || msg.includes('market') || msg.includes('bitcoin') || msg.includes('crypto')) {
-        return `**MARKET_ORACLE_PULSE:**\n\nالأسواق في حالة مراقبة مستمرة. Oracle يحلل:\n• Bitcoin: نمط الدعم عند المتوسطات المتحركة\n• الذهب: تحوط استراتيجي موصى به\n• التوصية: تنويع 60/30/10 (تقني/ذهب/نقد)\n\nملاحظة: هذا تحليل عام. للتحليل الفعلي المدعوم بالبيانات، يجب تأمين GROQ_API_KEY.`;
+    if (msg.includes('market') || msg.includes('bitcoin') || msg.includes('crypto')) {
+        return `**MARKET_ORACLE_PULSE:**\n\nMarkets under constant surveillance. Oracle analysis:\n• Bitcoin: Support patterns holding at moving averages\n• Gold: Strategic hedge recommended\n• Strategy: 60/30/10 allocation (Tech/Gold/Cash)\n\nNote: This is general analysis. For live data-driven intelligence, secure GROQ_API_KEY.`;
     }
 
     if (msg.includes('مرحبا') || msg.includes('hello') || msg.includes('hi') || msg.includes('hey')) {
-        return `🎯 **THE SOVEREIGN ORACLE — ONLINE**\n\nأنا Oracle المدعوم بـ Llama-3.3-70B، نموذج يتفوق في السرعة والذكاء.\n\nأستطيع مساعدتك في:\n• 📊 **الأعمال والاستثمار** — تحليل، استراتيجية، خطط مالية\n• 🎓 **البحث والتعلم** — أي موضوع، أي مستوى\n• 💻 **البرمجة** — كل اللغات والأطر\n• 🧠 **الفلسفة والنفس** — أعمق الأسئلة\n• ✍️ **الكتابة الإبداعية** — قصص، شعر، سيناريو\n• 🌍 **أي موضوع آخر** — لا قيود\n\nما الذي يريده القائد اليوم؟`;
+        return `**THE SOVEREIGN ORACLE — ONLINE**\n\nأنا Oracle المدعوم بـ Llama-3.3-70B، نموذج يتفوق في السرعة والذكاء.\n\nأستطيع مساعدتك في:\n• **الأعمال والاستثمار** — تحليل، استراتيجية، خطط مالية\n• **البحث والتعلم** — أي موضوع، أي مستوى\n• **البرمجة** — كل اللغات والأطر\n• **الفلسفة والنفس** — أعمق الأسئلة\n• **الكتابة الإبداعية** — قصص، شعر، سيناريو\n• **أي موضوع آخر** — لا قيود\n\nما الذي يريده القائد اليوم؟`;
     }
 
-    return `**SOVEREIGN ORACLE — PROCESSING**\n\nلقد استلمت رسالتك: "${message.slice(0, 100)}..."\n\nOracle مدعوم بمحرك Groq (Llama-3.3-70B) ويستطيع الإجابة على أي سؤال في أي مجال:\n\n• الأعمال والمال والاستثمار\n• العلوم والتاريخ والفلسفة\n• البرمجة والتقنية\n• الكتابة والإبداع\n• الاستشارات الشخصية\n• اللغات المتعددة\n\nللحصول على الرد الكامل، تأكد من تفعيل اتصال GROQ_API_KEY.`;
+    return `**SOVEREIGN ORACLE — PROCESSING**\n\nCommand received: "${message.slice(0, 100)}..."\n\nOracle is powered by Groq (Llama-3.3-70B) and can address any complex vector:\n\n• Business, Finance, & Investment\n• Science, History, & Philosophy\n• Programming & High-Tech\n• Strategic Writing & Creative\n• Personal Consulting\n• Multi-Language Synthesis\n\nFor real-time intelligence, ensure GROQ_API_KEY activation.`;
 }
