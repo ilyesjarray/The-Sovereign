@@ -8,10 +8,12 @@ interface SovereignSplashProps {
 }
 
 import { useSound } from '@/providers/SoundProvider';
+import { usePWA } from '@/hooks/usePWA';
 
 export function SovereignSplash({ onComplete }: SovereignSplashProps) {
     const { playClick } = useSound();
-    const [state, setState] = useState<'INITIAL' | 'AUTH_FORM' | 'SCANNING' | 'GRANTED' | 'VERIFY_EMAIL' | 'BIOMETRIC'>('INITIAL');
+    const { isInstallable, install } = usePWA();
+    const [state, setState] = useState<'WARMUP' | 'INITIAL' | 'AUTH_FORM' | 'SCANNING' | 'GRANTED' | 'VERIFY_EMAIL' | 'BIOMETRIC'>('WARMUP');
     const [authMode, setAuthMode] = useState<'LOGIN' | 'SIGNUP'>('LOGIN');
     const [progress, setProgress] = useState(0);
     const [email, setEmail] = useState('');
@@ -22,13 +24,23 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
     const supabase = createClient();
 
     useEffect(() => {
+        // 3-Second Mandatory Warmup
+        if (state === 'WARMUP') {
+            const timer = setTimeout(() => {
+                setState('INITIAL');
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+
         // Check for existing session
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            if (session) {
-                setState('GRANTED');
-            }
-        });
-    }, []);
+        if (state === 'INITIAL') {
+            supabase.auth.getSession().then(({ data: { session } }) => {
+                if (session) {
+                    setState('GRANTED');
+                }
+            });
+        }
+    }, [state]);
 
     useEffect(() => {
         if (state === 'SCANNING') {
@@ -133,6 +145,26 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
 
             <div className="relative z-10 flex flex-col items-center max-w-xl w-full px-6 text-center">
                 <AnimatePresence mode="wait">
+                    {state === 'WARMUP' && (
+                        <motion.div
+                            key="warmup"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="flex flex-col items-center space-y-8"
+                        >
+                            <div className="w-16 h-16 border-b-2 border-hyper-cyan rounded-full animate-spin" />
+                            <div className="space-y-2">
+                                <p className="text-[10px] font-black text-hyper-cyan tracking-[0.8em] uppercase animate-pulse">
+                                    System_Warmup_Active
+                                </p>
+                                <p className="text-white/20 text-[8px] uppercase tracking-widest font-mono">
+                                    Stabilizing neural vectors...
+                                </p>
+                            </div>
+                        </motion.div>
+                    )}
+
                     {state === 'INITIAL' && (
                         <motion.div
                             key="initial"
@@ -184,6 +216,16 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
                                     <ShieldCheck className="w-4 h-4" />
                                     <span>STANDARD_UPLINK</span>
                                 </button>
+                                
+                                {isInstallable && (
+                                    <button
+                                        onClick={() => { playClick(); install(); }}
+                                        className="group flex items-center justify-center gap-4 px-10 py-4 bg-white/5 hover:bg-white/10 text-hyper-cyan border border-hyper-cyan/20 rounded-2xl font-black text-[10px] tracking-widest transition-all mt-4"
+                                    >
+                                        <Chrome className="w-4 h-4" />
+                                        <span>DOWNLOAD_SOVEREIGN</span>
+                                    </button>
+                                )}
                             </div>
                         </motion.div>
                     )}

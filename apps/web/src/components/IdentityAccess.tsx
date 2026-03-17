@@ -32,11 +32,11 @@ export function IdentityAccess({ onSectorChange }: IdentityAccessProps) {
             if (session?.user?.email) {
                 setUserEmail(session.user.email);
 
-                // Fetch Profile for Tier
+                // Fetch Profile for Tier - Simplified Neydra Pattern
                 const { data: profile } = await supabase
                     .from('profiles')
                     .select('tier')
-                    .eq('id', session.user.id)
+                    .eq('email', session.user.email)
                     .single();
 
                 if (profile) setUserTier(profile.tier);

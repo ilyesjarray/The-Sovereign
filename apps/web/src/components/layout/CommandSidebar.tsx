@@ -8,9 +8,9 @@ import {
     Globe, Target, Clock, Hammer, BookOpen,
     Coins, Activity, Database, Shield, Zap,
     LayoutGrid, Users, Scale, Server, Settings,
-    LogOut, ChevronRight, Menu, Sparkles, Fingerprint, Download
+    LogOut, ChevronRight, Menu, Sparkles, Fingerprint
 } from 'lucide-react';
-import { usePWA } from '@/hooks/usePWA';
+import { useSound } from '@/providers/SoundProvider';
 
 const CATEGORIES = [
     {
@@ -46,10 +46,10 @@ const CATEGORIES = [
     }
 ];
 
-export function CommandSidebar() {
+export default function CommandSidebar() {
     const pathname = usePathname();
+    const { playClick } = useSound();
     const [collapsed, setCollapsed] = React.useState(false);
-    const { isInstallable, install } = usePWA();
 
     return (
         <motion.aside
@@ -155,26 +155,6 @@ export function CommandSidebar() {
                     </div>
                 ))}
             </div>
-
-            {/* PWA Download Action */}
-            <AnimatePresence>
-                {isInstallable && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 20 }}
-                        className="px-8 mb-6"
-                    >
-                        <button
-                            onClick={install}
-                            className="w-full py-4 bg-hyper-cyan text-carbon-black rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] flex items-center justify-center gap-3 shadow-neon-cyan hover:shadow-[0_0_25px_rgba(0,240,255,0.4)] transition-all"
-                        >
-                            <Download size={14} />
-                            {!collapsed && "Download_Sovereign"}
-                        </button>
-                    </motion.div>
-                )}
-            </AnimatePresence>
 
             {/* User Bar */}
             <div className="p-10 border-t border-white/5 relative z-10 bg-black/20">

@@ -8,32 +8,47 @@ import { createClient } from '@/lib/supabase/client';
 
 const TIERS = [
     {
-        id: 'SOVEREIGN',
-        name: 'SOVEREIGN_RANK',
-        price: '29',
-        priceId: 'https://sovereign.lemonsqueezy.com/buy/sovereign', // Example
+        id: 'STANDARD',
+        name: 'STANDARD_SUITE',
+        price: '25',
+        priceId: 'https://nowpayments.io/payment/?iid=4458788659',
         icon: Zap,
         color: 'text-hyper-cyan',
         features: [
-            'Neural Oracle V3.5 Access',
+            'Basic Neural Oracle Access',
             'Sovereign Credits (Level 1)',
-            'Unlimited Community Search',
-            'Executive Mission Access-Z'
+            'Standard Sector Access',
+            'Weekly Intelligence Reports'
         ]
     },
     {
-        id: 'ELITE',
-        name: 'ELITE_PROTOCOL',
+        id: 'PREMIUM',
+        name: 'PREMIUM_PROTOCOL',
+        price: '55',
+        priceId: 'https://nowpayments.io/payment/?iid=5180468463',
+        icon: Shield,
+        color: 'text-hyper-cyan',
+        features: [
+            'Advanced Neural Oracle Access',
+            'Whale Alert Network (Real-time)',
+            'Premium Intelligence Feeds',
+            'Quantum Encryption Vault (1GB)',
+            'Priority Support Uplink'
+        ]
+    },
+    {
+        id: 'ULTRA',
+        name: 'ULTRA_OVERLORD',
         price: '99',
-        priceId: 'https://sovereign.lemonsqueezy.com/buy/elite', // Example
+        priceId: 'https://nowpayments.io/payment/?iid=6375314481',
         icon: Crown,
         color: 'text-amber-400',
         features: [
-            'Full Qwen 3.5 Turbo Access',
-            'Whale Alert Network (Real-time)',
-            'Elite High Council Access',
-            'Quantum Encryption Vault (1TB)',
-            'Priority Support Uplink'
+            'Full Llama 3.3 Overlord Access',
+            'Institutional Grade Data Streams',
+            'Elite High Council Membership',
+            'Quantum Encryption Vault (Unlimited)',
+            'Sovereign Intelligence Proxy'
         ]
     }
 ];
@@ -45,11 +60,11 @@ export function SovereignBilling() {
     useEffect(() => {
         const fetchTier = async () => {
             const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
+            if (session?.user?.email) {
                 const { data: profile } = await supabase
                     .from('profiles')
                     .select('tier')
-                    .eq('id', session.user.id)
+                    .eq('email', session.user.email)
                     .single();
                 if (profile) setCurrentTier(profile.tier);
             }
@@ -86,7 +101,7 @@ export function SovereignBilling() {
                 </div>
 
                 {/* Tiers Grid */}
-                <div className="grid lg:grid-cols-2 gap-10">
+                <div className="grid md:grid-cols-3 gap-10">
                     {TIERS.map((tier, i) => (
                         <motion.div
                             key={tier.id}
@@ -108,8 +123,8 @@ export function SovereignBilling() {
 
                             <div className="relative z-10 flex flex-col h-full">
                                 <div className="flex justify-between items-start mb-10">
-                                    <div className={cn("p-5 rounded-2xl bg-white/5 border border-white/5", tier.color)}>
-                                        <tier.icon size={28} />
+                                    <div className={cn("p-5 rounded-2xl bg-white/5 border border-white/5")}>
+                                        <tier.icon size={28} className={tier.color} />
                                     </div>
                                     <div className="text-right">
                                         <span className="text-4xl font-black text-white italic tracking-tighter">${tier.price}</span>

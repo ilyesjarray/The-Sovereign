@@ -12,7 +12,9 @@ export function TerminalLogin() {
     const [isAuthenticating, setIsAuthenticating] = useState(false);
     const [mode, setMode] = useState<'LOGIN' | 'REGISTER'>('LOGIN');
     const [email, setEmail] = useState('');
+    const [fullName, setFullName] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const router = useRouter();
     const supabase = createClient();
 
@@ -42,12 +44,31 @@ export function TerminalLogin() {
         try {
             if (mode === 'LOGIN') {
                 const { error } = await supabase.auth.signInWithPassword({ email, password });
-                if (error) throw error;
+                if (error) {
+                    if (error.message.includes("Email not confirmed")) {
+                        throw new Error("SEC_LEVEL_LOW: Email not verified. Please check your inbox for the confirmation link.");
+                    }
+                    throw error;
+                }
                 toast.success('ACCESS_GRANTED', { description: 'Welcome back, Commander.' });
             } else {
-                const { error } = await supabase.auth.signUp({ email, password });
+                if (password !== confirmPassword) {
+                    throw new Error("VALIDATION_ERROR: Passwords do not match.");
+                }
+                const { error } = await supabase.auth.signUp({ 
+                    email, 
+                    password,
+                    options: {
+                        data: { full_name: fullName },
+                        emailRedirectTo: `${window.location.origin}/auth/callback`
+                    }
+                });
                 if (error) throw error;
-                toast.success('CITIZENSHIP_RECORDED', { description: 'Check your comms (email) for verification.' });
+                toast.success('CITIZENSHIP_RECORDED', { 
+                    description: 'REGISTRATION_SUCCESSFUL. We have sent a confirmation link to your email. Please verify to activate terminal access.',
+                    duration: 10000 
+                });
+                setMode('LOGIN'); // Switch to login after registration
             }
 
             if (mode === 'LOGIN') {
@@ -121,6 +142,28 @@ export function TerminalLogin() {
                     {/* Main Form */}
                     <form onSubmit={handleAuth} className="space-y-6 relative z-10">
                         <div className="space-y-4">
+                            <AnimatePresence>
+                                {mode === 'REGISTER' && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="space-y-4"
+                                    >
+                                        <div className="space-y-2">
+                                            <label className="text-[8px] font-black uppercase text-neon-blue/40 tracking-[0.3em] ml-1">LEGAL_NAME</label>
+                                            <input
+                                                type="text"
+                                                required
+                                                value={fullName}
+                                                onChange={(e) => setFullName(e.target.value)}
+                                                placeholder="COMMANDER_NAME"
+                                                className="w-full bg-black border border-neon-blue/20 p-4 text-[10px] font-mono text-neon-blue uppercase tracking-wider focus:outline-none focus:border-neon-blue transition-all"
+                                            />
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                             <div className="space-y-2">
                                 <label className="text-[8px] font-black uppercase text-neon-blue/40 tracking-[0.3em] ml-1">COMMS_ID</label>
                                 <input
@@ -143,6 +186,26 @@ export function TerminalLogin() {
                                     className="w-full bg-black border border-neon-blue/20 p-4 text-[10px] font-mono text-neon-blue uppercase tracking-wider focus:outline-none focus:border-neon-blue transition-all"
                                 />
                             </div>
+                            <AnimatePresence>
+                                {mode === 'REGISTER' && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="space-y-2"
+                                    >
+                                        <label className="text-[8px] font-black uppercase text-neon-blue/40 tracking-[0.3em] ml-1">VERIFY_PHRASE</label>
+                                        <input
+                                            type="password"
+                                            required
+                                            value={confirmPassword}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            placeholder="REPEAT_KEY..."
+                                            className="w-full bg-black border border-neon-blue/20 p-4 text-[10px] font-mono text-neon-blue uppercase tracking-wider focus:outline-none focus:border-neon-blue transition-all"
+                                        />
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </div>
 
                         <button

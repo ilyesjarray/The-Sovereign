@@ -18,6 +18,7 @@ type Mode = 'login' | 'register' | 'choose' | 'magic' | 'sent';
 export default function LoginPage() {
     const [mode, setMode] = useState<Mode>('choose');
     const [email, setEmail] = useState('');
+    const [fullName, setFullName] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -48,7 +49,10 @@ export default function LoginPage() {
         const { error } = await supabase.auth.signUp({
             email: email.trim(),
             password,
-            options: { emailRedirectTo: `${window.location.origin}/auth/callback` }
+            options: { 
+                data: { full_name: fullName },
+                emailRedirectTo: `${window.location.origin}/auth/callback` 
+            }
         });
         setLoading(false);
         if (error) {
@@ -332,6 +336,18 @@ export default function LoginPage() {
 
                                 <form onSubmit={handleEmailRegister} className="space-y-4">
                                     <div>
+                                        <label className="sovereign-label">Full Name</label>
+                                        <input
+                                            type="text"
+                                            className="sovereign-input"
+                                            placeholder="Commander Name"
+                                            value={fullName}
+                                            onChange={e => setFullName(e.target.value)}
+                                            required
+                                            autoFocus
+                                        />
+                                    </div>
+                                    <div>
                                         <label className="sovereign-label">Email Address</label>
                                         <input
                                             type="email"
@@ -340,7 +356,6 @@ export default function LoginPage() {
                                             value={email}
                                             onChange={e => setEmail(e.target.value)}
                                             required
-                                            autoFocus
                                         />
                                     </div>
                                     <div>

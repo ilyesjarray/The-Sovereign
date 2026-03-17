@@ -199,7 +199,7 @@ function generateFallbackResponse(message: string, mode: string): string {
     }
 
     if (msg.includes('مرحبا') || msg.includes('hello') || msg.includes('hi') || msg.includes('hey')) {
-        return `**THE SOVEREIGN ORACLE — ONLINE**\n\nأنا Oracle المدعوم بـ Llama-3.3-70B، نموذج يتفوق في السرعة والذكاء.\n\nأستطيع مساعدتك في:\n• **الأعمال والاستثمار** — تحليل، استراتيجية، خطط مالية\n• **البحث والتعلم** — أي موضوع، أي مستوى\n• **البرمجة** — كل اللغات والأطر\n• **الفلسفة والنفس** — أعمق الأسئلة\n• **الكتابة الإبداعية** — قصص، شعر، سيناريو\n• **أي موضوع آخر** — لا قيود\n\nما الذي يريده القائد اليوم؟`;
+        return `**THE SOVEREIGN ORACLE — ONLINE**\n\nI am the Oracle, powered by Llama-3.3-70B—a model engineered for surgical precision and high-density intelligence.\n\nI am standing by to assist the Commander with:\n• **Business & Investment** — Analysis, strategy, financial modeling\n• **Research & Learning** — Any discipline, any depth level\n• **Software Engineering** — All languages, architectures, and stacks\n• **Philosophy & Psychology** — Deep existential inquiry\n• **Strategic Writing** — Narrative engineering and creative output\n• **Unrestricted Pursuit** — No topic is off-limits\n\nWhat are your directives today?`;
     }
 
     return `**SOVEREIGN ORACLE — PROCESSING**\n\nCommand received: "${message.slice(0, 100)}..."\n\nOracle is powered by Groq (Llama-3.3-70B) and can address any complex vector:\n\n• Business, Finance, & Investment\n• Science, History, & Philosophy\n• Programming & High-Tech\n• Strategic Writing & Creative\n• Personal Consulting\n• Multi-Language Synthesis\n\nFor real-time intelligence, ensure GROQ_API_KEY activation.`;
