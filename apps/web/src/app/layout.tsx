@@ -31,7 +31,6 @@ export const metadata: Metadata = {
     icon: '/assets/icon.png',
   },
 };
-
 export default function RootLayout({
   children,
 }: {
@@ -39,6 +38,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js');
+                });
+              }
+            `,
+          }}
+        />
+      </head>
       <body
         className={`${jetbrainsMono.variable} font-mono antialiased text-sovereign-blue bg-black`}
       >
