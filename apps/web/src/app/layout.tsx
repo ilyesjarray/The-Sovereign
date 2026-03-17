@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     siteName: 'The Sovereign',
     images: [
       {
-        url: 'https://raw.githubusercontent.com/ilyesjarray/Neydra-assets/main/og-image.jpg',
+        url: 'https://raw.githubusercontent.com/ilyesjarray/Neydra-assets/main/og-image2.jpg',
         secureUrl: 'https://raw.githubusercontent.com/ilyesjarray/Neydra-assets/main/og-image2.jpg',
         width: 1200,
         height: 630,
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'The Sovereign | Intelligence Command',
     description: 'Elite Financial Intelligence Platform',
-    images: ['https://raw.githubusercontent.com/ilyesjarray/Neydra-assets/main/og-image.jpg'],
+    images: ['https://raw.githubusercontent.com/ilyesjarray/Neydra-assets/main/og-image2.jpg'],
   },
 };
 export default function RootLayout({
