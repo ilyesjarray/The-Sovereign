@@ -4,7 +4,8 @@
  */
 
 import { getSerperService } from './serper-service';
-import { UserTier } from './subscription-service';
+
+export type UserTier = 'CITIZEN' | 'PREMIUM' | 'ULTRA' | 'ELITE';
 
 export interface AIResponse {
     content: string;

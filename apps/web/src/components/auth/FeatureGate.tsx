@@ -3,10 +3,11 @@
 
 import { ReactNode, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, Sparkles, ChevronRight, ShieldCheck } from 'lucide-react';
-import { SubscriptionService, UserTier } from '@/lib/services/subscription-service';
+import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 import { Link } from '@/i18n/navigation';
+
+export type UserTier = 'CITIZEN' | 'PREMIUM' | 'ULTRA' | 'GUEST';
 
 interface FeatureGateProps {
     children: ReactNode;
@@ -15,22 +16,43 @@ interface FeatureGateProps {
     fallback?: ReactNode;
 }
 
-const subService = SubscriptionService.getInstance();
+// Simplified Access Mapping (Neydra Style)
+const tierAccess: Record<UserTier, string[]> = {
+    'ULTRA': ['ALL'],
+    'PREMIUM': ['NEURAL_ORACLE_ADVANCED', 'WHALE_ALERTS', 'PREMIUM_FEEDS', 'QUANTUM_VAULT'],
+    'CITIZEN': ['NEURAL_ORACLE_BASIC', 'SOVEREIGN_CREDITS', 'SECTOR_ACCESS'],
+    'GUEST': []
+};
+
+function canAccess(feature: string, tier: UserTier): boolean {
+    if (tier === 'ULTRA') return true;
+    const allowed = tierAccess[tier] || [];
+    return allowed.includes('ALL') || allowed.includes(feature);
+}
 
 export function FeatureGate({ children, feature, className, fallback }: FeatureGateProps): any {
     const [tier, setTier] = useState<UserTier>('GUEST');
     const [isLoading, setIsLoading] = useState(true);
+    const supabase = createClient();
 
     useEffect(() => {
         const fetchTier = async () => {
-            const sub = await subService.getUserSubscription('current_user');
-            if (sub) setTier(sub.tier);
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user?.email) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('tier')
+                    .eq('email', session.user.email)
+                    .single();
+                
+                if (profile) setTier(profile.tier as UserTier);
+            }
             setIsLoading(false);
         };
         fetchTier();
     }, []);
 
-    const hasAccess = subService.canAccess(feature, tier);
+    const hasAccess = canAccess(feature, tier);
 
     if (isLoading) {
         return <div className="animate-pulse bg-white/5 rounded-xl h-48 w-full" />;
