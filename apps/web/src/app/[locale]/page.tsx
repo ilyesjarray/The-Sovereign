@@ -208,7 +208,7 @@ function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean,
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1 }}
-            className="min-h-screen bg-carbon-black text-hyper-cyan font-sans relative flex flex-col p-6 selection:bg-hyper-cyan/20 selection:text-white"
+            className="min-h-screen bg-carbon-black text-hyper-cyan font-sans relative flex flex-col p-6 landscape-optimized-p selection:bg-hyper-cyan/20 selection:text-white"
         >
 
             {/* Scanline Effect */}
@@ -245,7 +245,7 @@ function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean,
             </AnimatePresence>
 
             {/* OS Header */}
-            <header className="flex justify-between items-center h-20 px-8 relative z-20 glass-v-series rounded-2xl mb-8 border border-white/5 bg-white/[0.01]">
+            <header className="flex justify-between items-center h-20 px-8 relative z-20 glass-v-series rounded-2xl mb-8 border border-white/5 bg-white/[0.01] landscape-optimized-header">
                 <div className="flex items-center gap-6">
                     <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 group cursor-pointer overflow-hidden relative" onClick={playClick}>
                         <div className="absolute inset-0 bg-amber-500/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
@@ -277,9 +277,9 @@ function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean,
                 </div>
             </header>
 
-            <div className="flex-1 flex gap-8 min-h-0 relative z-10">
+            <div className="flex-1 flex gap-8 min-h-0 relative z-10 landscape-optimized-gap">
                 {/* Sector Navigation */}
-                <aside className="w-24 md:w-80 flex flex-col gap-6">
+                <aside className="w-24 md:w-80 flex flex-col gap-6 landscape-optimized-sidebar landscape-optimized-gap">
                     <div className="glass-v-series rounded-3xl p-6 flex flex-col gap-4 border border-white/5 bg-white/[0.01] flex-1 overflow-hidden">
                         <div className="flex flex-col gap-4 px-2">
                             <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] font-mono">Sovereign_Sectors</span>
@@ -379,7 +379,7 @@ function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean,
             </div>
 
             {/* Global Status Footer */}
-            <footer className="h-16 mt-8 px-10 glass-v-series rounded-2xl flex justify-between items-center border border-white/5 opacity-50 text-white/40">
+            <footer className="h-16 mt-8 px-10 glass-v-series rounded-2xl flex justify-between items-center border border-white/5 opacity-50 text-white/40 landscape-optimized-footer">
                 <div className="flex items-center gap-10 text-[9px] font-black tracking-[0.5em] uppercase font-mono italic">
                     <div className="flex items-center gap-3">
                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />

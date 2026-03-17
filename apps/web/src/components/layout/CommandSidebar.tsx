@@ -55,12 +55,12 @@ export function CommandSidebar() {
         <motion.aside
             initial={false}
             animate={{ width: collapsed ? 100 : 340 }}
-            className="h-screen bg-carbon-black border-r border-white/5 flex flex-col relative z-50 overflow-hidden shadow-2xl"
+            className="h-screen bg-carbon-black border-r border-white/5 flex flex-col relative z-50 overflow-hidden shadow-2xl landscape-optimized-sidebar"
         >
             <div className="absolute inset-0 bg-gradient-to-b from-hyper-cyan/[0.02] to-transparent pointer-events-none" />
 
             {/* Sidebar Header */}
-            <div className="p-10 flex items-center justify-between relative z-10">
+            <div className="p-10 flex items-center justify-between relative z-10 landscape-optimized-header">
                 {!collapsed && (
                     <motion.div
                         initial={{ opacity: 0, x: -10 }}
@@ -90,7 +90,7 @@ export function CommandSidebar() {
             </div>
 
             {/* Navigation Groups */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar px-8 space-y-12 py-6 relative z-10">
+            <div className="flex-1 overflow-y-auto custom-scrollbar px-8 space-y-12 py-6 relative z-10 landscape-optimized-gap">
                 {CATEGORIES.map((cat) => (
                     <div key={cat.id} className="space-y-6">
                         {!collapsed && (
