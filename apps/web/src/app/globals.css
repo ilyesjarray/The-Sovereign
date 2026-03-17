@@ -82,12 +82,28 @@
   }
 
   /* Hide scrollbars globally but keep functionality */
-  * {
+  body {
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
-  *::-webkit-scrollbar {
+  body::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Specific internal scrollbars can be visible if requested, but default to hidden */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--sovereign-accent) transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar {
+    display: block !important;
+    width: 3px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--sovereign-accent);
+    border-radius: 10px;
   }
 }
 

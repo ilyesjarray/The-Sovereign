@@ -208,7 +208,7 @@ function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean,
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1 }}
-            className="min-h-screen bg-carbon-black text-hyper-cyan font-sans relative overflow-hidden flex flex-col p-6 selection:bg-hyper-cyan/20 selection:text-white"
+            className="min-h-screen bg-carbon-black text-hyper-cyan font-sans relative flex flex-col p-6 selection:bg-hyper-cyan/20 selection:text-white"
         >
 
             {/* Scanline Effect */}
