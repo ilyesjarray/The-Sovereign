@@ -11,6 +11,8 @@ import { SovereignSplash } from '@/components/auth/SovereignSplash';
 import { ModuleRenderer } from '@/components/modules/ModuleRenderer';
 import { IdentityAccess } from '@/components/IdentityAccess';
 import { NeuralBriefing } from '@/components/modules/NeuralBriefing';
+import { MobileLayout } from '@/components/layout/MobileLayout';
+import { useMobile } from '@/hooks/useMobile';
 import { useLocale } from 'next-intl';
 
 import { createClient } from '@/lib/supabase/client';
@@ -65,6 +67,17 @@ export default function LandingRoot() {
                 </AnimatePresence>
             </div>
         );
+    }
+
+    return <SovereignShell showBriefing={showBriefing} setShowBriefing={setShowBriefing} />;
+}
+
+// Wrapper that detects mobile and renders the appropriate layout
+function SovereignShell({ showBriefing, setShowBriefing }: { showBriefing: boolean, setShowBriefing: (v: boolean) => void }) {
+    const isMobile = useMobile();
+
+    if (isMobile) {
+        return <MobileLayout showBriefing={showBriefing} setShowBriefing={setShowBriefing} />;
     }
 
     return <SovereignOS showBriefing={showBriefing} setShowBriefing={setShowBriefing} />;

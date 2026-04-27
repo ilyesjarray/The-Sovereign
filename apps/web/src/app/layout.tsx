@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { RoyalWallpaper } from '@/components/ui/RoyalWallpaper';
 import { SovereignTerminal } from '@/components/ui/SovereignTerminal';
+import { SovereignSecurity } from '@/components/system/SovereignSecurity';
 import { Providers } from './providers';
 
 const inter = Inter({
@@ -78,6 +79,7 @@ export default function RootLayout({
         className={`${jetbrainsMono.variable} font-mono antialiased text-sovereign-blue bg-black`}
       >
         <Providers>
+          <SovereignSecurity />
           <RoyalWallpaper />
           <SovereignTerminal />
           <div className="relative z-10 w-full min-h-screen flex flex-col">

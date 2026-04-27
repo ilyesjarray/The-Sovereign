@@ -76,10 +76,14 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ response: "ORACLE_ERROR: Empty command received." }, { status: 400 });
         }
 
-        const apiKey = process.env.GROQ_API_KEY;
+        // Get the current API key from the pool (supports 3-key rotation)
+        const GROQ_KEYS = [
+            process.env.GROQ_API_KEY || '',
+            process.env.GROQ_API_KEY_2 || '',
+            process.env.GROQ_API_KEY_3 || '',
+        ].filter(k => k.length > 10);
 
-        if (!apiKey || apiKey.includes('your_') || apiKey.length < 10) {
-            // Fallback: smart local responses when API key is missing
+        if (GROQ_KEYS.length === 0) {
             return NextResponse.json({
                 response: generateFallbackResponse(message, mode)
             });
@@ -109,7 +113,6 @@ CRITICAL RULES:
 - Be comprehensive but concise
 - When asked about yourself, say you are The Sovereign Oracle, an elite AI system`;
 
-        // Build conversation history for context
         const conversationMessages = [
             { role: 'system', content: enrichedSystem },
             ...history.slice(-10).map((h: any) => ({
@@ -119,42 +122,59 @@ CRITICAL RULES:
             { role: 'user', content: message }
         ];
 
-        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                model: 'llama-3.3-70b-versatile',
-                messages: conversationMessages,
-                max_tokens: 2048,
-                temperature: 0.7,
-                top_p: 0.95,
-                stream: false
-            })
+        // Key rotation: try each key until success
+        let lastError = '';
+        for (let attempt = 0; attempt < GROQ_KEYS.length; attempt++) {
+            const apiKey = GROQ_KEYS[attempt];
+            try {
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'llama-3.3-70b-versatile',
+                        messages: conversationMessages,
+                        max_tokens: 2048,
+                        temperature: 0.7,
+                        top_p: 0.95,
+                        stream: false
+                    })
+                });
+
+                if (response.status === 429 || response.status === 503) {
+                    lastError = `Key ${attempt + 1} rate limited`;
+                    continue; // Try next key
+                }
+
+                if (!response.ok) {
+                    lastError = await response.text();
+                    continue; // Try next key
+                }
+
+                const data = await response.json();
+                const aiMessage = data.choices?.[0]?.message?.content;
+
+                if (!aiMessage) {
+                    return NextResponse.json({
+                        response: generateFallbackResponse(message, mode)
+                    });
+                }
+
+                return NextResponse.json({ response: aiMessage });
+            } catch (error: any) {
+                lastError = error.message;
+                continue; // Try next key
+            }
+        }
+
+        // All keys exhausted — fallback
+        console.error('[Oracle API]: All keys exhausted:', lastError);
+        return NextResponse.json({
+            response: generateFallbackResponse(message, mode)
         });
-
-        if (!response.ok) {
-            const errText = await response.text();
-            console.error('[Groq API Error]:', errText);
-            // Fallback to intelligent local response
-            return NextResponse.json({
-                response: generateFallbackResponse(message, mode)
-            });
-        }
-
-        const data = await response.json();
-        const aiMessage = data.choices?.[0]?.message?.content;
-
-        if (!aiMessage) {
-            return NextResponse.json({
-                response: generateFallbackResponse(message, mode)
-            });
-        }
-
-        return NextResponse.json({ response: aiMessage });
 
     } catch (error) {
         console.error('[Oracle API]: Error', error);

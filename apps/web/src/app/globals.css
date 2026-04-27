@@ -113,3 +113,104 @@
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ======================================
+   MOBILE-RESPONSIVE UTILITIES
+   ====================================== */
+
+/* Safe area padding for notch & home bar (iPhone etc.) */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Mobile sector panel — full width, touch-optimized */
+@media (max-width: 767px) {
+  /* Reduce glass effect complexity on mobile for perf */
+  .glass-v-series {
+    backdrop-filter: blur(12px) saturate(150%);
+    box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.6);
+  }
+
+  /* Reduce HUD scanline on mobile (perf) */
+  body::before {
+    opacity: 0.03;
+  }
+
+  /* Make all sector panels fill the viewport */
+  .sector-panel-mobile {
+    width: 100%;
+    min-height: calc(100vh - 7.5rem);
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  /* Touch-friendly button minimum sizes */
+  button, [role="button"] {
+    min-height: 40px;
+  }
+
+  /* Mobile text scaling */
+  .mobile-text-sm { font-size: 0.8rem; }
+  .mobile-text-xs { font-size: 0.7rem; }
+
+  /* Full-width inputs on mobile */
+  input, textarea, select {
+    font-size: 16px !important; /* Prevents iOS zoom on focus */
+  }
+
+  /* Hide elements only needed on desktop */
+  .desktop-only {
+    display: none !important;
+  }
+
+  /* Landscape mode overrides for sectors */
+  .landscape-optimized-p { padding: 0.5rem; }
+  .landscape-optimized-gap { gap: 0.5rem; }
+  .landscape-optimized-header { height: auto; padding: 0.5rem 1rem; }
+  .landscape-optimized-footer { display: none; }
+  .landscape-optimized-sidebar { display: none; }
+}
+
+/* Tablet breakpoint (768–1024) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .landscape-optimized-sidebar {
+    width: 5rem;
+  }
+  .landscape-optimized-p { padding: 1rem; }
+  .landscape-optimized-gap { gap: 1rem; }
+}
+
+/* Show on mobile only */
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+/* No-scrollbar helper (for mobile swipe areas) */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Touch ripple effect */
+@keyframes touch-ripple {
+  from { transform: scale(0); opacity: 0.4; }
+  to { transform: scale(2.5); opacity: 0; }
+}
+.touch-ripple::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle, var(--sovereign-accent) 0%, transparent 70%);
+  animation: touch-ripple 0.5s ease-out;
+  pointer-events: none;
+}

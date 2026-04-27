@@ -17,7 +17,9 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
     const [authMode, setAuthMode] = useState<'LOGIN' | 'SIGNUP'>('LOGIN');
     const [progress, setProgress] = useState(0);
     const [email, setEmail] = useState('');
+    const [fullName, setFullName] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
@@ -104,30 +106,37 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
 
         try {
             if (authMode === 'SIGNUP') {
+                if (password !== confirmPassword) {
+                    throw new Error("VALIDATION_ERROR: Passwords do not match.");
+                }
                 const { error: signUpError } = await supabase.auth.signUp({
                     email,
                     password,
                     options: {
-                        data: { full_name: email.split('@')[0] }
+                        data: { full_name: fullName },
+                        emailRedirectTo: `${window.location.origin}/auth/callback`
                     }
                 });
                 if (signUpError) throw signUpError;
-                // Auto-proceed for development/Commander override
-                setState('SCANNING');
+                
+                setError(null);
+                setState('VERIFY_EMAIL');
+                setAuthMode('LOGIN'); 
             } else {
                 const { error: signInError } = await supabase.auth.signInWithPassword({
                     email,
                     password
                 });
-                if (signInError) throw signInError;
+                if (signInError) {
+                    if (signInError.message.includes("Email not confirmed")) {
+                        setState('VERIFY_EMAIL');
+                        return;
+                    }
+                    throw signInError;
+                }
                 setState('SCANNING');
             }
         } catch (err: any) {
-            // Commander Override: Ignore email confirmation if requested
-            if (err.message?.includes('Email not confirmed')) {
-                setState('SCANNING'); // Bypass for the Commander
-                return;
-            }
             setError(err.message || 'AUTHENTICATION_FAILED');
         } finally {
             setLoading(false);
@@ -282,6 +291,24 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
 
                             <form onSubmit={handleAuth} className="space-y-6">
                                 <div className="space-y-4">
+                                    <AnimatePresence>
+                                        {authMode === 'SIGNUP' && (
+                                            <motion.div
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: 'auto' }}
+                                                className="relative group"
+                                            >
+                                                <input
+                                                    type="text"
+                                                    required
+                                                    value={fullName}
+                                                    onChange={(e) => setFullName(e.target.value)}
+                                                    placeholder="COMMANDER_NAME"
+                                                    className="w-full bg-white/[0.02] border border-white/10 rounded-xl py-4 px-4 text-xs font-bold text-white placeholder:text-white/10 outline-none focus:border-hyper-cyan/40 transition-all uppercase tracking-widest"
+                                                />
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                     <div className="relative group">
                                         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-hyper-cyan transition-colors" />
                                         <input
@@ -289,7 +316,7 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
                                             required
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
-                                            placeholder="CORP_EMAIL@LINK"
+                                            placeholder="IDENTITY@SOVEREIGN"
                                             className="w-full bg-white/[0.02] border border-white/10 rounded-xl py-4 pl-12 pr-4 text-xs font-bold text-white placeholder:text-white/10 outline-none focus:border-hyper-cyan/40 transition-all uppercase tracking-widest"
                                         />
                                     </div>
@@ -304,6 +331,24 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
                                             className="w-full bg-white/[0.02] border border-white/10 rounded-xl py-4 pl-12 pr-4 text-xs font-bold text-white placeholder:text-white/10 outline-none focus:border-hyper-cyan/40 transition-all uppercase tracking-widest"
                                         />
                                     </div>
+                                    <AnimatePresence>
+                                        {authMode === 'SIGNUP' && (
+                                            <motion.div
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: 'auto' }}
+                                                className="relative group"
+                                            >
+                                                <input
+                                                    type="password"
+                                                    required
+                                                    value={confirmPassword}
+                                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                                    placeholder="VERIFY_CIPHER"
+                                                    className="w-full bg-white/[0.02] border border-white/10 rounded-xl py-4 px-4 text-xs font-bold text-white placeholder:text-white/10 outline-none focus:border-hyper-cyan/40 transition-all uppercase tracking-widest"
+                                                />
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
 
                                 {error && (
