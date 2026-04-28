@@ -260,8 +260,8 @@ function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean,
             {/* OS Header */}
             <header className="flex justify-between items-center h-20 px-8 relative z-20 glass-v-series rounded-2xl mb-8 border border-white/5 bg-white/[0.01] landscape-optimized-header">
                 <div className="flex items-center gap-6">
-                    <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 group cursor-pointer overflow-hidden relative" onClick={playClick}>
-                        <div className="absolute inset-0 bg-amber-500/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                    <div className="w-12 h-12 rounded-xl bg-blue-600/10 flex items-center justify-center border border-blue-600/30 group cursor-pointer overflow-hidden relative" onClick={playClick}>
+                        <div className="absolute inset-0 bg-blue-600/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
                         <Image src="/assets/icon.png" alt="Sovereign Logo" width={36} height={36} className="relative z-10 object-contain" />
                     </div>
                     <div>
