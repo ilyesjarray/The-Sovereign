@@ -43,9 +43,9 @@ export function WelcomeGate({ onInitialize }: WelcomeGateProps) {
                         animate={{
                             scale: [1, 1.05, 1],
                             filter: [
-                                "drop-shadow(0 0 10px rgba(212, 175, 55, 0.2))",
-                                "drop-shadow(0 0 30px rgba(212, 175, 55, 0.5))",
-                                "drop-shadow(0 0 10px rgba(212, 175, 55, 0.2))"
+                                "drop-shadow(0 0 10px rgba(55, 65, 212, 0.2))",
+                                "drop-shadow(0 0 30px rgba(4, 0, 255, 1))",
+                                "drop-shadow(0 0 10px rgba(65, 55, 212, 0.2))"
                             ]
                         }}
                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
