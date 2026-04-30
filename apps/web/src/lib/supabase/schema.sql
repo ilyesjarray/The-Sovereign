@@ -61,11 +61,15 @@ ON CONFLICT (id) DO NOTHING;
 
 -- RLS POLICIES (Security)
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON public.profiles;
 CREATE POLICY "Public profiles are viewable by everyone" ON public.profiles FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
 
 ALTER TABLE public.imperial_sectors ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Sectors are viewable by everyone" ON public.imperial_sectors;
 CREATE POLICY "Sectors are viewable by everyone" ON public.imperial_sectors FOR SELECT USING (true);
 
 ALTER TABLE public.system_logs ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Logs are viewable by everyone" ON public.system_logs;
 CREATE POLICY "Logs are viewable by everyone" ON public.system_logs FOR SELECT USING (true);

@@ -23,10 +23,12 @@ CREATE TABLE IF NOT EXISTS public.nexus_messages (
 
 -- RLS for Nexus
 ALTER TABLE public.nexus_channels ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can manage their own channels" ON public.nexus_channels;
 CREATE POLICY "Users can manage their own channels" ON public.nexus_channels
   FOR ALL USING (auth.uid() = user_id);
 
 ALTER TABLE public.nexus_messages ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can only read messages in their channels" ON public.nexus_messages;
 CREATE POLICY "Users can only read messages in their channels" ON public.nexus_messages
   FOR ALL USING (
     EXISTS (

@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS public.citadel_files (
 
 -- RLS for Citadel
 ALTER TABLE public.citadel_files ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users access their own citadel files" ON public.citadel_files;
 CREATE POLICY "Users access their own citadel files" ON public.citadel_files
   FOR ALL USING (auth.uid() = user_id);
 

@@ -27,9 +27,11 @@ CREATE TABLE IF NOT EXISTS public.armory_executions (
 
 -- RLS for Armory
 ALTER TABLE public.armory_wallets ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users manage their own wallets" ON public.armory_wallets;
 CREATE POLICY "Users manage their own wallets" ON public.armory_wallets
   FOR ALL USING (auth.uid() = user_id);
 
 ALTER TABLE public.armory_executions ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users view their own executions" ON public.armory_executions;
 CREATE POLICY "Users view their own executions" ON public.armory_executions
   FOR ALL USING (auth.uid() = user_id);

@@ -221,48 +221,7 @@ export function TerminalLogin() {
                         </button>
                     </form>
 
-                    {/* Alternate Access Methods */}
-                    <div className="mt-8 grid grid-cols-2 gap-4 relative z-10">
-                        <button
-                            onClick={handleWalletLogin}
-                            type="button"
-                            className="flex flex-col items-center justify-center gap-3 p-4 border border-neon-blue/10 bg-black/40 hover:bg-neon-blue/5 hover:border-neon-blue/30 transition-all group"
-                        >
-                            <Wallet className="w-5 h-5 text-neon-blue group-hover:scale-110 transition-transform" />
-                            <span className="text-[8px] text-white/40 tracking-[0.3em] font-mono uppercase italic group-hover:text-neon-blue">PHANTOM_LINK</span>
-                        </button>
-                        <button
-                            onClick={async () => {
-                                setIsAuthenticating(true);
-                                const { error } = await supabase.auth.signInWithOAuth({
-                                    provider: 'google',
-                                    options: {
-                                        redirectTo: `${window.location.origin}/auth/callback`,
-                                    },
-                                });
-                                if (error) {
-                                    toast.error('GOOGLE_LINK_FAILED');
-                                    setIsAuthenticating(false);
-                                }
-                            }}
-                            type="button"
-                            className="flex flex-col items-center justify-center gap-3 p-4 border border-neon-blue/10 bg-black/40 hover:bg-neon-blue/5 hover:border-neon-blue/30 transition-all group"
-                        >
-                            <Globe className="w-5 h-5 text-neon-blue group-hover:scale-110 transition-transform" />
-                            <span className="text-[8px] text-white/40 tracking-[0.3em] font-mono uppercase italic group-hover:text-neon-blue">GOOGLE_ID</span>
-                        </button>
-                    </div>
 
-                    {/* Biometric Quick Entry */}
-                    <div className="mt-6 relative z-10">
-                        <button
-                            onClick={handleBiometricAuth}
-                            className="w-full py-4 border border-sovereign-blue/20 text-sovereign-blue text-[9px] font-black uppercase tracking-[0.5em] hover:bg-sovereign-blue/5 transition-all italic flex items-center justify-center gap-3 group"
-                        >
-                            <Fingerprint className="w-4 h-4 group-hover:animate-pulse" />
-                            BYPASS_WITH_BIOMETRICS
-                        </button>
-                    </div>
 
                     {/* Toggle Mode */}
                     <div className="mt-8 text-center relative z-10">

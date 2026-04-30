@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS public.ai_agents (
 
 -- RLS for Agents
 ALTER TABLE public.ai_agents ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users manage their own agents" ON public.ai_agents;
 CREATE POLICY "Users manage their own agents" ON public.ai_agents
   FOR ALL USING (auth.uid() = user_id);
 
@@ -44,5 +45,6 @@ CREATE TABLE IF NOT EXISTS public.neural_briefings (
 
 -- RLS for Briefings
 ALTER TABLE public.neural_briefings ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users view their own briefings" ON public.neural_briefings;
 CREATE POLICY "Users view their own briefings" ON public.neural_briefings
   FOR ALL USING (auth.uid() = user_id);

@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS public.chronos_events (
 
 -- RLS for Chronos
 ALTER TABLE public.chronos_events ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users manage their own schedule" ON public.chronos_events;
 CREATE POLICY "Users manage their own schedule" ON public.chronos_events
   FOR ALL USING (auth.uid() = user_id);
 

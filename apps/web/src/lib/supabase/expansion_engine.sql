@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS public.vault_items (
 
 -- RLS for Vault
 ALTER TABLE public.vault_items ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can only access their own vault items" ON public.vault_items;
 CREATE POLICY "Users can only access their own vault items" ON public.vault_items
   FOR ALL USING (auth.uid() = user_id);
 
@@ -34,6 +35,7 @@ CREATE TABLE IF NOT EXISTS public.missions (
 
 -- RLS for Missions
 ALTER TABLE public.missions ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can manage their own missions" ON public.missions;
 CREATE POLICY "Users can manage their own missions" ON public.missions
   FOR ALL USING (auth.uid() = user_id);
 
@@ -51,6 +53,7 @@ CREATE TABLE IF NOT EXISTS public.scout_reports (
 
 -- RLS for Scouts
 ALTER TABLE public.scout_reports ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view their intelligence reports" ON public.scout_reports;
 CREATE POLICY "Users can view their intelligence reports" ON public.scout_reports
   FOR ALL USING (auth.uid() = user_id);
 

@@ -87,16 +87,8 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
     };
 
     const handleBiometric = async () => {
-        setState('BIOMETRIC');
-        // Imperial Biometric Protocol (WebAuthn Simulation)
-        try {
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            // In a real environment with HTTPS, we'd use navigator.credentials.get
-            setState('SCANNING');
-        } catch (err) {
-            setError('BIOMETRIC_SENSOR_OFFLINE');
-            setState('AUTH_FORM');
-        }
+        // Direct transition to auth form as requested
+        setState('AUTH_FORM');
     };
 
     const handleAuth = async (e: React.FormEvent) => {
@@ -218,23 +210,14 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
                                     <Fingerprint className="w-6 h-6" />
                                     <span>BIOMETRIC_ACCESS</span>
                                 </button>
+                                
                                 <button
-                                    onClick={() => { playClick(); setState('AUTH_FORM'); }}
+                                    onClick={() => { playClick(); install(); }}
                                     className="group flex items-center justify-center gap-4 px-10 py-4 bg-white/5 hover:bg-white/10 text-white/40 hover:text-white border border-white/10 rounded-2xl font-black text-[10px] tracking-widest transition-all"
                                 >
-                                    <ShieldCheck className="w-4 h-4" />
-                                    <span>STANDARD_UPLINK</span>
+                                    <Chrome className="w-4 h-4" />
+                                    <span>DOWNLOAD_SOVEREIGN</span>
                                 </button>
-                                
-                                {isInstallable && (
-                                    <button
-                                        onClick={() => { playClick(); install(); }}
-                                        className="group flex items-center justify-center gap-4 px-10 py-4 bg-white/5 hover:bg-white/10 text-hyper-cyan border border-hyper-cyan/20 rounded-2xl font-black text-[10px] tracking-widest transition-all mt-4"
-                                    >
-                                        <Chrome className="w-4 h-4" />
-                                        <span>DOWNLOAD_SOVEREIGN</span>
-                                    </button>
-                                )}
                             </div>
                         </motion.div>
                     )}
@@ -370,33 +353,7 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
                                     {authMode === 'LOGIN' ? <LogIn size={16} /> : <UserPlus size={16} />}
                                 </button>
 
-                                <div className="relative py-4">
-                                    <div className="absolute inset-0 flex items-center text-white/5">
-                                        <div className="w-full border-t border-white/5"></div>
-                                    </div>
-                                    <div className="relative flex justify-center text-[8px] uppercase tracking-widest text-white/20">
-                                        <span className="bg-carbon-black px-4 px-2">Social_Uplink</span>
-                                    </div>
-                                </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => handleSocialAuth('github')}
-                                        className="flex items-center justify-center gap-2 py-3 bg-white/5 hover:bg-white/10 text-white/40 hover:text-white border border-white/10 rounded-xl transition-all"
-                                    >
-                                        <Github size={14} />
-                                        <span className="text-[8px] font-black uppercase tracking-widest">Github</span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleSocialAuth('google')}
-                                        className="flex items-center justify-center gap-2 py-3 bg-white/5 hover:bg-white/10 text-white/40 hover:text-white border border-white/10 rounded-xl transition-all"
-                                    >
-                                        <Chrome size={14} />
-                                        <span className="text-[8px] font-black uppercase tracking-widest">Google</span>
-                                    </button>
-                                </div>
                             </form>
 
                             <div className="mt-8 pt-6 border-t border-white/5 flex flex-col items-center gap-4">

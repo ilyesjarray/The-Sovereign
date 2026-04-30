@@ -33,8 +33,11 @@ ON CONFLICT (id) DO NOTHING;
 
 -- RLS
 ALTER TABLE public.forums ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Forums are viewable by everyone" ON public.forums;
 CREATE POLICY "Forums are viewable by everyone" ON public.forums FOR SELECT USING (true);
 
 ALTER TABLE public.posts ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Posts are viewable by everyone" ON public.posts;
 CREATE POLICY "Posts are viewable by everyone" ON public.posts FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Users can create posts" ON public.posts;
 CREATE POLICY "Users can create posts" ON public.posts FOR INSERT WITH CHECK (true);
