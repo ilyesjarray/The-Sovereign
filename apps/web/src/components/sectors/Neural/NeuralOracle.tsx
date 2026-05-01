@@ -15,6 +15,7 @@ type Message = {
     role: 'user' | 'assistant';
     content: string;
     mode?: string;
+    images?: string[];
     timestamp?: Date;
 };
 
@@ -70,7 +71,7 @@ export function NeuralOracle() {
     const [messages, setMessages] = useState<Message[]>([
         {
             role: 'assistant',
-            content: '**THE SOVEREIGN ORACLE — ONLINE**\n\nI am Oracle, an imperial AI system powered by **Llama-3.3-70B** (70 billion parameters, state-of-the-art intelligence).\n\nI am capable of addressing **any complex vector** in English:\n• Business, Investment, & Finance\n• Science, Research, & Mathematics\n• Programming & Software Architecture\n• Philosophy & Psychology\n• Strategic Writing & Synthesis\n• General Intelligence without restriction\n\nSelect your protocol and issue your commands.',
+            content: '**THE SOVEREIGN ORACLE — ONLINE**\n\nI am Oracle, an imperial AI system powered by **Llama 4 Scout Vision Engine**.\n\nI am capable of addressing **any complex vector** including **Image-to-Text Intelligence**:\n• Multi-Image Vision Analysis (Max 3)\n• Business, Investment, & Finance\n• Science, Research, & Mathematics\n• Programming & Software Architecture\n• Strategic Writing & Synthesis\n\nSelect your protocol and issue your commands.',
             timestamp: new Date()
         }
     ]);
@@ -80,8 +81,31 @@ export function NeuralOracle() {
     const [isTyping, setIsTyping] = useState(false);
     const [activeService, setActiveService] = useState<string | null>(null);
     const [copiedId, setCopiedId] = useState<number | null>(null);
+    const [selectedImages, setSelectedImages] = useState<string[]>([]);
     const scrollRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
+    const imageInputRef = useRef<HTMLInputElement>(null);
+
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        if (selectedImages.length + files.length > 3) {
+            alert("COMMAND_ABORTED: Maximum 3 images per transmission.");
+            return;
+        }
+
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setSelectedImages(prev => [...prev, reader.result as string]);
+            };
+            reader.readAsDataURL(file);
+        });
+        if (imageInputRef.current) imageInputRef.current.value = '';
+    };
+
+    const removeImage = (index: number) => {
+        setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    };
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -129,9 +153,11 @@ export function NeuralOracle() {
                     message: userMsg,
                     mode: currentMode.id,
                     isSeriousMode,
-                    history
+                    history,
+                    images: selectedImages
                 })
             });
+            setSelectedImages([]);
 
             const data = await response.json();
             setMessages(prev => [...prev, {
@@ -450,19 +476,53 @@ export function NeuralOracle() {
                     ))}
                 </div>
 
+                {/* Image Previews */}
+                {selectedImages.length > 0 && (
+                    <div className="flex gap-2 mb-3">
+                        {selectedImages.map((img, i) => (
+                            <div key={i} className="relative group/img w-16 h-16 rounded-lg border border-white/10 overflow-hidden">
+                                <img src={img} alt="preview" className="w-full h-full object-cover" />
+                                <button 
+                                    onClick={() => removeImage(i)}
+                                    className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity"
+                                >
+                                    <X size={14} className="text-white" />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
                 <div className={cn(
                     "relative flex items-end gap-3 bg-white/[0.03] border rounded-2xl p-3 transition-all",
-                    "focus-within:border-white/20",
-                    currentMode.border.replace('border-', 'focus-within:border-')
+                    currentMode.border.replace('/30', '/10'),
+                    "focus-within:border-hyper-cyan/40"
                 )}>
+                    <input 
+                        type="file" 
+                        ref={imageInputRef} 
+                        onChange={handleImageUpload} 
+                        multiple 
+                        accept="image/*" 
+                        className="hidden" 
+                    />
+                    
+                    <button 
+                        onClick={() => imageInputRef.current?.click()}
+                        disabled={selectedImages.length >= 3 || isTyping}
+                        className="p-2 text-white/20 hover:text-hyper-cyan transition-colors"
+                    >
+                        <ImageIcon size={20} />
+                    </button>
+
                     <textarea
                         ref={inputRef}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder={`Message Oracle in ${currentMode.label} mode... (Enter to send, Shift+Enter for newline)`}
+                        placeholder="INPUT_COMMAND_SEQUENCE..."
+                        className="flex-1 bg-transparent border-none outline-none text-[13px] font-medium text-white placeholder:text-white/10 resize-none py-2 min-h-[40px] max-h-[200px] custom-scrollbar"
                         rows={1}
-                        className="flex-1 bg-transparent border-none outline-none text-white text-xs font-medium placeholder:text-white/10 resize-none custom-scrollbar max-h-32"
                         style={{ minHeight: '24px' }}
                     />
                     <button

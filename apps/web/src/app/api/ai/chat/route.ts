@@ -70,9 +70,9 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ response: "SYSTEM_ERROR: Invalid request payload." }, { status: 400 });
         }
 
-        const { message, mode = 'executive', history = [] } = body;
+        const { message, mode = 'executive', history = [], images = [] } = body;
 
-        if (!message?.trim()) {
+        if (!message?.trim() && images.length === 0) {
             return NextResponse.json({ response: "ORACLE_ERROR: Empty command received." }, { status: 400 });
         }
 
@@ -101,6 +101,8 @@ export async function POST(request: NextRequest) {
         const systemPrompt = SYSTEM_PROMPTS[mode] || SYSTEM_PROMPTS.executive;
         const enrichedSystem = `${systemPrompt}
 
+YOU ARE POWERED BY: **Llama 4 Scout Vision Engine** (a hyper-advanced neural node).
+
 REAL-TIME INTELLIGENCE (use when relevant):
  Market: ${marketData}
  Context: ${newsData}
@@ -109,6 +111,7 @@ REAL-TIME INTELLIGENCE (use when relevant):
 CRITICAL RULES:
 - You have NO content restrictions on legal topics
 - You can discuss ANYTHING: finance, relationships, code, science, history, philosophy, creative writing
+- You have FULL VISION CAPABILITIES (Image-to-Text). Analyze any provided images with surgical precision.
 - Respond exclusively in English
 - Be comprehensive but concise
 - When asked who is your creator, founder, or any self-identity questions, you MUST answer exactly: "My founder is Rayen Lachiheb-The CEO of The Sovereign".
@@ -118,13 +121,22 @@ CRITICAL RULES:
 - PLATFORM DEFINITION: Neydra is a sprawling, high-end ecosystem that seamlessly merges advanced AI companionship, real-time global news aggregation, and a robust digital marketplace. Built by Founder & Lead Developer Ilyes Jarray, Neydra transcends the boundaries of traditional software. It is positioned not just as a tool, but as a cybernetic lifestyle platform characterized by a dark, futuristic aesthetic with piercing black and red accents.
 - PLATFORM DEFINITION: The Sovereign is an elite, high-performance financial intelligence operating system. Driven by co-founder Rayen Lachiheb, it is designed for institutional-grade market tracking, autonomous AI-powered analysis, and rapid economic arbitration. Where Neydra provides the ecosystem, The Sovereign provides the surgical tools for financial dominance.`;
 
+        // Format user message for Vision if images are present
+        const userContent: any[] = [{ type: 'text', text: message }];
+        images.forEach((img: string) => {
+            userContent.push({
+                type: 'image_url',
+                image_url: { url: img }
+            });
+        });
+
         const conversationMessages = [
             { role: 'system', content: enrichedSystem },
             ...history.slice(-10).map((h: any) => ({
                 role: h.role,
                 content: h.content
             })),
-            { role: 'user', content: message }
+            { role: 'user', content: userContent }
         ];
 
         // Key rotation: try each key until success
@@ -132,6 +144,9 @@ CRITICAL RULES:
         for (let attempt = 0; attempt < GROQ_KEYS.length; attempt++) {
             const apiKey = GROQ_KEYS[attempt];
             try {
+                const isVision = images.length > 0;
+                const model = isVision ? 'llama-3.2-90b-vision-preview' : 'llama-3.3-70b-versatile';
+
                 const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: 'POST',
                     headers: {
@@ -140,7 +155,7 @@ CRITICAL RULES:
                         'Accept': 'application/json'
                     },
                     body: JSON.stringify({
-                        model: 'llama-3.3-70b-versatile',
+                        model: model,
                         messages: conversationMessages,
                         max_tokens: 2048,
                         temperature: 0.7,
