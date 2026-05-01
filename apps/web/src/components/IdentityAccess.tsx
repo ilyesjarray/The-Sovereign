@@ -36,7 +36,7 @@ export function IdentityAccess({ onSectorChange }: IdentityAccessProps) {
                 const { data: profile } = await supabase
                     .from('profiles')
                     .select('tier')
-                    .eq('email', session.user.email)
+                    .eq('id', session.user.id)
                     .single();
 
                 if (profile) setUserTier(profile.tier);

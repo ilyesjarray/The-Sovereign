@@ -38,11 +38,11 @@ export function FeatureGate({ children, feature, className, fallback }: FeatureG
     useEffect(() => {
         const fetchTier = async () => {
             const { data: { session } } = await supabase.auth.getSession();
-            if (session?.user?.email) {
+            if (session?.user?.id) {
                 const { data: profile } = await supabase
                     .from('profiles')
                     .select('tier')
-                    .eq('email', session.user.email)
+                    .eq('id', session.user.id)
                     .single();
                 
                 if (profile) setTier(profile.tier as UserTier);
