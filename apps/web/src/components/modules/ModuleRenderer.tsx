@@ -29,6 +29,8 @@ const PortfolioAnalyst = dynamic(() => import('@/components/sectors/Wealth/Portf
 const EnterpriseWorkspace = dynamic(() => import('@/components/sectors/Ops/EnterpriseWorkspace'));
 const TemporalEngine = dynamic(() => import('@/components/sectors/Intelligence/TemporalEngine'));
 
+import { ComingSoon } from './ComingSoon';
+
 interface ModuleRendererProps {
     moduleId: string;
 }
@@ -37,56 +39,58 @@ export function ModuleRenderer({ moduleId }: ModuleRendererProps) {
     switch (moduleId) {
         case 'market-oracle':
             return <NeuralOracle />;
-        case 'war-council':
-            return <WarCouncil />;
-        case 'high-scheduler':
-            return <ChronoGovernor />;
-        case 'wealth-engine':
-            return <WealthForge />;
-        case 'global-ops':
-            return <LiaisonCore />;
-        case 'community-nexus':
-            return <ImperialCommunity />;
-        case 'system-settings':
-            return <SovereignSettings />;
-        case 'admin-center':
-            return <AdminPanel />;
-        case 'imperial-billing':
-            return <SovereignBilling />;
-        case 'sovereign-vault':
-            return <SovereignVault />;
-        case 'mission-control':
-            return <MissionControl />;
-        case 'digital-scouts':
-            return <DigitalScouts />;
-        case 'whale-radar':
-            return <WhaleRadar />;
-        case 'chronos':
-            return <Chronos />;
-        case 'the-forge':
-            return <TheForge />;
-        case 'wealth-simulator':
-            return <WealthSimulator />;
-        case 'sovereign-voice':
-            return <SovereignVoice />;
-        case 'the-citadel':
-            return <TheCitadel />;
-        case 'the-armory':
-            return <TheArmory />;
-        case 'nexus-protocol':
-            return <NexusProtocol />;
-        case 'automata-station':
-            return <AutomataStation />;
         case 'sovereign-social':
             return <SovereignSocial />;
+        case 'sovereign-vault':
+            return <SovereignVault />;
+        
+        // Sectors Under Construction
+        case 'war-council':
+            return <ComingSoon sectorName="Stratagem_Council" />;
+        case 'high-scheduler':
+            return <ComingSoon sectorName="Chrono_Governor" />;
+        case 'wealth-engine':
+            return <ComingSoon sectorName="Asset_Forge" />;
+        case 'global-ops':
+            return <ComingSoon sectorName="Liaison_Core" />;
+        case 'community-nexus':
+            return <ComingSoon sectorName="Imperial_Community" />;
+        case 'system-settings':
+            return <ComingSoon sectorName="Sovereign_Settings" />;
+        case 'admin-center':
+            return <ComingSoon sectorName="Throne_Room" />;
+        case 'imperial-billing':
+            return <ComingSoon sectorName="Imperial_Billing" />;
+        case 'mission-control':
+            return <ComingSoon sectorName="Field_Command" />;
+        case 'digital-scouts':
+            return <ComingSoon sectorName="Shadow_Watch" />;
+        case 'whale-radar':
+            return <ComingSoon sectorName="Deep_Sea_Radar" />;
+        case 'chronos':
+            return <ComingSoon sectorName="Legacy_Temporal" />;
+        case 'the-forge':
+            return <ComingSoon sectorName="Genesis_Engine" />;
+        case 'wealth-simulator':
+            return <ComingSoon sectorName="Fleet_Stress_Test" />;
+        case 'sovereign-voice':
+            return <ComingSoon sectorName="Voice_Core" />;
+        case 'the-citadel':
+            return <ComingSoon sectorName="The_Imperial_Bastion" />;
+        case 'the-armory':
+            return <ComingSoon sectorName="Sovereign_Treasury" />;
+        case 'nexus-protocol':
+            return <ComingSoon sectorName="Nexus_Uplink" />;
+        case 'automata-station':
+            return <ComingSoon sectorName="Automata_Grid" />;
         case 'intelligence-nexus':
-            return <IntelligenceNexus />;
+            return <ComingSoon sectorName="Intelligence_Nexus" />;
         case 'portfolio-analyst':
-            return <PortfolioAnalyst />;
+            return <ComingSoon sectorName="Portfolio_Intelligence" />;
         case 'enterprise-workspace':
-            return <EnterpriseWorkspace />;
+            return <ComingSoon sectorName="B2B_Workspace" />;
         case 'temporal-engine':
-            return <TemporalEngine />;
+            return <ComingSoon sectorName="Chronos_Singularity" />;
         default:
             return (
                 <div className="flex items-center justify-center h-full text-white/20 uppercase font-black tracking-[1em] italic">
