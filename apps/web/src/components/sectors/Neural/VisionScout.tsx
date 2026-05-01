@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Send, Bot, User, Brain, BookOpen,
     Briefcase, Coffee, Terminal, Zap, Shield,
-    Copy, Check, Maximize2, RotateCcw, Code2,
+    Copy, Check, Maximize2, RotateCcw, Code2, X,
     Sparkles, Image as ImageIcon, Video, FileJson, Search,
     FileText, BarChart, Settings2, Languages, Microscope
 } from 'lucide-react';
@@ -15,73 +15,94 @@ type Message = {
     role: 'user' | 'assistant';
     content: string;
     mode?: string;
+    images?: string[];
     timestamp?: Date;
 };
 
 const MODES = [
-    { id: 'executive', label: 'EXECUTIVE', icon: Briefcase, color: 'text-hyper-cyan', bg: 'bg-hyper-cyan/10', border: 'border-hyper-cyan/30', desc: 'Business, Strategy & Investments' },
-    { id: 'academic', label: 'ACADEMIC', icon: BookOpen, color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/30', desc: 'Research, Science & Learning' },
-    { id: 'philosophy', label: 'SAPIENS', icon: Brain, color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/30', desc: 'Philosophy, Psychology & Wisdom' },
-    { id: 'casual', label: 'PERSONAL', icon: Coffee, color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', desc: 'Life, Creativity & Daily Help' },
-    { id: 'code', label: 'CODE', icon: Code2, color: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/30', desc: 'Programming & Engineering' },
+    { id: 'recon', label: 'RECON_MODE', icon: Search, color: 'text-hyper-cyan', bg: 'bg-hyper-cyan/10', border: 'border-hyper-cyan/30', desc: 'General Image Analysis' },
+    { id: 'data', label: 'DATA_EXTRACTION', icon: FileText, color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', desc: 'Text & Chart Parsing' },
 ];
 
 const AI_SERVICES = [
     { id: 'img-gen', label: 'GENERATE_IMAGE', icon: ImageIcon, color: 'text-pink-500' },
     { id: 'vid-gen', label: 'GENERATE_VIDEO', icon: Video, color: 'text-violet-500' },
     { id: 'data-analyze', label: 'ANALYZE_DATA', icon: BarChart, color: 'text-hyper-cyan' },
-    { id: 'doc-export', label: 'EXPORT_DOCS', icon: FileText, color: 'text-amber-500' },
 ];
 
 const QUICK_PROMPTS: Record<string, string[]> = {
-    executive: [
-        'Analyze a growth strategy for a SaaS company',
-        'Analyze my investment portfolio risk',
-        'How do I build a productivity system for executives?',
-        'Best crypto allocation strategy for 2025',
+    recon: [
+        'Analyze this image in deep detail',
+        'Identify the key components here',
     ],
-    academic: [
-        'Explain quantum theory in simple terms',
-        'What caused the fall of the Roman Empire?',
-        'Solve: ∫x²sin(x)dx',
-        'How does generative AI work?',
-    ],
-    philosophy: [
-        'What is the difference between Stoicism and Existentialism?',
-        'Is free will an illusion?',
-        'How do I find my purpose in life?',
-        'The ethics of AI consciousness',
-    ],
-    casual: [
-        'Write a poem about power',
-        'Recommend a productivity routine',
-        'Translate this professional text into English',
-        'How do I manage psychological pressure?',
-    ],
-    code: [
-        'Write a React custom hook for auth',
-        'Explain async/await vs Promises',
-        'Design a scalable database schema',
-        'Write a REST API in Python FastAPI',
+    data: [
+        'Extract all text from this document',
+        'Summarize the data in this chart',
     ],
 };
 
-export function NeuralOracle() {
+export function VisionScout() {
     const [messages, setMessages] = useState<Message[]>([
         {
             role: 'assistant',
-            content: '**THE SOVEREIGN ORACLE — ONLINE**\n\nI am Oracle, an imperial AI system powered by **Llama-3.3-70B** (70 billion parameters, state-of-the-art intelligence).\n\nI am capable of addressing **any complex vector** in English:\n• Business, Investment, & Finance\n• Science, Research, & Mathematics\n• Programming & Software Architecture\n• Philosophy & Psychology\n• Strategic Writing & Synthesis\n• General Intelligence without restriction\n\nSelect your protocol and issue your commands.',
+            content: '**VISION SCOUT — ONLINE**\n\nI am Scout, a specialized neural node powered by the **Llama 4 Scout Vision Engine**.\n\nI am engineered specifically for **High-Speed Image-to-Text Intelligence**:\n• Document & Text Extraction\n• Chart & Graph Analysis\n• Component & System Identification\n\nUpload up to 3 visual assets and issue your command.',
             timestamp: new Date()
         }
     ]);
     const [input, setInput] = useState('');
     const [currentMode, setCurrentMode] = useState(MODES[0]);
-    const [isSeriousMode, setIsSeriousMode] = useState(true);
     const [isTyping, setIsTyping] = useState(false);
     const [activeService, setActiveService] = useState<string | null>(null);
     const [copiedId, setCopiedId] = useState<number | null>(null);
+    const [selectedImages, setSelectedImages] = useState<string[]>([]);
     const scrollRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
+    const imageInputRef = useRef<HTMLInputElement>(null);
+
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        if (selectedImages.length + files.length > 3) {
+            alert("COMMAND_ABORTED: Maximum 3 images per transmission.");
+            return;
+        }
+
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const MAX_SIZE = 800;
+
+                    if (width > height && width > MAX_SIZE) {
+                        height *= MAX_SIZE / width;
+                        width = MAX_SIZE;
+                    } else if (height > MAX_SIZE) {
+                        width *= MAX_SIZE / height;
+                        height = MAX_SIZE;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    if (ctx) {
+                        ctx.drawImage(img, 0, 0, width, height);
+                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+                        setSelectedImages(prev => [...prev, compressedBase64]);
+                    }
+                };
+                img.src = reader.result as string;
+            };
+            reader.readAsDataURL(file);
+        });
+        if (imageInputRef.current) imageInputRef.current.value = '';
+    };
+
+    const removeImage = (index: number) => {
+        setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    };
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -95,10 +116,9 @@ export function NeuralOracle() {
         setTimeout(() => {
             let message = "";
             switch (serviceId) {
-                case 'img-gen': message = "🎨 **IMAGE_GENERATION_CORE**: Initializing neural rendering. Parameters set for High-Fidelity Imperial Aesthetic."; break;
-                case 'vid-gen': message = "🎬 **VIDEO_SYNTHESIS_ACTIVE**: Framerate locked at 60fps. Cinematic lighting layers applied."; break;
-                case 'data-analyze': message = "📊 **DEEP_DATA_ANALYSIS**: Intercepting market signals. Cross-referencing 50+ global nodes."; break;
-                case 'doc-export': message = "📑 **IMPERIAL_DOCUMENTATION**: Compiling session logs into professional PDF/Markdown format."; break;
+                case 'img-gen': message = "🎨 **IMAGE_GENERATION_CORE**: Routing to Synthesis Engine..."; break;
+                case 'vid-gen': message = "🎬 **VIDEO_SYNTHESIS_ACTIVE**: Routing to Temporal Engine..."; break;
+                case 'data-analyze': message = "📊 **DATA_ANALYSIS**: Please upload charts or datasets for immediate extraction."; break;
             }
             setMessages(prev => [...prev, {
                 role: 'assistant',
@@ -112,37 +132,39 @@ export function NeuralOracle() {
 
     const handleSend = async (text?: string) => {
         const userMsg = (text || input).trim();
-        if (!userMsg || isTyping) return;
+        if ((!userMsg && selectedImages.length === 0) || isTyping) return;
 
         setInput('');
-        const newMsg: Message = { role: 'user', content: userMsg, mode: currentMode.id, timestamp: new Date() };
+        const newMsg: Message = { role: 'user', content: userMsg || 'Analyze this image.', mode: currentMode.id, images: selectedImages, timestamp: new Date() };
         setMessages(prev => [...prev, newMsg]);
         setIsTyping(true);
+        const imagesToSend = [...selectedImages];
+        setSelectedImages([]);
 
         try {
             const history = messages.slice(-12).map(m => ({ role: m.role, content: m.content }));
 
-            const response = await fetch('/api/ai/chat', {
+            const response = await fetch('/api/ai/vision', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    message: userMsg,
+                    message: userMsg || 'Analyze this image.',
                     mode: currentMode.id,
-                    isSeriousMode,
-                    history
+                    history,
+                    images: imagesToSend
                 })
             });
 
             const data = await response.json();
             setMessages(prev => [...prev, {
                 role: 'assistant',
-                content: data.response || "ORACLE_ERROR: Response unavailable.",
+                content: data.response || "SCOUT_ERROR: Response unavailable.",
                 timestamp: new Date()
             }]);
         } catch (error) {
             setMessages(prev => [...prev, {
                 role: 'assistant',
-                content: "ORACLE_ERROR: Neural link disrupted. Attempting reconnection...",
+                content: "SCOUT_ERROR: Neural link disrupted. Attempting reconnection...",
                 timestamp: new Date()
             }]);
         } finally {
@@ -167,12 +189,11 @@ export function NeuralOracle() {
     const clearChat = () => {
         setMessages([{
             role: 'assistant',
-            content: 'ORACLE RESET — Initializing new session. What are the Commander\'s objectives?',
+            content: 'SCOUT RESET — Initializing new session. Awaiting visual input.',
             timestamp: new Date()
         }]);
     };
 
-    // Format message content with basic markdown-like rendering
     const formatContent = (content: string, messageIndex: number) => {
         return content
             .split('\n')
@@ -199,7 +220,6 @@ export function NeuralOracle() {
 
     return (
         <div className="flex flex-col h-full bg-carbon-black relative overflow-hidden">
-            {/* Neural Synapse Visualizer Background */}
             <div className="absolute inset-0 pointer-events-none opacity-20">
                 <AnimatePresence>
                     {isTyping && (
@@ -212,7 +232,7 @@ export function NeuralOracle() {
                             {[...Array(6)].map((_, i) => (
                                 <motion.div
                                     key={i}
-                                    className="absolute w-px h-64 bg-gradient-to-b from-transparent via-hyper-cyan to-transparent"
+                                    className="absolute w-px h-64 bg-gradient-to-b from-transparent via-emerald-400 to-transparent"
                                     style={{
                                         left: `${15 + i * 15}%`,
                                         top: '-10%',
@@ -234,7 +254,6 @@ export function NeuralOracle() {
                 </AnimatePresence>
             </div>
 
-            {/* Header */}
             <div className="p-4 border-b border-white/5 bg-white/[0.01]">
                 <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
@@ -243,48 +262,14 @@ export function NeuralOracle() {
                         </div>
                         <div>
                             <h2 className="text-sm font-black text-white uppercase tracking-widest italic">
-                                SOVEREIGN_ORACLE <span className={cn("text-[10px]", currentMode.color)}>{currentMode.label}</span>
+                                VISION_SCOUT <span className={cn("text-[10px]", currentMode.color)}>{currentMode.label}</span>
                             </h2>
                             <p className="text-[9px] text-white/30 uppercase tracking-widest">{currentMode.desc}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        {/* Task Mode Toggle */}
-                        <div className="flex items-center bg-white/[0.03] border border-white/5 rounded-xl p-1 mr-2 scale-90">
-                            <button
-                                onClick={() => setIsSeriousMode(true)}
-                                className={cn(
-                                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all",
-                                    isSeriousMode ? "bg-hyper-cyan text-carbon-black" : "text-white/20 hover:text-white/40"
-                                )}
-                            >
-                                <Briefcase size={10} />
-                                Serious_Work
-                            </button>
-                            <button
-                                onClick={() => setIsSeriousMode(false)}
-                                className={cn(
-                                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all",
-                                    !isSeriousMode ? "bg-emerald-500 text-carbon-black" : "text-white/20 hover:text-white/40"
-                                )}
-                            >
-                                <Coffee size={10} />
-                                Casual_Rest
-                            </button>
-                        </div>
-
-                        {/* Context Memory Nodes */}
-                        <div className="flex items-center gap-1.5 mr-4 px-3 py-1 bg-white/[0.03] border border-white/5 rounded-full overflow-hidden">
-                            <span className="text-[7px] font-black text-white/20 uppercase tracking-widest mr-1">Context_Nodes:</span>
-                            <div className="flex gap-1">
-                                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 2 }} className="w-1.5 h-1.5 rounded-full bg-hyper-cyan" />
-                                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 2, delay: 0.5 }} className="w-1.5 h-1.5 rounded-full bg-hyper-cyan/40" />
-                                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 2, delay: 1 }} className="w-1.5 h-1.5 rounded-full bg-hyper-cyan/20" />
-                            </div>
-                        </div>
-
                         <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                        <span className="text-[9px] text-white/20 font-mono uppercase">LLAMA-3.3-70B ONLINE</span>
+                        <span className="text-[9px] text-white/20 font-mono uppercase">LLAMA-4-SCOUT ONLINE</span>
                         <button
                             onClick={clearChat}
                             className="ml-4 p-2 text-white/20 hover:text-white hover:bg-white/5 rounded-lg transition-all"
@@ -295,7 +280,6 @@ export function NeuralOracle() {
                     </div>
                 </div>
 
-                {/* Mode Selector */}
                 <div className="flex gap-2 overflow-x-auto pb-1 custom-scrollbar">
                     {MODES.map(mode => (
                         <button
@@ -315,10 +299,7 @@ export function NeuralOracle() {
                 </div>
             </div>
 
-            {/* Chat Area */}
             <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-
-                {/* Quick Prompts */}
                 {messages.length <= 1 && (
                     <div className="grid grid-cols-2 gap-2">
                         {quickPrompts.map((prompt, i) => (
@@ -327,7 +308,7 @@ export function NeuralOracle() {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: i * 0.05 }}
-                                onClick={() => handleSend(prompt)}
+                                onClick={() => setInput(prompt)}
                                 className="p-3 text-left bg-white/[0.02] border border-white/5 rounded-2xl text-[10px] text-white/40 hover:text-white hover:border-white/20 hover:bg-white/[0.05] transition-all leading-relaxed"
                             >
                                 <Sparkles size={10} className={cn("inline mr-1.5 mb-0.5", currentMode.color)} />
@@ -337,7 +318,6 @@ export function NeuralOracle() {
                     </div>
                 )}
 
-                {/* Messages */}
                 <AnimatePresence>
                     {messages.map((msg, i) => (
                         <motion.div
@@ -349,7 +329,6 @@ export function NeuralOracle() {
                                 msg.role === 'user' ? "flex-row-reverse ml-auto" : ""
                             )}
                         >
-                            {/* Avatar */}
                             <div className={cn(
                                 "w-9 h-9 rounded-xl flex items-center justify-center border shrink-0 mt-1",
                                 msg.role === 'assistant'
@@ -362,8 +341,17 @@ export function NeuralOracle() {
                                 }
                             </div>
 
-                            {/* Content */}
-                            <div className={cn("flex-1 space-y-1 max-w-[85%]", msg.role === 'user' ? "text-right" : "")}>
+                            <div className={cn("flex-1 space-y-2 max-w-[85%]", msg.role === 'user' ? "text-right" : "")}>
+                                {msg.images && msg.images.length > 0 && (
+                                    <div className={cn("flex gap-2 flex-wrap", msg.role === 'user' ? "justify-end" : "justify-start")}>
+                                        {msg.images.map((img, idx) => (
+                                            <div key={idx} className="w-32 h-32 rounded-xl border border-white/10 overflow-hidden">
+                                                <img src={img} alt="uploaded" className="w-full h-full object-cover" />
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                
                                 <div className={cn(
                                     "p-4 rounded-2xl border",
                                     msg.role === 'assistant'
@@ -381,7 +369,6 @@ export function NeuralOracle() {
                                     )}
                                 </div>
 
-                                {/* Actions */}
                                 {msg.role === 'assistant' && (
                                     <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity px-1">
                                         <button
@@ -403,7 +390,6 @@ export function NeuralOracle() {
                     ))}
                 </AnimatePresence>
 
-                {/* Typing Indicator */}
                 {isTyping && (
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -422,55 +408,66 @@ export function NeuralOracle() {
                                     className={cn("w-1.5 h-1.5 rounded-full", currentMode.bg.replace('bg-', 'bg-').replace('/10', '/60'))}
                                 />
                             ))}
-                            <span className="text-[9px] font-black text-white/20 uppercase tracking-widest ml-2">Oracle Processing...</span>
+                            <span className="text-[9px] font-black text-white/20 uppercase tracking-widest ml-2">Scout Processing...</span>
                         </div>
                     </motion.div>
                 )}
             </div>
 
-            {/* Input */}
             <div className="p-4 border-t border-white/5 bg-white/[0.01]">
-                {/* Service Center */}
-                <div className="flex gap-2 mb-3 overflow-x-auto pb-1 custom-scrollbar no-scrollbar">
-                    {AI_SERVICES.map(service => (
-                        <button
-                            key={service.id}
-                            onClick={() => handleServiceRequest(service.id)}
-                            disabled={isTyping}
-                            className={cn(
-                                "flex items-center gap-2 px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border shrink-0",
-                                activeService === service.id
-                                    ? "bg-white/10 border-white/20 text-white"
-                                    : "bg-white/[0.02] border-white/5 text-white/30 hover:bg-white/[0.05] hover:border-white/10"
-                            )}
-                        >
-                            <service.icon size={12} className={cn(service.color, activeService === service.id && "animate-pulse")} />
-                            {service.label}
-                        </button>
-                    ))}
-                </div>
+                {selectedImages.length > 0 && (
+                    <div className="flex gap-2 mb-3">
+                        {selectedImages.map((img, i) => (
+                            <div key={i} className="relative group/img w-16 h-16 rounded-lg border border-white/10 overflow-hidden">
+                                <img src={img} alt="preview" className="w-full h-full object-cover" />
+                                <button 
+                                    onClick={() => removeImage(i)}
+                                    className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity"
+                                >
+                                    <X size={14} className="text-white" />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
 
                 <div className={cn(
                     "relative flex items-end gap-3 bg-white/[0.03] border rounded-2xl p-3 transition-all",
-                    "focus-within:border-white/20",
-                    currentMode.border.replace('border-', 'focus-within:border-')
+                    currentMode.border.replace('/30', '/10'),
+                    "focus-within:border-hyper-cyan/40"
                 )}>
+                    <input 
+                        type="file" 
+                        ref={imageInputRef} 
+                        onChange={handleImageUpload} 
+                        multiple 
+                        accept="image/*" 
+                        className="hidden" 
+                    />
+                    
+                    <button 
+                        onClick={() => imageInputRef.current?.click()}
+                        disabled={selectedImages.length >= 3 || isTyping}
+                        className="p-2 text-white/20 hover:text-emerald-400 transition-colors"
+                    >
+                        <ImageIcon size={20} />
+                    </button>
+
                     <textarea
                         ref={inputRef}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder={`Message Oracle in ${currentMode.label} mode... (Enter to send, Shift+Enter for newline)`}
+                        placeholder="INPUT_VISUAL_COMMAND..."
+                        className="flex-1 bg-transparent border-none outline-none text-[13px] font-medium text-white placeholder:text-white/10 resize-none py-2 min-h-[40px] max-h-[200px] custom-scrollbar"
                         rows={1}
-                        className="flex-1 bg-transparent border-none outline-none text-white text-xs font-medium placeholder:text-white/10 resize-none custom-scrollbar max-h-32"
-                        style={{ minHeight: '24px' }}
                     />
                     <button
                         onClick={() => handleSend()}
-                        disabled={!input.trim() || isTyping}
+                        disabled={(!input.trim() && selectedImages.length === 0) || isTyping}
                         className={cn(
                             "w-10 h-10 rounded-xl flex items-center justify-center transition-all border shrink-0",
-                            input.trim() && !isTyping
+                            (input.trim() || selectedImages.length > 0) && !isTyping
                                 ? cn(currentMode.bg, currentMode.border, currentMode.color, "hover:opacity-80")
                                 : "bg-white/5 border-white/5 text-white/10 cursor-not-allowed"
                         )}
@@ -484,15 +481,11 @@ export function NeuralOracle() {
                 <div className="flex justify-between items-center mt-2 px-1">
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1.5">
-                            <Shield size={10} className="text-hyper-cyan" />
+                            <Shield size={10} className="text-emerald-400" />
                             <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">End-to-End Encrypted</span>
                         </div>
-                        <div className="flex items-center gap-1.5">
-                            <Zap size={10} className="text-hyper-cyan" />
-                            <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">No Content Limits</span>
-                        </div>
                     </div>
-                    <span className="text-[8px] font-mono text-white/10">Llama3.3-70B | 70B params</span>
+                    <span className="text-[8px] font-mono text-white/10">Llama4-Scout | Image-to-Text Mode</span>
                 </div>
             </div>
         </div>

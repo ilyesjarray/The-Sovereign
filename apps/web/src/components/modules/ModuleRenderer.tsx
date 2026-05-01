@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 
 const NeuralOracle = dynamic(() => import('@/components/sectors/Neural/NeuralOracle').then(mod => mod.NeuralOracle));
+const VisionScout = dynamic(() => import('@/components/sectors/Neural/VisionScout').then(mod => mod.VisionScout));
 const WarCouncil = dynamic(() => import('@/components/sectors/Neural/WarCouncil').then(mod => mod.WarCouncil));
 const ChronoGovernor = dynamic(() => import('@/components/sectors/Temporal/ChronoGovernor').then(mod => mod.ChronoGovernor));
 const WealthForge = dynamic(() => import('@/components/sectors/Wealth/WealthForge').then(mod => mod.WealthForge));
@@ -53,6 +54,12 @@ export function ModuleRenderer({ moduleId }: ModuleRendererProps) {
             return <ComingSoon sectorName="Asset_Forge" />;
         case 'global-ops':
             return <ComingSoon sectorName="Liaison_Core" />;
+        case 'vision-scout':
+            return (
+                <Suspense fallback={<ModuleLoader />}>
+                    <VisionScout />
+                </Suspense>
+            );
         case 'community-nexus':
             return <ComingSoon sectorName="Imperial_Community" />;
         case 'system-settings':

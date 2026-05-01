@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import {
-    Lock, Radar, Layers, LayoutGrid, Users, Settings, Crown, Binary, Zap, Globe, Cpu, Shield, Activity, Fingerprint, ChevronRight, Search, Target, ShieldAlert, Radio, BarChart3, Mic, BrainCircuit, HardDrive, Wallet, MessageSquare, Calendar, Check, Sword, Bot, Clock
+    Lock, Radar, Layers, LayoutGrid, Users, Settings, Crown, Binary, Zap, Globe, Cpu, Shield, Activity, Fingerprint, ChevronRight, Search, Target, ShieldAlert, Radio, BarChart3, Mic, BrainCircuit, HardDrive, Wallet, MessageSquare, Calendar, Check, Sword, Bot, Clock, Eye
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SovereignSplash } from '@/components/auth/SovereignSplash';
@@ -164,6 +164,7 @@ function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean,
             label: 'CORE_OPERATIONAL_SYSTEMS',
             sectors: [
                 { id: 'market-oracle', label: 'THE_HIGH_ORACLE', icon: Binary, color: 'hyper-cyan' },
+                { id: 'vision-scout', label: 'VISION_SCOUT', icon: Eye, color: 'text-emerald-400' },
                 { id: 'sovereign-social', label: 'COMMUNITY_PROTOCOL', icon: Users, color: 'hyper-cyan' },
                 { id: 'sovereign-vault', label: 'THE_CRYPT', icon: ShieldAlert, color: 'hyper-cyan' },
             ]
