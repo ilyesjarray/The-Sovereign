@@ -51,12 +51,15 @@ const CustomTooltip = ({ active, payload }: any) => {
     return null;
 };
 
-export function TradingViewChart() {
     const [data, setData] = React.useState<ChartData[]>([]);
+    const [isMounted, setIsMounted] = React.useState(false);
 
     React.useEffect(() => {
         setData(generateMockData());
+        setIsMounted(true);
     }, []);
+
+    if (!isMounted) return <div className="w-full h-[350px]" />;
 
     return (
         <div className="w-full h-[350px] relative mt-6 group">
