@@ -28,11 +28,13 @@ export function SovereignSettings() {
     const [biometrics, setBiometrics] = useState(true);
     const [language, setLanguage] = useState('en');
 
-    // Profile State
-    const [fullName, setFullName] = useState('Imperial_Commander');
-    const [emailNode, setEmailNode] = useState('alpha@sovereign.os');
-    const [rank, setRank] = useState('Elite_Tier_One');
-    const [location, setLocation] = useState('Encrypted_Nexus');
+    // Profile State — mapped to profiles table
+    const [fullName, setFullName] = useState('');
+    const [emailNode, setEmailNode] = useState('');
+    const [userTier, setUserTier] = useState('GUEST');
+    const [neuralLinkId, setNeuralLinkId] = useState('');
+    const [sovereignCredits, setSovereignCredits] = useState(0);
+    const [saveSuccess, setSaveSuccess] = useState(false);
 
     // Syndicate State
     const [inviteEmail, setInviteEmail] = useState('');
@@ -54,44 +56,45 @@ export function SovereignSettings() {
         if (session) {
             setUserId(session.user.id);
 
-            // Load avatar from profiles table
+            // Load all profile data from profiles table
             const { data: profile } = await supabase
                 .from('profiles')
-                .select('avatar_url')
+                .select('full_name, email, avatar_url, tier, neural_link_id, sovereign_credits')
                 .eq('id', session.user.id)
                 .single();
-            if (profile?.avatar_url) setAvatarUrl(profile.avatar_url);
 
-            const { data } = await supabase.from('user_settings').select('*').eq('id', session.user.id).single();
-            if (data) {
-                setFullName(data.full_name || 'Imperial_Commander');
-                setEmailNode(data.email_node || session.user.email);
-                setRank(data.rank || 'Elite_Tier_One');
-                setLocation(data.location || 'Encrypted_Nexus');
-                setLanguage(data.language || 'en');
-                setNotifications(data.notifications ?? true);
-                setBiometrics(data.biometrics ?? true);
+            if (profile) {
+                setFullName(profile.full_name || '');
+                setEmailNode(profile.email || session.user.email || '');
+                setAvatarUrl(profile.avatar_url || null);
+                setUserTier(profile.tier || 'GUEST');
+                setNeuralLinkId(profile.neural_link_id || '');
+                setSovereignCredits(profile.sovereign_credits || 0);
             } else {
-                setEmailNode(session.user.email || 'alpha@sovereign.os');
+                setEmailNode(session.user.email || '');
             }
         }
     };
 
     const saveSettings = async () => {
         setIsSaving(true);
+        setSaveSuccess(false);
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
-            await supabase.from('user_settings').upsert({
-                id: session.user.id,
-                full_name: fullName,
-                email_node: emailNode,
-                rank: rank,
-                location: location,
-                language: language,
-                biometrics: biometrics,
-                notifications: notifications,
-                updated_at: new Date().toISOString()
-            });
+            const { error } = await supabase
+                .from('profiles')
+                .update({
+                    full_name: fullName,
+                    email: emailNode,
+                    neural_link_id: neuralLinkId || null,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', session.user.id);
+
+            if (!error) {
+                setSaveSuccess(true);
+                setTimeout(() => setSaveSuccess(false), 3000);
+            }
         }
         setIsSaving(false);
     };
@@ -388,8 +391,8 @@ export function SovereignSettings() {
                                     </button>
 
                                     <div className="flex-1 relative z-10">
-                                        <div className="text-2xl font-black text-white italic">EXECUTIVE_NODE_07</div>
-                                        <div className="text-[10px] text-hyper-cyan font-black tracking-widest mt-1 uppercase">Commander_Clearance_Active</div>
+                                        <div className="text-2xl font-black text-white italic">{fullName || 'UNNAMED_COMMANDER'}</div>
+                                        <div className="text-[10px] text-hyper-cyan font-black tracking-widest mt-1 uppercase">{userTier}_Clearance_Active</div>
                                         <div className="flex gap-4 mt-4">
                                             <button
                                                 onClick={() => fileInputRef.current?.click()}
@@ -397,7 +400,7 @@ export function SovereignSettings() {
                                             >
                                                 <Camera size={10} /> Change_Avatar
                                             </button>
-                                            <button className="text-[9px] font-black text-red-500/60 hover:text-red-500 uppercase tracking-widest italic border-b border-red-500/10">Re_Sync_DNA</button>
+                                            <button onClick={loadSettings} className="text-[9px] font-black text-white/30 hover:text-white uppercase tracking-widest italic border-b border-white/10 transition-colors">Refresh_Data</button>
                                         </div>
                                     </div>
                                 </div>
@@ -405,8 +408,19 @@ export function SovereignSettings() {
                                 <div className="grid grid-cols-2 gap-8">
                                     <SettingsField label="FULL_NAME" value={fullName} onChange={setFullName} />
                                     <SettingsField label="EMAIL_NODE" value={emailNode} onChange={setEmailNode} />
-                                    <SettingsField label="RANK" value={rank} onChange={setRank} />
-                                    <SettingsField label="LOCATION" value={location} onChange={setLocation} />
+                                    <SettingsField label="NEURAL_LINK_ID" value={neuralLinkId} onChange={setNeuralLinkId} />
+                                    <SettingsField label="ACCESS_TIER" value={userTier} readOnly />
+                                </div>
+
+                                {/* Read-only Sovereign Credits */}
+                                <div className="glass-v-series p-8 rounded-3xl border border-white/5 bg-white/[0.01]">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <div className="text-[9px] font-black text-white/20 uppercase tracking-[0.4em] mb-2">Sovereign_Credits</div>
+                                            <div className="text-3xl font-black text-hyper-cyan italic">{sovereignCredits.toLocaleString()} <span className="text-sm text-white/20">SCR</span></div>
+                                        </div>
+                                        <Zap className="w-10 h-10 text-hyper-cyan/20" />
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -483,10 +497,15 @@ export function SovereignSettings() {
                         <button
                             onClick={saveSettings}
                             disabled={isSaving}
-                            className="flex items-center gap-4 px-10 py-4 bg-hyper-cyan text-carbon-black font-black text-[10px] uppercase tracking-[0.4em] rounded-xl shadow-neon-cyan hover:scale-105 transition-all italic disabled:opacity-50"
+                            className={cn(
+                                "flex items-center gap-4 px-10 py-4 font-black text-[10px] uppercase tracking-[0.4em] rounded-xl hover:scale-105 transition-all italic disabled:opacity-50",
+                                saveSuccess
+                                    ? "bg-emerald-500 text-carbon-black shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+                                    : "bg-hyper-cyan text-carbon-black shadow-neon-cyan"
+                            )}
                         >
                             <Save size={16} className={cn(isSaving && "animate-pulse")} />
-                            {isSaving ? 'Committing...' : 'Commit_Changes'}
+                            {isSaving ? 'Committing...' : saveSuccess ? 'Committed ✓' : 'Commit_Changes'}
                         </button>
                     </div>
                 </div>
@@ -495,15 +514,27 @@ export function SovereignSettings() {
     );
 }
 
-function SettingsField({ label, value, onChange }: { label: string, value: string, onChange?: (val: string) => void }) {
+function SettingsField({ label, value, onChange, readOnly }: { label: string, value: string, onChange?: (val: string) => void, readOnly?: boolean }) {
     return (
         <div className="space-y-3 group">
-            <label className="text-[9px] font-black text-white/20 uppercase tracking-[0.4em] ml-2">{label}</label>
-            <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/5 group-focus-within:border-hyper-cyan/40 transition-all">
+            <div className="flex items-center gap-2 ml-2">
+                <label className="text-[9px] font-black text-white/20 uppercase tracking-[0.4em]">{label}</label>
+                {readOnly && <span className="text-[7px] font-black text-amber-500/50 uppercase tracking-widest">System_Locked</span>}
+            </div>
+            <div className={cn(
+                "p-5 rounded-2xl border transition-all",
+                readOnly
+                    ? "bg-white/[0.01] border-white/5 opacity-60"
+                    : "bg-white/[0.02] border-white/5 group-focus-within:border-hyper-cyan/40"
+            )}>
                 <input
                     value={value}
                     onChange={e => onChange?.(e.target.value)}
-                    className="w-full bg-transparent border-none outline-none text-white text-[11px] font-bold uppercase tracking-widest italic"
+                    readOnly={readOnly}
+                    className={cn(
+                        "w-full bg-transparent border-none outline-none text-[11px] font-bold uppercase tracking-widest italic",
+                        readOnly ? "text-white/40 cursor-not-allowed" : "text-white"
+                    )}
                 />
             </div>
         </div>
