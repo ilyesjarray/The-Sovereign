@@ -51,6 +51,7 @@ const CustomTooltip = ({ active, payload }: any) => {
     return null;
 };
 
+export function TradingViewChart() {
     const [data, setData] = React.useState<ChartData[]>([]);
     const [isMounted, setIsMounted] = React.useState(false);
 
