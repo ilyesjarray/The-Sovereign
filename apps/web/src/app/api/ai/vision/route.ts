@@ -54,7 +54,7 @@ Extract all relevant data, text, or context from the images provided.`;
                         'Accept': 'application/json'
                     },
                     body: JSON.stringify({
-                        model: 'llama-3.2-11b-vision-preview',
+                        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
                         messages: conversationMessages,
                         max_tokens: 1024,
                         temperature: 0.5,
@@ -88,7 +88,7 @@ Extract all relevant data, text, or context from the images provided.`;
         }
 
         console.error('[Vision API]: All keys exhausted:', lastError);
-        return NextResponse.json({ response: "SCOUT_ERROR: Vision network timeout. Try again." });
+        return NextResponse.json({ response: `SCOUT_ERROR: Vision network timeout. Details: ${lastError}` });
 
     } catch (error) {
         console.error('[Vision API]: Error', error);
