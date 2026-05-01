@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Send, Bot, User, Brain, BookOpen,
     Briefcase, Coffee, Terminal, Zap, Shield,
-    Copy, Check, Maximize2, RotateCcw, Code2,
+    Copy, Check, Maximize2, RotateCcw, Code2, X,
     Sparkles, Image as ImageIcon, Video, FileJson, Search,
     FileText, BarChart, Settings2, Languages, Microscope
 } from 'lucide-react';
