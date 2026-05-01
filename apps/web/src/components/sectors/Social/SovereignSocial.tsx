@@ -80,7 +80,17 @@ export default function SovereignSocial() {
             .select('*, profiles(full_name, avatar_url)')
             .order('created_at', { ascending: false });
 
-        if (data) setPosts(data);
+        if (error) {
+            console.warn('[Social] Feed Sync Interrupted (Schema Conflict):', error.message);
+            // Fallback to basic select without join if profiles join fails
+            const { data: simpleData } = await supabase
+                .from('social_posts')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (simpleData) setPosts(simpleData);
+        } else if (data) {
+            setPosts(data);
+        }
         setIsLoading(false);
     };
 

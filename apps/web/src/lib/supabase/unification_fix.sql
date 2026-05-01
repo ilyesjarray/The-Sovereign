@@ -6,7 +6,9 @@
 -- 1. PROFILES ENHANCEMENT
 ALTER TABLE IF EXISTS public.profiles 
 ADD COLUMN IF NOT EXISTS tier TEXT DEFAULT 'GUEST',
-ADD COLUMN IF NOT EXISTS email TEXT;
+ADD COLUMN IF NOT EXISTS email TEXT,
+ADD COLUMN IF NOT EXISTS full_name TEXT,
+ADD COLUMN IF NOT EXISTS avatar_url TEXT;
 
 -- Sync email from auth.users to profiles (one-time fix)
 UPDATE public.profiles

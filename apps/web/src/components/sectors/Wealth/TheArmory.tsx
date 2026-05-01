@@ -94,7 +94,7 @@ export function TheArmory() {
                     const md = await marketRes.json();
                     let total = 0;
                     p.forEach(asset => {
-                        const coin = md.topCoins?.find((c: any) => c.symbol.toLowerCase() === asset.asset_symbol.toLowerCase());
+                        const coin = md.topCoins?.find((c: any) => c.symbol?.toLowerCase() === asset.asset_symbol?.toLowerCase());
                         if (coin) total += asset.amount * coin.current_price;
                     });
                     setPortfolioValue(total);
@@ -115,7 +115,7 @@ export function TheArmory() {
                 if (p) {
                     let total = 0;
                     p.forEach(asset => {
-                        const coin = marketData.topCoins.find((c: any) => c.symbol.toLowerCase() === asset.asset_symbol.toLowerCase());
+                        const coin = marketData.topCoins?.find((c: any) => c.symbol?.toLowerCase() === asset.asset_symbol?.toLowerCase());
                         if (coin) total += asset.amount * coin.current_price;
                     });
                     setPortfolioValue(total);
