@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Settings, Shield, LogOut, ChevronDown, CreditCard, Fingerprint, Zap } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/navigation';
@@ -15,6 +16,7 @@ export function IdentityAccess({ onSectorChange }: IdentityAccessProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [userEmail, setUserEmail] = useState('');
     const [userTier, setUserTier] = useState<string>('GUEST');
+    const [dropdownStyles, setDropdownStyles] = useState({});
     const dropdownRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
     const supabase = createClient();
@@ -63,10 +65,21 @@ export function IdentityAccess({ onSectorChange }: IdentityAccessProps) {
         { label: 'System Config', icon: Settings, href: '#', desc: 'OS Preferences', id: 'system-settings', menuKey: 'system-config' },
     ];
 
+    const handleToggle = () => {
+        if (!isOpen && dropdownRef.current) {
+            const rect = dropdownRef.current.getBoundingClientRect();
+            setDropdownStyles({
+                top: rect.bottom + 16,
+                right: window.innerWidth - rect.right
+            });
+        }
+        setIsOpen(!isOpen);
+    };
+
     return (
         <div className="relative" ref={dropdownRef}>
             <button
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={handleToggle}
                 className="flex items-center gap-3 pl-2 pr-3 py-1.5 rounded-xl bg-white/5 border border-white/5 hover:border-hyper-cyan/30 transition-all group relative overflow-hidden"
             >
                 <div className="absolute inset-0 bg-gradient-to-br from-hyper-cyan/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -94,25 +107,27 @@ export function IdentityAccess({ onSectorChange }: IdentityAccessProps) {
                 />
             </button>
 
-            <AnimatePresence>
-                {isOpen && (
-                    <>
-                        {/* Blur Backdrop */}
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-md"
-                            onClick={() => setIsOpen(false)}
-                        />
-                        
-                        {/* Dropdown Panel */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 15, scale: 0.95 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: 15, scale: 0.95 }}
-                            className="absolute top-full mt-4 right-0 w-72 glass-v-series border border-white/10 z-[110] shadow-premium rounded-2xl overflow-hidden"
-                        >
+            {typeof document !== 'undefined' && createPortal(
+                <AnimatePresence>
+                    {isOpen && (
+                        <>
+                            {/* Blur Backdrop */}
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-xl"
+                                onClick={() => setIsOpen(false)}
+                            />
+                            
+                            {/* Dropdown Panel */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                                style={dropdownStyles}
+                                className="fixed w-72 glass-v-series border border-white/10 z-[110] shadow-premium rounded-2xl overflow-hidden"
+                            >
                         {/* Header: User Profile Segment */}
                         <div className="px-6 py-6 border-b border-white/5 bg-gradient-to-br from-hyper-cyan/5 to-transparent">
                             <div className="flex items-center gap-4 mb-4">
@@ -171,7 +186,9 @@ export function IdentityAccess({ onSectorChange }: IdentityAccessProps) {
                     </motion.div>
                     </>
                 )}
-            </AnimatePresence>
+                </AnimatePresence>,
+                document.body
+            )}
         </div>
     );
 }
