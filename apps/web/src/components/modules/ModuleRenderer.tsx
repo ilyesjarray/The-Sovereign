@@ -52,12 +52,12 @@ function ProductionAlertWrapper({ children, sectorName, moduleId }: { children: 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="absolute inset-0 z-50 bg-carbon-black/80 backdrop-blur-md flex items-center justify-center p-4"
+                        className="absolute inset-0 z-50 bg-carbon-black/80 backdrop-blur-md flex items-start justify-center p-4 pt-24"
                     >
                         <motion.div 
-                            initial={{ scale: 0.95, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.95, opacity: 0 }}
+                            initial={{ y: -20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: -20, opacity: 0 }}
                             className="bg-[#111] border border-amber-500/30 rounded-2xl p-6 max-w-md w-full shadow-2xl shadow-amber-500/5"
                         >
                             <div className="flex items-center gap-4 mb-4">
