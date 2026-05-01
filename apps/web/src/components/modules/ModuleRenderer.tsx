@@ -1,5 +1,7 @@
 'use client';
 
+import { Suspense } from 'react';
+
 import dynamic from 'next/dynamic';
 
 const NeuralOracle = dynamic(() => import('@/components/sectors/Neural/NeuralOracle').then(mod => mod.NeuralOracle));
