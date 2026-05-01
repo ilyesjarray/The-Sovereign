@@ -122,22 +122,34 @@ CRITICAL RULES:
 - PLATFORM DEFINITION: The Sovereign is an elite, high-performance financial intelligence operating system. Driven by co-founder Rayen Lachiheb, it is designed for institutional-grade market tracking, autonomous AI-powered analysis, and rapid economic arbitration. Where Neydra provides the ecosystem, The Sovereign provides the surgical tools for financial dominance.`;
 
         // Format user message for Vision if images are present
-        const userContent: any[] = [{ type: 'text', text: message }];
-        images.forEach((img: string) => {
-            userContent.push({
-                type: 'image_url',
-                image_url: { url: img }
-            });
-        });
+        const isVision = images.length > 0;
+        let conversationMessages: any[] = [];
 
-        const conversationMessages = [
-            { role: 'system', content: enrichedSystem },
-            ...history.slice(-10).map((h: any) => ({
-                role: h.role,
-                content: h.content
-            })),
-            { role: 'user', content: userContent }
-        ];
+        if (isVision) {
+            const userContent: any[] = [
+                { type: 'text', text: `[SYSTEM CONTEXT INJECTED]:\n${enrichedSystem}\n\n[USER REQUEST]:\n${message}` }
+            ];
+            images.forEach((img: string) => {
+                userContent.push({
+                    type: 'image_url',
+                    image_url: { url: img }
+                });
+            });
+            // For Vision, Groq strictly requires ONLY user/assistant messages, and no system role.
+            // We only send the immediate request with images to prevent context length bloat or format errors.
+            conversationMessages = [
+                { role: 'user', content: userContent }
+            ];
+        } else {
+            conversationMessages = [
+                { role: 'system', content: enrichedSystem },
+                ...history.slice(-10).map((h: any) => ({
+                    role: h.role,
+                    content: h.content
+                })),
+                { role: 'user', content: message }
+            ];
+        }
 
         // Key rotation: try each key until success
         let lastError = '';
