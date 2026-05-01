@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense } from 'react';
+
 
 import dynamic from 'next/dynamic';
 
@@ -57,11 +57,7 @@ export function ModuleRenderer({ moduleId }: ModuleRendererProps) {
         case 'global-ops':
             return <ComingSoon sectorName="Liaison_Core" />;
         case 'vision-scout':
-            return (
-                <Suspense fallback={<ModuleLoader />}>
-                    <VisionScout />
-                </Suspense>
-            );
+            return <VisionScout />;
         case 'community-nexus':
             return <ComingSoon sectorName="Imperial_Community" />;
         case 'system-settings':
