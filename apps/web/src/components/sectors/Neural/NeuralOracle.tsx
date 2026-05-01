@@ -96,7 +96,32 @@ export function NeuralOracle() {
         files.forEach(file => {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setSelectedImages(prev => [...prev, reader.result as string]);
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const MAX_SIZE = 800; // Optimal for fast vision processing
+
+                    if (width > height && width > MAX_SIZE) {
+                        height *= MAX_SIZE / width;
+                        width = MAX_SIZE;
+                    } else if (height > MAX_SIZE) {
+                        width *= MAX_SIZE / height;
+                        height = MAX_SIZE;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    if (ctx) {
+                        ctx.drawImage(img, 0, 0, width, height);
+                        // Compress to JPEG for massive payload reduction
+                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+                        setSelectedImages(prev => [...prev, compressedBase64]);
+                    }
+                };
+                img.src = reader.result as string;
             };
             reader.readAsDataURL(file);
         });

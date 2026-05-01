@@ -145,7 +145,7 @@ CRITICAL RULES:
             const apiKey = GROQ_KEYS[attempt];
             try {
                 const isVision = images.length > 0;
-                const model = isVision ? 'llama-3.2-90b-vision-preview' : 'llama-3.3-70b-versatile';
+                const model = isVision ? 'llama-3.2-11b-vision-preview' : 'llama-3.3-70b-versatile';
 
                 const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: 'POST',
