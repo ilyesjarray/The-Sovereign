@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Settings, Shield, LogOut, ChevronDown, CreditCard, Fingerprint, Zap } from 'lucide-react';
+import { User, Settings, Shield, LogOut, ChevronDown, CreditCard, Fingerprint, Zap, Camera, Loader2 } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
@@ -12,12 +12,65 @@ interface IdentityAccessProps {
     onSectorChange?: (sectorId: string) => void;
 }
 
+/**
+ * Compresses an image file to ~1/4 of its original size using Canvas API.
+ * Returns a base64 data URL and a Blob for upload.
+ */
+async function compressImage(file: File): Promise<{ dataUrl: string; blob: Blob }> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                // Reduce dimensions to ~50% = ~25% pixel count (1/4 size)
+                const MAX_SIZE = 256;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height && width > MAX_SIZE) {
+                    height = Math.round(height * (MAX_SIZE / width));
+                    width = MAX_SIZE;
+                } else if (height > MAX_SIZE) {
+                    width = Math.round(width * (MAX_SIZE / height));
+                    height = MAX_SIZE;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return reject('Canvas context unavailable');
+
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob(
+                    (blob) => {
+                        if (!blob) return reject('Blob creation failed');
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+                        resolve({ dataUrl, blob });
+                    },
+                    'image/jpeg',
+                    0.5 // quality = 50%
+                );
+            };
+            img.onerror = reject;
+            img.src = reader.result as string;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
 export function IdentityAccess({ onSectorChange }: IdentityAccessProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [userEmail, setUserEmail] = useState('');
+    const [userId, setUserId] = useState('');
     const [userTier, setUserTier] = useState<string>('GUEST');
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
     const [dropdownStyles, setDropdownStyles] = useState({});
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const router = useRouter();
     const supabase = createClient();
 
@@ -33,15 +86,19 @@ export function IdentityAccess({ onSectorChange }: IdentityAccessProps) {
             const { data: { session } } = await supabase.auth.getSession();
             if (session?.user?.email) {
                 setUserEmail(session.user.email);
+                setUserId(session.user.id);
 
-                // Fetch Profile for Tier - Simplified Neydra Pattern
+                // Fetch Profile for Tier & Avatar
                 const { data: profile } = await supabase
                     .from('profiles')
-                    .select('tier')
+                    .select('tier, avatar_url')
                     .eq('id', session.user.id)
                     .single();
 
-                if (profile) setUserTier(profile.tier);
+                if (profile) {
+                    setUserTier(profile.tier);
+                    if (profile.avatar_url) setAvatarUrl(profile.avatar_url);
+                }
             }
         };
 
@@ -57,6 +114,56 @@ export function IdentityAccess({ onSectorChange }: IdentityAccessProps) {
         setIsOpen(false);
         router.push('/');
         router.refresh();
+    };
+
+    const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !userId) return;
+
+        setIsUploading(true);
+        try {
+            // Compress the image to ~1/4 size
+            const { dataUrl, blob } = await compressImage(file);
+
+            // Upload to Supabase Storage — citadel bucket, user's folder
+            const filePath = `${userId}/avatar.jpg`;
+            const { error: uploadError } = await supabase.storage
+                .from('citadel')
+                .upload(filePath, blob, {
+                    contentType: 'image/jpeg',
+                    upsert: true, // overwrite existing avatar
+                });
+
+            if (uploadError) {
+                console.error('Upload error:', uploadError);
+                setIsUploading(false);
+                return;
+            }
+
+            // Get public URL
+            const { data: urlData } = supabase.storage
+                .from('citadel')
+                .getPublicUrl(filePath);
+
+            const publicUrl = urlData.publicUrl + '?t=' + Date.now(); // cache bust
+
+            // Update profile in database
+            const { error: updateError } = await supabase
+                .from('profiles')
+                .update({ avatar_url: publicUrl })
+                .eq('id', userId);
+
+            if (updateError) {
+                console.error('Profile update error:', updateError);
+            } else {
+                setAvatarUrl(publicUrl);
+            }
+        } catch (err) {
+            console.error('Avatar upload failed:', err);
+        } finally {
+            setIsUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
     };
 
     const menuItems = [
@@ -76,17 +183,47 @@ export function IdentityAccess({ onSectorChange }: IdentityAccessProps) {
         setIsOpen(!isOpen);
     };
 
+    // Reusable avatar element
+    const AvatarIcon = ({ size = 'sm' }: { size?: 'sm' | 'lg' }) => {
+        const dimensions = size === 'sm' ? 'w-8 h-8' : 'w-12 h-12';
+        const iconSize = size === 'sm' ? 'w-5 h-5' : 'w-6 h-6';
+
+        if (avatarUrl) {
+            return (
+                <div className={cn(dimensions, "rounded-lg border border-hyper-cyan/30 overflow-hidden relative")}>
+                    <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                    <div className="absolute bottom-0 left-0 w-full h-[2px] bg-hyper-cyan animate-pulse" />
+                </div>
+            );
+        }
+
+        return (
+            <div className={cn(dimensions, "rounded-lg bg-hyper-cyan/10 border border-hyper-cyan/30 flex items-center justify-center relative overflow-hidden")}>
+                <Fingerprint className={cn(iconSize, "text-hyper-cyan group-hover:scale-110 transition-transform")} />
+                <div className="absolute bottom-0 left-0 w-full h-[2px] bg-hyper-cyan animate-pulse" />
+            </div>
+        );
+    };
+
     return (
         <div className="relative" ref={dropdownRef}>
+            {/* Hidden file input */}
+            <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleAvatarUpload}
+                accept="image/*"
+                className="hidden"
+            />
+
             <button
                 onClick={handleToggle}
                 className="flex items-center gap-3 pl-2 pr-3 py-1.5 rounded-xl bg-white/5 border border-white/5 hover:border-hyper-cyan/30 transition-all group relative overflow-hidden"
             >
                 <div className="absolute inset-0 bg-gradient-to-br from-hyper-cyan/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                <div className="w-8 h-8 rounded-lg bg-hyper-cyan/10 border border-hyper-cyan/30 flex items-center justify-center relative z-10 overflow-hidden">
-                    <Fingerprint className="w-5 h-5 text-hyper-cyan group-hover:scale-110 transition-transform" />
-                    <div className="absolute bottom-0 left-0 w-full h-[2px] bg-hyper-cyan animate-pulse" />
+                <div className="relative z-10">
+                    <AvatarIcon size="sm" />
                 </div>
 
                 <div className="hidden lg:flex flex-col items-start relative z-10 text-left">
@@ -131,9 +268,33 @@ export function IdentityAccess({ onSectorChange }: IdentityAccessProps) {
                         {/* Header: User Profile Segment */}
                         <div className="px-6 py-6 border-b border-white/5 bg-gradient-to-br from-hyper-cyan/5 to-transparent">
                             <div className="flex items-center gap-4 mb-4">
-                                <div className="w-12 h-12 rounded-xl bg-hyper-cyan/20 border border-hyper-cyan/40 flex items-center justify-center shadow-neon-cyan">
-                                    <User className="w-6 h-6 text-hyper-cyan" />
-                                </div>
+                                {/* Clickable Avatar with Upload */}
+                                <button
+                                    onClick={() => fileInputRef.current?.click()}
+                                    disabled={isUploading}
+                                    className="relative group/avatar cursor-pointer shrink-0"
+                                    title="Change profile picture"
+                                >
+                                    {avatarUrl ? (
+                                        <div className="w-12 h-12 rounded-xl border border-hyper-cyan/40 overflow-hidden shadow-neon-cyan">
+                                            <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                                        </div>
+                                    ) : (
+                                        <div className="w-12 h-12 rounded-xl bg-hyper-cyan/20 border border-hyper-cyan/40 flex items-center justify-center shadow-neon-cyan">
+                                            <User className="w-6 h-6 text-hyper-cyan" />
+                                        </div>
+                                    )}
+
+                                    {/* Hover overlay */}
+                                    <div className="absolute inset-0 rounded-xl bg-black/60 flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity">
+                                        {isUploading ? (
+                                            <Loader2 className="w-5 h-5 text-hyper-cyan animate-spin" />
+                                        ) : (
+                                            <Camera className="w-5 h-5 text-hyper-cyan" />
+                                        )}
+                                    </div>
+                                </button>
+
                                 <div className="flex flex-col overflow-hidden">
                                     <span className="text-xs font-black text-white tracking-widest uppercase truncate">
                                         {displayName}
@@ -192,4 +353,3 @@ export function IdentityAccess({ onSectorChange }: IdentityAccessProps) {
         </div>
     );
 }
-
