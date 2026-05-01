@@ -160,22 +160,28 @@ function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean,
 
     const DIRECTORATES = [
         {
-            name: 'DIRECTORATE_NEURAL',
-            label: 'NEURAL_DIRECTORATE',
+            name: 'DIRECTORATE_OPERATIONAL',
+            label: 'CORE_OPERATIONAL_SYSTEMS',
             sectors: [
                 { id: 'market-oracle', label: 'THE_HIGH_ORACLE', icon: Binary, color: 'hyper-cyan' },
+                { id: 'sovereign-social', label: 'COMMUNITY_PROTOCOL', icon: Users, color: 'hyper-cyan' },
+                { id: 'sovereign-vault', label: 'THE_CRYPT', icon: ShieldAlert, color: 'hyper-cyan' },
+            ]
+        },
+        {
+            name: 'DIRECTORATE_NEURAL',
+            label: 'NEURAL_DIRECTORATE (UNDER_SYNC)',
+            sectors: [
                 { id: 'war-council', label: 'STRATAGEM_COUNCIL', icon: Sword, color: 'text-amber-400' },
                 { id: 'the-forge', label: 'GENESIS_ENGINE', icon: BrainCircuit, color: 'hyper-cyan' },
                 { id: 'temporal-engine', label: 'CHRONOS_SINGULARITY', icon: Clock, color: 'text-emerald-400' },
-                { id: 'sovereign-social', label: 'COMMUNITY_PROTOCOL', icon: Users, color: 'hyper-cyan' },
             ]
         },
         {
             name: 'DIRECTORATE_SECURITY',
-            label: 'SECURITY_DIRECTORATE',
+            label: 'SECURITY_DIRECTORATE (ENCRYPTING)',
             sectors: [
                 { id: 'the-citadel', label: 'THE_IMPERIAL_BASTION', icon: HardDrive, color: 'hyper-cyan' },
-                { id: 'sovereign-vault', label: 'THE_CRYPT', icon: ShieldAlert, color: 'hyper-cyan' },
                 { id: 'digital-scouts', label: 'SHADOW_WATCH', icon: Radio, color: 'hyper-cyan' },
                 { id: 'intelligence-nexus', label: 'INTELLIGENCE_NEXUS', icon: Search, color: 'hyper-cyan' },
                 { id: 'nexus-protocol', label: 'NEXUS_UPLINK', icon: MessageSquare, color: 'hyper-cyan' },
@@ -183,7 +189,7 @@ function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean,
         },
         {
             name: 'DIRECTORATE_FINANCE',
-            label: 'FINANCE_DIRECTORATE',
+            label: 'FINANCE_DIRECTORATE (LIQUIDATING)',
             sectors: [
                 { id: 'the-armory', label: 'SOVEREIGN_TREASURY', icon: Wallet, color: 'hyper-cyan' },
                 { id: 'wealth-engine', label: 'ASSET_FORGE', icon: Zap, color: 'hyper-cyan' },
@@ -194,7 +200,7 @@ function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean,
         },
         {
             name: 'DIRECTORATE_OPERATIONS',
-            label: 'OPERATIONS_DIRECTORATE',
+            label: 'OPERATIONS_DIRECTORATE (ASSEMBLING)',
             sectors: [
                 { id: 'chronos', label: 'LEGACY_TEMPORAL', icon: Calendar, color: 'hyper-cyan' },
                 { id: 'sovereign-voice', label: 'VOICE_CORE', icon: Mic, color: 'hyper-cyan' },
@@ -337,7 +343,9 @@ function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean,
                                                 </div>
                                                 <div className="flex-1 text-left hidden md:block overflow-hidden">
                                                     <div className="text-[10px] font-black tracking-tighter uppercase italic group-hover:text-hyper-cyan transition-colors truncate">{s.label}</div>
-                                                    <div className="text-[7px] font-bold opacity-30 font-mono tracking-widest uppercase mt-0.5">READY</div>
+                                                    <div className="text-[7px] font-bold opacity-30 font-mono tracking-widest uppercase mt-0.5">
+                                                        {['market-oracle', 'sovereign-social', 'sovereign-vault'].includes(s.id) ? 'READY' : 'BUILDING'}
+                                                    </div>
                                                 </div>
                                                 <ChevronRight size={12} className={cn("hidden md:block transition-transform", currentSector === s.id ? "translate-x-0 opacity-100" : "translate-x-4 opacity-0")} />
                                             </button>
