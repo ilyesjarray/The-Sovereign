@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
     Settings, Globe, Bell, Shield, User, Users,
     Palette, Lock, Fingerprint, Eye, EyeOff,
     Languages, HardDrive, Smartphone, Zap,
-    ChevronRight, Save, RotateCcw, Link, UserPlus
+    ChevronRight, Save, RotateCcw, Link, UserPlus,
+    Camera, Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
@@ -38,6 +39,10 @@ export function SovereignSettings() {
     const [syndicateMembers, setSyndicateMembers] = useState<{ id: string, email: string, role: string, status: string }[]>([]);
 
     const [isSaving, setIsSaving] = useState(false);
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+    const [userId, setUserId] = useState('');
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const supabase = createClient();
 
     useEffect(() => {
@@ -47,6 +52,16 @@ export function SovereignSettings() {
     const loadSettings = async () => {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
+            setUserId(session.user.id);
+
+            // Load avatar from profiles table
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('avatar_url')
+                .eq('id', session.user.id)
+                .single();
+            if (profile?.avatar_url) setAvatarUrl(profile.avatar_url);
+
             const { data } = await supabase.from('user_settings').select('*').eq('id', session.user.id).single();
             if (data) {
                 setFullName(data.full_name || 'Imperial_Commander');
@@ -105,6 +120,61 @@ export function SovereignSettings() {
             ...prev
         ]);
         setInviteEmail('');
+    };
+
+    /** Compress image to ~1/4 size using Canvas API */
+    const compressImage = (file: File): Promise<Blob> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX = 256;
+                    let w = img.width, h = img.height;
+                    if (w > h && w > MAX) { h = Math.round(h * (MAX / w)); w = MAX; }
+                    else if (h > MAX) { w = Math.round(w * (MAX / h)); h = MAX; }
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) return reject('No canvas context');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    canvas.toBlob(b => b ? resolve(b) : reject('Blob failed'), 'image/jpeg', 0.5);
+                };
+                img.onerror = reject;
+                img.src = reader.result as string;
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !userId) return;
+        setIsUploading(true);
+        try {
+            const blob = await compressImage(file);
+            const filePath = `${userId}/avatar.jpg`;
+            const { error: upErr } = await supabase.storage
+                .from('citadel')
+                .upload(filePath, blob, { contentType: 'image/jpeg', upsert: true });
+            if (upErr) { console.error('Upload error:', upErr); return; }
+
+            const { data: urlData } = supabase.storage.from('citadel').getPublicUrl(filePath);
+            const publicUrl = urlData.publicUrl + '?t=' + Date.now();
+
+            const { error: dbErr } = await supabase
+                .from('profiles')
+                .update({ avatar_url: publicUrl })
+                .eq('id', userId);
+            if (!dbErr) setAvatarUrl(publicUrl);
+        } catch (err) {
+            console.error('Avatar upload failed:', err);
+        } finally {
+            setIsUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
     };
 
     return (
@@ -281,19 +351,52 @@ export function SovereignSettings() {
 
                         {activeSection === 'profile' && (
                             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                {/* Hidden file input */}
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={handleAvatarUpload}
+                                    accept="image/*"
+                                    className="hidden"
+                                />
+
                                 <div className="flex items-center gap-8 p-10 glass-v-series rounded-3xl border border-white/5 bg-white/[0.01] relative overflow-hidden">
                                     <div className="absolute inset-0 bg-gradient-to-r from-hyper-cyan/5 to-transparent pointer-events-none" />
-                                    <div className="w-24 h-24 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center relative group cursor-pointer overflow-hidden">
-                                        <User size={48} className="text-white/10 group-hover:text-hyper-cyan transition-colors" />
-                                        <div className="absolute inset-0 bg-carbon-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                            <Zap size={24} className="text-hyper-cyan" />
+                                    
+                                    {/* Clickable Avatar Upload Zone */}
+                                    <button
+                                        onClick={() => fileInputRef.current?.click()}
+                                        disabled={isUploading}
+                                        className="w-24 h-24 rounded-2xl border border-white/10 flex items-center justify-center relative group cursor-pointer overflow-hidden shrink-0 hover:border-hyper-cyan/40 transition-all z-10"
+                                    >
+                                        {avatarUrl ? (
+                                            <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <User size={48} className="text-white/10" />
+                                        )}
+                                        {/* Camera Hover Overlay */}
+                                        <div className="absolute inset-0 bg-carbon-black/70 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity gap-1">
+                                            {isUploading ? (
+                                                <Loader2 size={24} className="text-hyper-cyan animate-spin" />
+                                            ) : (
+                                                <>
+                                                    <Camera size={24} className="text-hyper-cyan" />
+                                                    <span className="text-[7px] font-black text-hyper-cyan uppercase tracking-widest">Upload</span>
+                                                </>
+                                            )}
                                         </div>
-                                    </div>
-                                    <div className="flex-1">
+                                    </button>
+
+                                    <div className="flex-1 relative z-10">
                                         <div className="text-2xl font-black text-white italic">EXECUTIVE_NODE_07</div>
                                         <div className="text-[10px] text-hyper-cyan font-black tracking-widest mt-1 uppercase">Commander_Clearance_Active</div>
                                         <div className="flex gap-4 mt-4">
-                                            <button className="text-[9px] font-black text-white/40 hover:text-white uppercase tracking-widest italic border-b border-white/10">Edit_ID</button>
+                                            <button
+                                                onClick={() => fileInputRef.current?.click()}
+                                                className="text-[9px] font-black text-hyper-cyan/60 hover:text-hyper-cyan uppercase tracking-widest italic border-b border-hyper-cyan/20 hover:border-hyper-cyan/60 transition-colors flex items-center gap-1.5"
+                                            >
+                                                <Camera size={10} /> Change_Avatar
+                                            </button>
                                             <button className="text-[9px] font-black text-red-500/60 hover:text-red-500 uppercase tracking-widest italic border-b border-red-500/10">Re_Sync_DNA</button>
                                         </div>
                                     </div>
