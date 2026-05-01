@@ -96,12 +96,23 @@ export function IdentityAccess({ onSectorChange }: IdentityAccessProps) {
 
             <AnimatePresence>
                 {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 15, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 15, scale: 0.95 }}
-                        className="absolute top-full mt-4 right-0 w-72 glass-v-series border border-white/10 z-[110] shadow-premium rounded-2xl overflow-hidden"
-                    >
+                    <>
+                        {/* Blur Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-md"
+                            onClick={() => setIsOpen(false)}
+                        />
+                        
+                        {/* Dropdown Panel */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                            className="absolute top-full mt-4 right-0 w-72 glass-v-series border border-white/10 z-[110] shadow-premium rounded-2xl overflow-hidden"
+                        >
                         {/* Header: User Profile Segment */}
                         <div className="px-6 py-6 border-b border-white/5 bg-gradient-to-br from-hyper-cyan/5 to-transparent">
                             <div className="flex items-center gap-4 mb-4">
@@ -158,6 +169,7 @@ export function IdentityAccess({ onSectorChange }: IdentityAccessProps) {
                             </button>
                         </div>
                     </motion.div>
+                    </>
                 )}
             </AnimatePresence>
         </div>
