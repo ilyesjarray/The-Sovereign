@@ -56,14 +56,14 @@ export function SovereignSettings() {
         if (session) {
             setUserId(session.user.id);
 
-            // Load all profile data from profiles table
-            const { data: profile } = await supabase
+            // Load all profile data — use select('*') to avoid 400 on missing columns
+            const { data: profile, error } = await supabase
                 .from('profiles')
-                .select('full_name, email, avatar_url, tier, neural_link_id, sovereign_credits')
+                .select('*')
                 .eq('id', session.user.id)
                 .single();
 
-            if (profile) {
+            if (profile && !error) {
                 setFullName(profile.full_name || '');
                 setEmailNode(profile.email || session.user.email || '');
                 setAvatarUrl(profile.avatar_url || null);
@@ -86,14 +86,14 @@ export function SovereignSettings() {
                 .update({
                     full_name: fullName,
                     email: emailNode,
-                    neural_link_id: neuralLinkId || null,
-                    updated_at: new Date().toISOString()
                 })
                 .eq('id', session.user.id);
 
             if (!error) {
                 setSaveSuccess(true);
                 setTimeout(() => setSaveSuccess(false), 3000);
+            } else {
+                console.error('Save error:', error);
             }
         }
         setIsSaving(false);

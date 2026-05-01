@@ -38,12 +38,12 @@ export function IdentityAccess({ onSectorChange }: IdentityAccessProps) {
                 // Fetch Profile for Tier & Avatar
                 const { data: profile } = await supabase
                     .from('profiles')
-                    .select('tier, avatar_url')
+                    .select('*')
                     .eq('id', session.user.id)
                     .single();
 
                 if (profile) {
-                    setUserTier(profile.tier);
+                    if (profile.tier) setUserTier(profile.tier);
                     if (profile.avatar_url) setAvatarUrl(profile.avatar_url);
                 }
             }
