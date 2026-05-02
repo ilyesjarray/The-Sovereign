@@ -75,18 +75,21 @@ export function MobileNav({ currentSector, onSectorChange, onExpandMenu }: Mobil
     );
 }
 
-// Full sector list for the "More" menu
+// Full sector list — matches PC DIRECTORATES order exactly
 export const ALL_MOBILE_SECTORS = [
-    { group: 'NEURAL', sectors: [
+    { group: 'CORE_OPERATIONAL', sectors: [
         { id: 'market-oracle', label: 'THE_HIGH_ORACLE', icon: Binary },
+        { id: 'vision-scout', label: 'VISION_SCOUT', icon: Search },
+        { id: 'sovereign-social', label: 'COMMUNITY_PROTOCOL', icon: Users },
+        { id: 'sovereign-vault', label: 'THE_CRYPT', icon: ShieldAlert },
+    ]},
+    { group: 'NEURAL', sectors: [
         { id: 'war-council', label: 'STRATAGEM_COUNCIL', icon: Sword },
         { id: 'the-forge', label: 'GENESIS_ENGINE', icon: BrainCircuit },
         { id: 'temporal-engine', label: 'CHRONOS_SINGULARITY', icon: Clock },
-        { id: 'sovereign-social', label: 'COMMUNITY_PROTOCOL', icon: Users },
     ]},
     { group: 'SECURITY', sectors: [
         { id: 'the-citadel', label: 'THE_IMPERIAL_BASTION', icon: HardDrive },
-        { id: 'sovereign-vault', label: 'THE_CRYPT', icon: ShieldAlert },
         { id: 'digital-scouts', label: 'SHADOW_WATCH', icon: Radio },
         { id: 'intelligence-nexus', label: 'INTELLIGENCE_NEXUS', icon: Search },
         { id: 'nexus-protocol', label: 'NEXUS_UPLINK', icon: MessageSquare },
@@ -107,3 +110,4 @@ export const ALL_MOBILE_SECTORS = [
         { id: 'admin-center', label: 'THRONE_ROOM', icon: Crown },
     ]},
 ];
+
