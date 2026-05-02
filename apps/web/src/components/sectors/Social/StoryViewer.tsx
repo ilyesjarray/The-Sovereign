@@ -62,8 +62,8 @@ export function StoryViewer({ stories, startIndex, onClose }: StoryViewerProps) 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[200] bg-black flex items-center justify-center"
-            onTouchStart={e => setTouchStart(e.touches[0].clientX)}
-            onTouchEnd={e => {
+            onTouchStart={(e: React.TouchEvent) => setTouchStart(e.touches[0].clientX)}
+            onTouchEnd={(e: React.TouchEvent) => {
                 const diff = e.changedTouches[0].clientX - touchStart;
                 if (diff < -50) goNext();
                 else if (diff > 50) goPrev();
