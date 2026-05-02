@@ -4,8 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Send, Image as ImageIcon, Video, Heart, MessageSquare,
-    Share2, MoreVertical, Plus, User, Globe, Shield,
-    Zap, Sparkles, TrendingUp, Clock, Loader2, X, AlertTriangle
+    Share2, MoreVertical, Plus, User, Shield,
+    Zap, Loader2, X
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
@@ -43,7 +43,6 @@ export default function SovereignSocial() {
     const [mediaFile, setMediaFile] = useState<File | null>(null);
     const [mediaPreview, setMediaPreview] = useState<string | null>(null);
     const [mediaType, setMediaType] = useState<'IMAGE' | 'VIDEO' | 'NONE'>('NONE');
-    const [systemStats, setSystemStats] = useState({ users: 0, signals24h: 0, traffic24h: '0 GB', syncRate: 0 });
     const [storyViewerOpen, setStoryViewerOpen] = useState(false);
     const [storyStartIdx, setStoryStartIdx] = useState(0);
     const [isUploadingStory, setIsUploadingStory] = useState(false);
@@ -56,7 +55,6 @@ export default function SovereignSocial() {
     useEffect(() => {
         fetchFeed();
         fetchStories();
-        fetchSystemStats();
         fetchUserId();
         // Trigger cleanup on load
         fetch('/api/social/cleanup', { method: 'POST' }).catch(() => {});
@@ -64,7 +62,6 @@ export default function SovereignSocial() {
         const channel = supabase.channel('public:social_posts')
             .on('postgres_changes' as any, { event: 'INSERT', table: 'social_posts' }, () => {
                 fetchFeed();
-                fetchSystemStats();
             })
             .subscribe();
 
@@ -74,14 +71,6 @@ export default function SovereignSocial() {
     const fetchUserId = async () => {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) setUserId(session.user.id);
-    };
-
-    const fetchSystemStats = async () => {
-        try {
-            const res = await fetch('/api/system/stats');
-            const data = await res.json();
-            setSystemStats(data);
-        } catch (e) { console.error("Stats Link Failure:", e); }
     };
 
     const fetchFeed = async () => {
@@ -111,6 +100,32 @@ export default function SovereignSocial() {
             .order('created_at', { ascending: false });
         if (data) setStories(data);
     };
+    /** Convert file to base64 for moderation */
+    const fileToBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    };
+
+    /** Check if file is safe using AI moderation */
+    const moderateFile = async (file: File): Promise<{ safe: boolean; reason?: string }> => {
+        // Only moderate images — skip videos (too large for base64)
+        if (!file.type.startsWith('image/')) return { safe: true };
+        try {
+            const base64 = await fileToBase64(file);
+            const res = await fetch('/api/social/moderate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: base64 }),
+            });
+            return await res.json();
+        } catch {
+            return { safe: true, reason: 'Moderation unavailable' };
+        }
+    };
 
     const handleStoryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -119,6 +134,13 @@ export default function SovereignSocial() {
 
         setIsUploadingStory(true);
         try {
+            // NSFW check before upload
+            const modResult = await moderateFile(file);
+            if (!modResult.safe) {
+                alert(`Upload blocked: ${modResult.reason || 'Content violates community policy'}`);
+                return;
+            }
+
             const ext = file.name.split('.').pop() || 'jpg';
             const isVideo = file.type.startsWith('video/');
             const path = `${userId}/stories/${Date.now()}.${ext}`;
@@ -171,6 +193,14 @@ export default function SovereignSocial() {
 
         // Upload media if attached
         if (mediaFile) {
+            // NSFW check
+            const modResult = await moderateFile(mediaFile);
+            if (!modResult.safe) {
+                alert(`Upload blocked: ${modResult.reason || 'Content violates community policy'}`);
+                setIsPosting(false);
+                return;
+            }
+
             const ext = mediaFile.name.split('.').pop() || 'bin';
             const path = `${session.user.id}/posts/${Date.now()}.${ext}`;
             const { error: upErr } = await supabase.storage
@@ -205,10 +235,9 @@ export default function SovereignSocial() {
 
     return (
         <div className="flex flex-col h-full bg-carbon-black p-4 lg:p-10 font-sans overflow-hidden">
-            <div className="max-w-7xl mx-auto w-full flex gap-8 h-full">
+            <div className="max-w-4xl mx-auto w-full h-full">
 
-                {/* Left Side: Feed & Interaction */}
-                <div className="flex-1 flex flex-col space-y-8 overflow-y-auto custom-scrollbar pr-4">
+                <div className="flex-1 flex flex-col space-y-8 overflow-y-auto custom-scrollbar h-full">
 
                     {/* Header & Tabs */}
                     <div className="flex justify-between items-center border-b border-white/5 pb-6">
@@ -249,7 +278,7 @@ export default function SovereignSocial() {
                             whileHover={{ scale: 1.05 }}
                             onClick={() => storyInputRef.current?.click()}
                             disabled={isUploadingStory}
-                            className="w-16 h-24 lg:w-20 lg:h-32 shrink-0 rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-2 hover:border-hyper-cyan/30 transition-all bg-white/[0.02]"
+                            className="w-20 h-32 lg:w-24 lg:h-40 shrink-0 rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-2 hover:border-hyper-cyan/30 transition-all bg-white/[0.02]"
                         >
                             {isUploadingStory ? (
                                 <Loader2 size={16} className="text-hyper-cyan animate-spin" />
@@ -268,7 +297,7 @@ export default function SovereignSocial() {
                                 key={story.id}
                                 whileHover={{ scale: 1.05 }}
                                 onClick={() => { setStoryStartIdx(i); setStoryViewerOpen(true); }}
-                                className="w-16 h-24 lg:w-20 lg:h-32 shrink-0 rounded-2xl border-2 border-hyper-cyan/40 p-0.5 relative group cursor-pointer"
+                                className="w-20 h-32 lg:w-24 lg:h-40 shrink-0 rounded-2xl border-2 border-hyper-cyan/40 p-0.5 relative group cursor-pointer"
                             >
                                 <div className="absolute inset-0 rounded-[0.8rem] overflow-hidden bg-white/5">
                                     {story.media_type === 'VIDEO' ? (
@@ -407,97 +436,38 @@ export default function SovereignSocial() {
                                     <div className="flex gap-6">
                                         <button
                                             onClick={() => handleLike(post.id)}
-                                            className="flex items-center gap-2 text-[10px] font-black text-white/20 hover:text-rose-500 transition-colors uppercase tracking-widest"
+                                            className="flex items-center gap-2 text-[10px] font-black text-white/20 hover:text-rose-500 transition-colors uppercase tracking-widest group/like"
                                         >
-                                            <Heart size={16} />
+                                            <Heart size={16} className="group-hover/like:scale-125 transition-transform" />
                                             <span>{post.likes_count}</span>
                                         </button>
-                                        <button className="flex items-center gap-2 text-[10px] font-black text-white/20 hover:text-hyper-cyan transition-colors uppercase tracking-widest">
+                                        <button
+                                            onClick={() => {
+                                                const text = `${post.profiles?.full_name || 'Commander'}: ${post.content.slice(0, 100)}`;
+                                                navigator.clipboard.writeText(text);
+                                            }}
+                                            className="flex items-center gap-2 text-[10px] font-black text-white/20 hover:text-hyper-cyan transition-colors uppercase tracking-widest"
+                                        >
                                             <MessageSquare size={16} />
-                                            <span>Interact</span>
+                                            <span>Copy</span>
                                         </button>
                                     </div>
-                                    <button className="text-white/10 hover:text-white transition-colors">
+                                    <button
+                                        onClick={() => {
+                                            if (navigator.share) {
+                                                navigator.share({ title: 'Sovereign Intel', text: post.content.slice(0, 200), url: window.location.href });
+                                            } else {
+                                                navigator.clipboard.writeText(post.content);
+                                            }
+                                        }}
+                                        className="flex items-center gap-2 text-[10px] font-black text-white/10 hover:text-hyper-cyan transition-colors uppercase tracking-widest"
+                                    >
                                         <Share2 size={16} />
+                                        <span>Share</span>
                                     </button>
                                 </div>
                             </motion.div>
                         ))}
-                    </div>
-                </div>
-
-                {/* Right Side: Network Stats & Trends */}
-                <div className="hidden lg:flex flex-col w-80 space-y-8">
-
-                    {/* Live Network Pulse */}
-                    <div className="p-8 bg-white/[0.02] border border-white/5 rounded-[3rem] space-y-8">
-                        <div className="flex flex-col gap-1">
-                            <span className="text-[8px] font-black text-hyper-cyan uppercase tracking-[0.4em] font-mono">Network_Nodes</span>
-                            <div className="flex items-center gap-3">
-                                <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse shadow-neon-emerald" />
-                                <h3 className="text-xl font-black text-white italic truncate tracking-tighter uppercase">{systemStats.users.toLocaleString()}_Sovereigns</h3>
-                            </div>
-                        </div>
-
-                        <div className="space-y-6">
-                            <div className="space-y-2">
-                                <div className="flex justify-between text-[8px] font-black uppercase text-white/30">
-                                    <span>Signal_Sync_Rate</span>
-                                    <span>{systemStats.syncRate}%</span>
-                                </div>
-                                <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-                                    <motion.div initial={{ width: 0 }} animate={{ width: `${systemStats.syncRate}%` }} className="h-full bg-hyper-cyan shadow-neon-cyan" />
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <div className="flex justify-between text-[8px] font-black uppercase text-white/30">
-                                    <span>Verified_Intel_Flow</span>
-                                    <span>{systemStats.traffic24h} / 24H</span>
-                                </div>
-                                <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-                                    <motion.div initial={{ width: 0 }} animate={{ width: systemStats.signals24h > 0 ? '75%' : '5%' }} className="h-full bg-amber-500 shadow-neon-amber" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Trending Intelligence */}
-                    <div className="flex-1 glass-v-series border border-white/5 rounded-[3rem] bg-white/[0.01] p-8 flex flex-col space-y-8">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <Sparkles size={16} className="text-hyper-cyan shadow-neon-cyan" />
-                                <span className="text-[10px] font-black text-white uppercase tracking-widest">Trending_Nexus</span>
-                            </div>
-                            <Clock size={12} className="text-white/20" />
-                        </div>
-
-                        <div className="space-y-6 flex-1">
-                            {[
-                                { tag: '#FED_DECISION', activity: '4.2k mentions', trend: 'UP' },
-                                { tag: '#BTC_LIQUIDITY', activity: '2.8k mentions', trend: 'UP' },
-                                { tag: '#WAR_COUNCIL', activity: '1.5k mentions', trend: 'STABLE' },
-                                { tag: '#ALPHA_STRIKE', activity: '942 mentions', trend: 'UP' },
-                            ].map((item, i) => (
-                                <div key={i} className="group cursor-pointer">
-                                    <div className="flex items-center justify-between mb-1">
-                                        <span className="text-xs font-black text-white italic group-hover:text-hyper-cyan transition-colors">{item.tag}</span>
-                                        {item.trend === 'UP' ? <TrendingUp size={10} className="text-emerald-500" /> : <Globe size={10} className="text-white/20" />}
-                                    </div>
-                                    <span className="text-[8px] font-mono text-white/20 uppercase tracking-widest">{item.activity}</span>
-                                </div>
-                            ))}
-                        </div>
-
-                        <button className="w-full flex items-center justify-center gap-3 py-4 bg-white/5 hover:bg-hyper-cyan text-white/30 hover:text-carbon-black rounded-2xl border border-white/5 font-black text-[9px] uppercase tracking-widest transition-all italic">
-                            <span>Deep_Trend_Scan</span>
-                        </button>
-                    </div>
-
-                    {/* Footer Guard */}
-                    <div className="px-8 flex items-center gap-4 text-[8px] font-black text-white/10 uppercase tracking-widest">
-                        <Shield size={12} />
-                        Sovereign_Social_Protocol // Level_7
                     </div>
                 </div>
 
