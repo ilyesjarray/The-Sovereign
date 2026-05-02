@@ -1,15 +1,15 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Send, Image as ImageIcon, Video, Heart, MessageSquare,
     Share2, MoreVertical, Plus, User, Globe, Shield,
-    Zap, Sparkles, TrendingUp, Clock
+    Zap, Sparkles, TrendingUp, Clock, Loader2, X, AlertTriangle
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
-import { AnimatedCounter } from '../../ui/AnimatedCounter';
+import { StoryViewer } from './StoryViewer';
 
 type Post = {
     id: string;
@@ -19,18 +19,19 @@ type Post = {
     media_type?: 'IMAGE' | 'VIDEO' | 'NONE';
     likes_count: number;
     created_at: string;
-    profiles?: {
-        full_name: string;
-        avatar_url: string;
-    };
+    profiles?: { full_name: string; avatar_url: string } | null;
 };
 
 type Story = {
     id: string;
     user_id: string;
     media_url: string;
+    media_type?: string;
     created_at: string;
+    profiles?: { full_name: string; avatar_url: string } | null;
 };
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 export default function SovereignSocial() {
     const [posts, setPosts] = useState<Post[]>([]);
@@ -39,9 +40,16 @@ export default function SovereignSocial() {
     const [isLoading, setIsLoading] = useState(true);
     const [isPosting, setIsPosting] = useState(false);
     const [activeTab, setActiveTab] = useState<'FEED' | 'TRENDING' | 'INTEL'>('FEED');
+    const [mediaFile, setMediaFile] = useState<File | null>(null);
     const [mediaPreview, setMediaPreview] = useState<string | null>(null);
+    const [mediaType, setMediaType] = useState<'IMAGE' | 'VIDEO' | 'NONE'>('NONE');
     const [systemStats, setSystemStats] = useState({ users: 0, signals24h: 0, traffic24h: '0 GB', syncRate: 0 });
-    const fileInputRef = React.useRef<HTMLInputElement>(null);
+    const [storyViewerOpen, setStoryViewerOpen] = useState(false);
+    const [storyStartIdx, setStoryStartIdx] = useState(0);
+    const [isUploadingStory, setIsUploadingStory] = useState(false);
+    const [userId, setUserId] = useState('');
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const storyInputRef = useRef<HTMLInputElement>(null);
 
     const supabase = createClient();
 
@@ -49,28 +57,31 @@ export default function SovereignSocial() {
         fetchFeed();
         fetchStories();
         fetchSystemStats();
+        fetchUserId();
+        // Trigger cleanup on load
+        fetch('/api/social/cleanup', { method: 'POST' }).catch(() => {});
 
-        // Real-time subscription for new posts
         const channel = supabase.channel('public:social_posts')
-            .on('postgres_changes' as any, { event: 'INSERT', table: 'social_posts' }, (payload) => {
+            .on('postgres_changes' as any, { event: 'INSERT', table: 'social_posts' }, () => {
                 fetchFeed();
                 fetchSystemStats();
             })
             .subscribe();
 
-        return () => {
-            supabase.removeChannel(channel);
-        };
+        return () => { supabase.removeChannel(channel); };
     }, []);
+
+    const fetchUserId = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) setUserId(session.user.id);
+    };
 
     const fetchSystemStats = async () => {
         try {
             const res = await fetch('/api/system/stats');
             const data = await res.json();
             setSystemStats(data);
-        } catch (e) {
-            console.error("Stats Link Failure:", e);
-        }
+        } catch (e) { console.error("Stats Link Failure:", e); }
     };
 
     const fetchFeed = async () => {
@@ -81,12 +92,8 @@ export default function SovereignSocial() {
             .order('created_at', { ascending: false });
 
         if (error) {
-            console.warn('[Social] Feed Sync Interrupted (Schema Conflict):', error.message);
-            // Fallback to basic select without join if profiles join fails
             const { data: simpleData } = await supabase
-                .from('social_posts')
-                .select('*')
-                .order('created_at', { ascending: false });
+                .from('social_posts').select('*').order('created_at', { ascending: false });
             if (simpleData) setPosts(simpleData);
         } else if (data) {
             setPosts(data);
@@ -95,34 +102,98 @@ export default function SovereignSocial() {
     };
 
     const fetchStories = async () => {
+        // Only fetch stories from last 12h
+        const cutoff = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
         const { data } = await supabase
             .from('social_stories')
-            .select('*')
+            .select('*, profiles(full_name, avatar_url)')
+            .gte('created_at', cutoff)
             .order('created_at', { ascending: false });
         if (data) setStories(data);
     };
 
+    const handleStoryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !userId) return;
+        if (file.size > MAX_FILE_SIZE) { alert('File must be under 10MB'); return; }
+
+        setIsUploadingStory(true);
+        try {
+            const ext = file.name.split('.').pop() || 'jpg';
+            const isVideo = file.type.startsWith('video/');
+            const path = `${userId}/stories/${Date.now()}.${ext}`;
+
+            const { error: upErr } = await supabase.storage
+                .from('citadel')
+                .upload(path, file, { contentType: file.type, upsert: false });
+            if (upErr) { console.error('Story upload error:', upErr); return; }
+
+            const { data: urlData } = supabase.storage.from('citadel').getPublicUrl(path);
+
+            await supabase.from('social_stories').insert([{
+                user_id: userId,
+                media_url: urlData.publicUrl,
+                media_type: isVideo ? 'VIDEO' : 'IMAGE',
+            }]);
+            fetchStories();
+        } catch (err) { console.error('Story upload failed:', err); }
+        finally {
+            setIsUploadingStory(false);
+            if (storyInputRef.current) storyInputRef.current.value = '';
+        }
+    };
+
+    const handleMediaSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'IMAGE' | 'VIDEO') => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (file.size > MAX_FILE_SIZE) { alert('File must be under 10MB'); return; }
+        setMediaFile(file);
+        setMediaType(type);
+        setMediaPreview(URL.createObjectURL(file));
+    };
+
+    const clearMedia = () => {
+        setMediaFile(null);
+        setMediaPreview(null);
+        setMediaType('NONE');
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
     const handleCreatePost = async () => {
-        if (!newPostContent.trim()) return;
+        if (!newPostContent.trim() && !mediaFile) return;
         setIsPosting(true);
 
         const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-            alert("Commander, you must be logged in to transmit to the community.");
-            setIsPosting(false);
-            return;
+        if (!session) { alert("You must be logged in."); setIsPosting(false); return; }
+
+        let uploadedUrl: string | undefined;
+        let uploadedType: 'IMAGE' | 'VIDEO' | 'NONE' = 'NONE';
+
+        // Upload media if attached
+        if (mediaFile) {
+            const ext = mediaFile.name.split('.').pop() || 'bin';
+            const path = `${session.user.id}/posts/${Date.now()}.${ext}`;
+            const { error: upErr } = await supabase.storage
+                .from('citadel')
+                .upload(path, mediaFile, { contentType: mediaFile.type, upsert: false });
+
+            if (!upErr) {
+                const { data: urlData } = supabase.storage.from('citadel').getPublicUrl(path);
+                uploadedUrl = urlData.publicUrl;
+                uploadedType = mediaType;
+            }
         }
 
-        const { error } = await supabase
-            .from('social_posts')
-            .insert([{
-                user_id: session.user.id,
-                content: newPostContent,
-                media_type: 'NONE'
-            }]);
+        const { error } = await supabase.from('social_posts').insert([{
+            user_id: session.user.id,
+            content: newPostContent || '',
+            media_url: uploadedUrl || null,
+            media_type: uploadedType,
+        }]);
 
         if (!error) {
             setNewPostContent('');
+            clearMedia();
             fetchFeed();
         }
         setIsPosting(false);
@@ -130,7 +201,6 @@ export default function SovereignSocial() {
 
     const handleLike = (postId: string) => {
         setPosts(prev => prev.map(p => p.id === postId ? { ...p, likes_count: p.likes_count + 1 } : p));
-        // In production: await supabase.rpc('increment_likes', { post_id: postId });
     };
 
     return (
@@ -162,26 +232,58 @@ export default function SovereignSocial() {
                         </div>
                     </div>
 
+                    {/* Story Viewer Fullscreen */}
+                    <AnimatePresence>
+                        {storyViewerOpen && stories.length > 0 && (
+                            <StoryViewer stories={stories} startIndex={storyStartIdx} onClose={() => setStoryViewerOpen(false)} />
+                        )}
+                    </AnimatePresence>
+
+                    {/* Hidden file inputs */}
+                    <input type="file" ref={storyInputRef} onChange={handleStoryUpload} accept="image/*,video/*" className="hidden" />
+                    <input type="file" ref={fileInputRef} onChange={(e) => handleMediaSelect(e, e.target.files?.[0]?.type.startsWith('video/') ? 'VIDEO' : 'IMAGE')} accept="image/*,video/*" className="hidden" />
+
                     {/* Stories Carousel */}
                     <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
                         <motion.button
                             whileHover={{ scale: 1.05 }}
+                            onClick={() => storyInputRef.current?.click()}
+                            disabled={isUploadingStory}
                             className="w-16 h-24 lg:w-20 lg:h-32 shrink-0 rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-2 hover:border-hyper-cyan/30 transition-all bg-white/[0.02]"
                         >
-                            <div className="w-8 h-8 rounded-full bg-hyper-cyan/10 flex items-center justify-center border border-hyper-cyan/30 text-hyper-cyan">
-                                <Plus size={16} />
-                            </div>
-                            <span className="text-[8px] font-black text-white/30 uppercase">Add_Story</span>
+                            {isUploadingStory ? (
+                                <Loader2 size={16} className="text-hyper-cyan animate-spin" />
+                            ) : (
+                                <>
+                                    <div className="w-8 h-8 rounded-full bg-hyper-cyan/10 flex items-center justify-center border border-hyper-cyan/30 text-hyper-cyan">
+                                        <Plus size={16} />
+                                    </div>
+                                    <span className="text-[8px] font-black text-white/30 uppercase">Add_Story</span>
+                                </>
+                            )}
                         </motion.button>
 
-                        {stories.map((story) => (
+                        {stories.map((story, i) => (
                             <motion.div
                                 key={story.id}
                                 whileHover={{ scale: 1.05 }}
-                                className="w-16 h-24 lg:w-20 lg:h-32 shrink-0 rounded-2xl border-2 border-hyper-cyan/40 p-1 relative group cursor-pointer"
+                                onClick={() => { setStoryStartIdx(i); setStoryViewerOpen(true); }}
+                                className="w-16 h-24 lg:w-20 lg:h-32 shrink-0 rounded-2xl border-2 border-hyper-cyan/40 p-0.5 relative group cursor-pointer"
                             >
                                 <div className="absolute inset-0 rounded-[0.8rem] overflow-hidden bg-white/5">
-                                    <img src={story.media_url} alt="story" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                    {story.media_type === 'VIDEO' ? (
+                                        <video src={story.media_url} muted className="w-full h-full object-cover" />
+                                    ) : (
+                                        <img src={story.media_url} alt="story" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                    )}
+                                </div>
+                                {/* Avatar overlay */}
+                                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full border-2 border-carbon-black overflow-hidden bg-white/10">
+                                    {story.profiles?.avatar_url ? (
+                                        <img src={story.profiles.avatar_url} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center"><User size={10} className="text-white/30" /></div>
+                                    )}
                                 </div>
                             </motion.div>
                         ))}
@@ -207,49 +309,40 @@ export default function SovereignSocial() {
                         </div>
 
                         {mediaPreview && (
-                            <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-white/10 mb-4">
-                                <img src={mediaPreview} className="w-full h-full object-cover" />
-                                <button
-                                    onClick={() => setMediaPreview(null)}
-                                    className="absolute top-1 right-1 p-1 bg-black/50 text-white rounded-full hover:bg-black"
-                                >
-                                    <Plus size={10} className="rotate-45" />
+                            <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-white/10">
+                                {mediaType === 'VIDEO' ? (
+                                    <video src={mediaPreview} muted className="w-full h-full object-cover" />
+                                ) : (
+                                    <img src={mediaPreview} className="w-full h-full object-cover" />
+                                )}
+                                <button onClick={clearMedia} className="absolute top-1 right-1 p-1 bg-black/60 text-white rounded-full hover:bg-red-500/80 transition-colors">
+                                    <X size={12} />
                                 </button>
                             </div>
                         )}
 
                         <div className="flex justify-between items-center pt-4 border-t border-white/5">
                             <div className="flex gap-2">
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    className="hidden"
-                                    ref={fileInputRef}
-                                    onChange={(e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) setMediaPreview(URL.createObjectURL(file));
-                                    }}
-                                />
                                 <button
-                                    onClick={() => fileInputRef.current?.click()}
+                                    onClick={() => { if (fileInputRef.current) { fileInputRef.current.accept = 'image/*'; fileInputRef.current.click(); } }}
                                     className="p-3 rounded-xl bg-white/[0.03] border border-white/5 text-white/30 hover:text-hyper-cyan hover:border-hyper-cyan/30 transition-all"
                                 >
                                     <ImageIcon size={18} />
                                 </button>
-                                <button className="p-3 rounded-xl bg-white/[0.03] border border-white/5 text-white/30 hover:text-rose-500 hover:border-rose-500/30 transition-all">
+                                <button
+                                    onClick={() => { if (fileInputRef.current) { fileInputRef.current.accept = 'video/*'; fileInputRef.current.click(); } }}
+                                    className="p-3 rounded-xl bg-white/[0.03] border border-white/5 text-white/30 hover:text-rose-500 hover:border-rose-500/30 transition-all"
+                                >
                                     <Video size={18} />
-                                </button>
-                                <button className="p-3 rounded-xl bg-white/[0.03] border border-white/5 text-white/30 hover:text-emerald-500 hover:border-emerald-500/30 transition-all">
-                                    <TrendingUp size={18} />
                                 </button>
                             </div>
                             <motion.button
                                 whileTap={{ scale: 0.95 }}
                                 onClick={handleCreatePost}
-                                disabled={isPosting || !newPostContent.trim()}
+                                disabled={isPosting || (!newPostContent.trim() && !mediaFile)}
                                 className={cn(
                                     "flex items-center gap-3 px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all",
-                                    newPostContent.trim() ? "bg-hyper-cyan text-carbon-black shadow-neon-cyan" : "bg-white/5 text-white/10 cursor-not-allowed"
+                                    (newPostContent.trim() || mediaFile) ? "bg-hyper-cyan text-carbon-black shadow-neon-cyan" : "bg-white/5 text-white/10 cursor-not-allowed"
                                 )}
                             >
                                 {isPosting ? 'Transmitting...' : (
