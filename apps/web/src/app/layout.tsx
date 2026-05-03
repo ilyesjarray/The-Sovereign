@@ -63,6 +63,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
+        <link rel="preload" href="/assets/intro.mp4" as="video" type="video/mp4" />
         <script
           dangerouslySetInnerHTML={{
             __html: `

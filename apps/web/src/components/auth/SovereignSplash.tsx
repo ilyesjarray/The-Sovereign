@@ -27,8 +27,7 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
     const supabase = createClient();
 
     useEffect(() => {
-        // Preload Intro Video immediately into cache
-        fetch('/assets/intro.mp4').catch(() => {});
+        // Preloading is now handled globally in the root layout head for maximum speed
     }, []);
 
     useEffect(() => {
@@ -44,7 +43,7 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
         if (state === 'INITIAL') {
             supabase.auth.getSession().then(({ data: { session } }) => {
                 if (session) {
-                    setState('SCANNING');
+                    setState('INTRO');
                 }
             });
         }
@@ -93,8 +92,17 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
     };
 
     const handleBiometric = async () => {
-        // Play intro scene before showing auth form
-        setState('INTRO');
+        // Force Fullscreen for the entire platform experience
+        try {
+            if (document.documentElement.requestFullscreen) {
+                await document.documentElement.requestFullscreen();
+            }
+        } catch (err) {
+            console.warn('Fullscreen request denied or failed:', err);
+        }
+        
+        // Direct transition to auth form
+        setState('AUTH_FORM');
     };
 
     const handleAuth = async (e: React.FormEvent) => {
@@ -132,7 +140,7 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
                     }
                     throw signInError;
                 }
-                setState('SCANNING');
+                setState('INTRO');
             }
         } catch (err: any) {
             setError(err.message || 'AUTHENTICATION_FAILED');
@@ -262,7 +270,7 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
                     )}
 
                     {state === 'INTRO' && (
-                        <IntroScene onComplete={() => setState('AUTH_FORM')} />
+                        <IntroScene onComplete={() => setState('SCANNING')} />
                     )}
 
                     {state === 'AUTH_FORM' && (
