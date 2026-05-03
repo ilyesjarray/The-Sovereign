@@ -19,16 +19,9 @@ const MODELS = [
     { id: 'gpt-image-2', name: 'GPT Image 2', group: 'OpenAI' },
 ];
 
-const PIXAZO_KEYS = [
-    '60805c7b304c4367995fd96537a9596e',
-    '4c9d632151594cf4bd43b96476510ea6',
-    'c12070df1c54419ebeded1402a9a3186'
-];
-
 export function VisionForge() {
     const [prompt, setPrompt] = useState('');
     const [selectedModel, setSelectedModel] = useState(MODELS[0].id); // Default to Flux Schnell
-    const currentKeyIndex = React.useRef(0);
     const [quality, setQuality] = useState('standard');
     const [isGenerating, setIsGenerating] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -41,75 +34,48 @@ export function VisionForge() {
         setIsGenerating(true);
         setError(null);
 
-        let attempts = 0;
-        let success = false;
+        try {
+            const response = await fetch('/api/vision', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: selectedModel,
+                    prompt: prompt,
+                    aspect_ratio: '1:1',
+                    n: 1
+                })
+            });
 
-        while (attempts < PIXAZO_KEYS.length && !success) {
-            try {
-                const apiKey = PIXAZO_KEYS[currentKeyIndex.current];
-                
-                const response = await fetch('https://pixazo.ai', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${apiKey}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        model: selectedModel,
-                        prompt: prompt,
-                        aspect_ratio: '1:1',
-                        n: 1
-                    })
-                });
-
-                if (response.status === 429) {
-                    console.warn(`[Pixazo] Key index ${currentKeyIndex.current} depleted. Rotating...`);
-                    currentKeyIndex.current = (currentKeyIndex.current + 1) % PIXAZO_KEYS.length;
-                    attempts++;
-                    continue;
-                }
-
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.error?.message || `API Error: ${response.status}`);
-                }
-
-                const data = await response.json();
-                
-                // Parse standard OpenAI-like or base64 response
-                let imageUrl = '';
-                if (data.data && data.data[0] && data.data[0].url) {
-                    imageUrl = data.data[0].url;
-                } else if (data.url) {
-                    imageUrl = data.url;
-                } else if (data.data && data.data[0] && data.data[0].b64_json) {
-                    imageUrl = `data:image/png;base64,${data.data[0].b64_json}`;
-                } else {
-                    console.error('Unexpected response format:', data);
-                    throw new Error('Unrecognized response format from engine.');
-                }
-
-                setGeneratedImages(prev => [{ url: imageUrl, prompt, model: selectedModel }, ...prev]);
-                success = true;
-
-            } catch (err: any) {
-                console.error('Generation Error:', err);
-                
-                if (attempts >= PIXAZO_KEYS.length - 1) {
-                    setError(err.message || 'SYNTHESIS_FAILED: Unable to generate image.');
-                    break;
-                }
-                
-                attempts++;
-                currentKeyIndex.current = (currentKeyIndex.current + 1) % PIXAZO_KEYS.length;
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `SYNTHESIS_FAILED: Network Protocol Error ${response.status}`);
             }
-        }
 
-        if (!success && attempts >= PIXAZO_KEYS.length && !error) {
-            setError('CREDIT_DEPLETED: All network pathways exhausted. Quota limits reached.');
-        }
+            const data = await response.json();
+            
+            // Parse standard OpenAI-like or base64 response
+            let imageUrl = '';
+            if (data.data && data.data[0] && data.data[0].url) {
+                imageUrl = data.data[0].url;
+            } else if (data.url) {
+                imageUrl = data.url;
+            } else if (data.data && data.data[0] && data.data[0].b64_json) {
+                imageUrl = `data:image/png;base64,${data.data[0].b64_json}`;
+            } else {
+                console.error('Unexpected response format:', data);
+                throw new Error('Unrecognized response format from engine.');
+            }
 
-        setIsGenerating(false);
+            setGeneratedImages(prev => [{ url: imageUrl, prompt, model: selectedModel }, ...prev]);
+
+        } catch (err: any) {
+            console.error('Generation Error:', err);
+            setError(err.message || 'SYNTHESIS_FAILED: Unable to generate image.');
+        } finally {
+            setIsGenerating(false);
+        }
     };
 
     const downloadImage = (url: string, promptText: string) => {
