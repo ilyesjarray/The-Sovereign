@@ -12,11 +12,12 @@ declare global {
 }
 
 const MODELS = [
-    { id: 'flux-schnell', name: 'Flux.1 Schnell', group: 'Black Forest Labs' },
-    { id: 'flux-dev', name: 'Flux.1 Dev', group: 'Black Forest Labs' },
-    { id: 'flux-pro', name: 'Flux.1 Pro', group: 'Black Forest Labs' },
-    { id: 'sdxl', name: 'Stable Diffusion XL', group: 'Stability AI' },
-    { id: 'gpt-image-2', name: 'GPT Image 2', group: 'OpenAI' },
+    { id: 'flux', name: 'Flux Schnell (Standard)', group: 'Black Forest Labs' },
+    { id: 'klein', name: 'Flux.2 Klein 4B (Fast)', group: 'Black Forest Labs' },
+    { id: 'kontext', name: 'Flux.1 Kontext', group: 'Black Forest Labs' },
+    { id: 'gptimage-large', name: 'GPT Image 1.5', group: 'OpenAI' },
+    { id: 'qwen-image', name: 'Qwen Image Plus', group: 'Alibaba' },
+    { id: 'wan-image', name: 'Wan 2.7 Image', group: 'Alibaba' },
 ];
 
 export function VisionForge() {

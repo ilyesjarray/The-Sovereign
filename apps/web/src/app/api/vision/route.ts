@@ -24,9 +24,12 @@ export async function POST(request: Request) {
         // Generate a random seed for uniqueness unless provided
         const seed = body.seed || Math.floor(Math.random() * 1000000000);
         
+        // Extract the target model from the request, default to 'flux'
+        const targetModel = body.model || 'flux';
+        
         // Use Pollinations AI as a highly reliable, free, and serverless fallback engine
         // We append nologo=true to keep it professional for Sovereign OS
-        const targetUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
+        const targetUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&model=${targetModel}`;
         
         console.log(`[Sovereign Neural Proxy] Synthesizing via Pollinations: ${targetUrl}`);
 
