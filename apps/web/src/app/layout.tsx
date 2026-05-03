@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
-import Script from 'next/script';
 import './globals.css';
 import { RoyalWallpaper } from '@/components/ui/RoyalWallpaper';
 import { SovereignTerminal } from '@/components/ui/SovereignTerminal';
@@ -64,6 +63,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
+        <script src="https://js.puter.com/v2/" async></script>
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -79,7 +79,6 @@ export default function RootLayout({
       <body
         className={`${jetbrainsMono.variable} font-mono antialiased text-sovereign-blue bg-black`}
       >
-        <Script src="https://js.puter.com/v2/" strategy="afterInteractive" />
         <Providers>
           <SovereignSecurity />
           <RoyalWallpaper />
