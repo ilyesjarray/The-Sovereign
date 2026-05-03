@@ -9,11 +9,12 @@ interface SovereignSplashProps {
 
 import { useSound } from '@/providers/SoundProvider';
 import { usePWA } from '@/hooks/usePWA';
+import { IntroScene } from '@/components/modules/IntroScene';
 
 export function SovereignSplash({ onComplete }: SovereignSplashProps) {
     const { playClick } = useSound();
     const { isInstallable, install } = usePWA();
-    const [state, setState] = useState<'WARMUP' | 'INITIAL' | 'AUTH_FORM' | 'SCANNING' | 'GRANTED' | 'VERIFY_EMAIL' | 'BIOMETRIC'>('WARMUP');
+    const [state, setState] = useState<'WARMUP' | 'INITIAL' | 'INTRO' | 'AUTH_FORM' | 'SCANNING' | 'GRANTED' | 'VERIFY_EMAIL' | 'BIOMETRIC'>('WARMUP');
     const [authMode, setAuthMode] = useState<'LOGIN' | 'SIGNUP'>('LOGIN');
     const [progress, setProgress] = useState(0);
     const [email, setEmail] = useState('');
@@ -92,8 +93,8 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
     };
 
     const handleBiometric = async () => {
-        // Direct transition to auth form as requested
-        setState('AUTH_FORM');
+        // Play intro scene before showing auth form
+        setState('INTRO');
     };
 
     const handleAuth = async (e: React.FormEvent) => {
@@ -258,6 +259,10 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
                                 <p className="text-[10px] text-hyper-cyan uppercase font-mono tracking-widest animate-pulse">Neural_Pattern_Matching_Active</p>
                             </div>
                         </motion.div>
+                    )}
+
+                    {state === 'INTRO' && (
+                        <IntroScene onComplete={() => setState('AUTH_FORM')} />
                     )}
 
                     {state === 'AUTH_FORM' && (

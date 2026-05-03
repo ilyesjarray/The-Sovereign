@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export function IntroScene() {
+export function IntroScene({ onComplete }: { onComplete?: () => void }) {
     const [shouldPlay, setShouldPlay] = useState(false);
     const [isFinished, setIsFinished] = useState(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -14,6 +14,7 @@ export function IntroScene() {
         const hasPlayed = localStorage.getItem('sovereign_intro_played');
         if (hasPlayed === 'true') {
             setIsFinished(true);
+            if (onComplete) onComplete();
             return;
         }
 
@@ -67,6 +68,8 @@ export function IntroScene() {
             // @ts-ignore
             screen.orientation.unlock();
         }
+
+        if (onComplete) onComplete();
     };
 
     if (isFinished || !shouldPlay) {
