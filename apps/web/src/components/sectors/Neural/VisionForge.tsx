@@ -36,15 +36,23 @@ export function VisionForge() {
 
     const handleGenerate = async () => {
         if (!prompt.trim()) return;
-        if (typeof window === 'undefined' || !window.puter) {
-            setError('VISION_CORE_OFFLINE: Engine not loaded.');
-            return;
-        }
 
         setIsGenerating(true);
         setError(null);
 
         try {
+            // Lazy load Puter.js on demand
+            if (typeof window !== 'undefined' && !window.puter) {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = "https://js.puter.com/v2/";
+                    script.onload = resolve;
+                    script.onerror = () => reject(new Error('Failed to load Vision Core Engine'));
+                    document.body.appendChild(script);
+                });
+            }
+
+            if (!window.puter) throw new Error('VISION_CORE_OFFLINE: Engine failed to initialize.');
             const options: any = { model: selectedModel };
             
             // Add quality settings if supported by the model
