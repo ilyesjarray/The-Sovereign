@@ -84,38 +84,38 @@ export function TierGuardWrapper({ children, sectorName, requiredTier }: TierGua
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-carbon-black/80 backdrop-blur-md"
+                        className="absolute inset-0 z-50 flex items-start justify-center p-6 pt-24 bg-carbon-black/80 backdrop-blur-md"
                     >
                         <motion.div
                             initial={{ y: 20, scale: 0.95, opacity: 0 }}
                             animate={{ y: 0, scale: 1, opacity: 1 }}
                             exit={{ y: 20, scale: 0.95, opacity: 0 }}
-                            className="bg-carbon-black border border-rose-500/30 rounded-3xl p-8 max-w-lg w-full shadow-[0_0_50px_rgba(225,29,72,0.1)] relative overflow-hidden"
+                            className="bg-carbon-black border border-[#FF0000]/30 rounded-3xl p-8 max-w-lg w-full shadow-[0_0_50px_rgba(255,0,0,0.1)] relative overflow-hidden"
                         >
                             {/* Background visual flair */}
                             <div className="absolute top-0 right-0 p-8 opacity-[0.03]">
-                                <Lock size={150} className="text-rose-500" />
+                                <Lock size={150} className="text-[#FF0000]" />
                             </div>
                             
                             <div className="relative z-10 flex flex-col gap-6">
                                 <div className="flex items-center gap-5">
-                                    <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shrink-0">
-                                        <ShieldAlert className="text-rose-500" size={28} />
+                                    <div className="w-14 h-14 rounded-2xl bg-[#FF0000]/10 border border-[#FF0000]/20 flex items-center justify-center shrink-0">
+                                        <ShieldAlert className="text-[#FF0000]" size={28} />
                                     </div>
                                     <div>
                                         <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">Upgrade_Required</h3>
-                                        <p className="text-[10px] text-rose-500/80 uppercase tracking-widest font-mono mt-1">Sector_Locked: {sectorName}</p>
+                                        <p className="text-[10px] text-[#FF0000]/80 uppercase tracking-widest font-mono mt-1">Sector_Locked: {sectorName}</p>
                                     </div>
                                 </div>
                                 
                                 <p className="text-white/60 text-sm leading-relaxed font-medium">
-                                    Commander, your current clearance level is insufficient to engage with the <span className="text-hyper-cyan font-bold">{sectorName}</span> subsystem. A <span className="text-rose-400 font-bold">{requiredTier}</span> tier subscription is required.
+                                    Commander, your current clearance level is insufficient to engage with the <span className="text-hyper-cyan font-bold">{sectorName}</span> subsystem. A <span className="text-[#FF0000] font-bold">{requiredTier}</span> tier subscription is required.
                                 </p>
 
                                 <div className="flex flex-col gap-3 mt-4">
                                     <button
                                         onClick={handleUpgrade}
-                                        className="w-full py-5 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white font-black uppercase tracking-[0.3em] text-xs transition-all flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(225,29,72,0.2)]"
+                                        className="w-full py-5 rounded-2xl bg-[#FF0000] hover:bg-[#CC0000] text-white font-black uppercase tracking-[0.3em] text-xs transition-all flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(255,0,0,0.2)]"
                                     >
                                         <Zap size={16} /> Authenticate_Upgrade
                                     </button>
@@ -139,8 +139,8 @@ export function TierGuardWrapper({ children, sectorName, requiredTier }: TierGua
             )}>
                 {/* Visual indicator overlay when in read-only mode */}
                 {readOnlyMode && (
-                    <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-rose-500/20 to-transparent flex items-center justify-center z-40 pointer-events-none">
-                        <span className="text-[9px] font-black text-rose-500 uppercase tracking-[0.5em] animate-pulse drop-shadow-md">
+                    <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-[#FF0000]/20 to-transparent flex items-center justify-center z-40 pointer-events-none">
+                        <span className="text-[9px] font-black text-[#FF0000] uppercase tracking-[0.5em] animate-pulse drop-shadow-md">
                             READ_ONLY_MODE_ACTIVE // NO_AUTHORIZATION
                         </span>
                     </div>
