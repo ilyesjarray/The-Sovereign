@@ -10,7 +10,6 @@ import { cn } from '@/lib/utils';
 import { SovereignSplash } from '@/components/auth/SovereignSplash';
 import { ModuleRenderer } from '@/components/modules/ModuleRenderer';
 import { IdentityAccess } from '@/components/IdentityAccess';
-import { NeuralBriefing } from '@/components/modules/NeuralBriefing';
 import { MobileLayout } from '@/components/layout/MobileLayout';
 import { useMobile } from '@/hooks/useMobile';
 import { useLocale } from 'next-intl';
@@ -27,7 +26,6 @@ export default function LandingRoot() {
     const { playClick, toggleMusic } = useSound();
     const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
     const [splashFinished, setSplashFinished] = useState(false);
-    const [showBriefing, setShowBriefing] = useState(false);
     const supabase = createClient();
 
     useEffect(() => {
@@ -66,7 +64,6 @@ export default function LandingRoot() {
                     >
                         <SovereignSplash onComplete={() => {
                             setSplashFinished(true);
-                            setShowBriefing(true);
                         }} />
                     </motion.div>
                 </AnimatePresence>
@@ -74,21 +71,21 @@ export default function LandingRoot() {
         );
     }
 
-    return <SovereignShell showBriefing={showBriefing} setShowBriefing={setShowBriefing} />;
+    return <SovereignShell />;
 }
 
 // Wrapper that detects mobile and renders the appropriate layout
-function SovereignShell({ showBriefing, setShowBriefing }: { showBriefing: boolean, setShowBriefing: (v: boolean) => void }) {
+function SovereignShell() {
     const isMobile = useMobile();
 
     if (isMobile) {
-        return <MobileLayout showBriefing={showBriefing} setShowBriefing={setShowBriefing} />;
+        return <MobileLayout />;
     }
 
-    return <SovereignOS showBriefing={showBriefing} setShowBriefing={setShowBriefing} />;
+    return <SovereignOS />;
 }
 
-function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean, setShowBriefing: (v: boolean) => void }) {
+function SovereignOS() {
     const { playClick, toggleMusic, isMusicPlaying } = useSound();
     const [logs, setLogs] = useState<any[]>([]);
     const [inputValue, setInputValue] = useState('');
@@ -240,12 +237,6 @@ function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean,
 
             {/* Scanline Effect */}
             <div className="absolute inset-0 pointer-events-none z-50 bg-scanline opacity-[0.03]" />
-
-            <AnimatePresence>
-                {showBriefing && (
-                    <NeuralBriefing onClose={() => setShowBriefing(false)} />
-                )}
-            </AnimatePresence>
 
             <AnimatePresence>
                 {isScanning && (

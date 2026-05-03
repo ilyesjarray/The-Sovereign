@@ -9,12 +9,9 @@ import { ModuleRenderer } from '@/components/modules/ModuleRenderer';
 import { useSound } from '@/providers/SoundProvider';
 import { NeuralBriefing } from '@/components/modules/NeuralBriefing';
 
-interface MobileLayoutProps {
-    showBriefing: boolean;
-    setShowBriefing: (v: boolean) => void;
-}
+interface MobileLayoutProps {}
 
-export function MobileLayout({ showBriefing, setShowBriefing }: MobileLayoutProps) {
+export function MobileLayout({}: MobileLayoutProps) {
     const { playClick } = useSound();
     const [currentSector, setCurrentSector] = useState('market-oracle');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -35,13 +32,6 @@ export function MobileLayout({ showBriefing, setShowBriefing }: MobileLayoutProp
                 isMenuOpen={isMenuOpen}
                 onSectorChange={handleSectorChange}
             />
-
-            {/* Neural Briefing */}
-            <AnimatePresence>
-                {showBriefing && (
-                    <NeuralBriefing onClose={() => setShowBriefing(false)} />
-                )}
-            </AnimatePresence>
 
             {/* Full Sector Menu Overlay */}
             <AnimatePresence>
