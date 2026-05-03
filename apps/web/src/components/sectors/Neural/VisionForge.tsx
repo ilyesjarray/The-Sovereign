@@ -57,7 +57,9 @@ export function VisionForge() {
             
             // Parse standard OpenAI-like or base64 response
             let imageUrl = '';
-            if (data.data && data.data[0] && data.data[0].url) {
+            if (data.b64_json) {
+                imageUrl = `data:image/jpeg;base64,${data.b64_json}`;
+            } else if (data.data && data.data[0] && data.data[0].url) {
                 imageUrl = data.data[0].url;
             } else if (data.url) {
                 imageUrl = data.url;
