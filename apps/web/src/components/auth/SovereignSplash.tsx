@@ -26,6 +26,11 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
     const supabase = createClient();
 
     useEffect(() => {
+        // Preload Intro Video immediately into cache
+        fetch('/assets/intro.mp4').catch(() => {});
+    }, []);
+
+    useEffect(() => {
         // 3-Second Mandatory Warmup
         if (state === 'WARMUP') {
             const timer = setTimeout(() => {

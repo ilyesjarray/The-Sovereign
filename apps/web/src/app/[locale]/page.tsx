@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SovereignSplash } from '@/components/auth/SovereignSplash';
+import { IntroScene } from '@/components/modules/IntroScene';
 import { ModuleRenderer } from '@/components/modules/ModuleRenderer';
 import { IdentityAccess } from '@/components/IdentityAccess';
 import { NeuralBriefing } from '@/components/modules/NeuralBriefing';
@@ -69,7 +70,12 @@ export default function LandingRoot() {
         );
     }
 
-    return <SovereignShell showBriefing={showBriefing} setShowBriefing={setShowBriefing} />;
+    return (
+        <>
+            <IntroScene />
+            <SovereignShell showBriefing={showBriefing} setShowBriefing={setShowBriefing} />
+        </>
+    );
 }
 
 // Wrapper that detects mobile and renders the appropriate layout

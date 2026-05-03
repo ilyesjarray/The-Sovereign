@@ -58,6 +58,7 @@ export function IdentityAccess({ onSectorChange }: IdentityAccessProps) {
 
     const handleSignOut = async () => {
         await supabase.auth.signOut();
+        localStorage.removeItem('sovereign_intro_played');
         setIsOpen(false);
         router.push('/');
         router.refresh();

@@ -12,9 +12,9 @@ import { cn } from '@/lib/utils';
 const MOBILE_NAV_ITEMS = [
     { id: 'market-oracle', label: 'ORACLE', icon: Binary },
     { id: 'vision-scout', label: 'SCOUT', icon: Eye },
+    { id: 'vision-forge', label: 'VISION_FORGE', icon: ImageIcon },
     { id: 'sovereign-social', label: 'SOCIAL', icon: Users },
     { id: 'sovereign-vault', label: 'CRYPT', icon: ShieldAlert },
-    { id: 'the-armory', label: 'TREASURY', icon: Wallet },
 ];
 
 interface MobileNavProps {
@@ -77,38 +77,48 @@ export function MobileNav({ currentSector, onSectorChange, onExpandMenu }: Mobil
 
 // Full sector list — matches PC DIRECTORATES order exactly
 export const ALL_MOBILE_SECTORS = [
-    { group: 'CORE_OPERATIONAL', sectors: [
-        { id: 'market-oracle', label: 'THE_HIGH_ORACLE', icon: Binary },
-        { id: 'vision-forge', label: 'VISION_FORGE', icon: ImageIcon },
-        { id: 'vision-scout', label: 'VISION_SCOUT', icon: Eye },
-        { id: 'sovereign-social', label: 'COMMUNITY_PROTOCOL', icon: Users },
-        { id: 'sovereign-vault', label: 'THE_CRYPT', icon: ShieldAlert },
-    ]},
-    { group: 'NEURAL', sectors: [
-        { id: 'war-council', label: 'STRATAGEM_COUNCIL', icon: Sword },
-        { id: 'the-forge', label: 'GENESIS_ENGINE', icon: BrainCircuit },
-        { id: 'temporal-engine', label: 'CHRONOS_SINGULARITY', icon: Clock },
-    ]},
-    { group: 'SECURITY', sectors: [
-        { id: 'the-citadel', label: 'THE_IMPERIAL_BASTION', icon: HardDrive },
-        { id: 'digital-scouts', label: 'SHADOW_WATCH', icon: Radio },
-        { id: 'intelligence-nexus', label: 'INTELLIGENCE_NEXUS', icon: Search },
-        { id: 'nexus-protocol', label: 'NEXUS_UPLINK', icon: MessageSquare },
-    ]},
-    { group: 'FINANCE', sectors: [
-        { id: 'the-armory', label: 'SOVEREIGN_TREASURY', icon: Wallet },
-        { id: 'wealth-engine', label: 'ASSET_FORGE', icon: Zap },
-        { id: 'portfolio-analyst', label: 'PORTFOLIO_INTELLIGENCE', icon: BarChart3 },
-        { id: 'wealth-simulator', label: 'FLEET_STRESS_TEST', icon: Activity },
-        { id: 'whale-radar', label: 'DEEP_SEA_RADAR', icon: Radar },
-    ]},
-    { group: 'OPERATIONS', sectors: [
-        { id: 'chronos', label: 'LEGACY_TEMPORAL', icon: Calendar },
-        { id: 'sovereign-voice', label: 'VOICE_CORE', icon: Mic },
-        { id: 'mission-control', label: 'FIELD_COMMAND', icon: Target },
-        { id: 'automata-station', label: 'AUTOMATA_GRID', icon: Bot },
-        { id: 'enterprise-workspace', label: 'B2B_WORKSPACE', icon: LayoutGrid },
-        { id: 'admin-center', label: 'THRONE_ROOM', icon: Crown },
-    ]},
+    {
+        group: 'CORE_OPERATIONAL', sectors: [
+            { id: 'market-oracle', label: 'THE_HIGH_ORACLE', icon: Binary },
+            { id: 'vision-forge', label: 'VISION_FORGE', icon: ImageIcon },
+            { id: 'vision-scout', label: 'VISION_SCOUT', icon: Eye },
+            { id: 'sovereign-social', label: 'COMMUNITY_PROTOCOL', icon: Users },
+            { id: 'sovereign-vault', label: 'THE_CRYPT', icon: ShieldAlert },
+        ]
+    },
+    {
+        group: 'NEURAL', sectors: [
+            { id: 'war-council', label: 'STRATAGEM_COUNCIL', icon: Sword },
+            { id: 'the-forge', label: 'GENESIS_ENGINE', icon: BrainCircuit },
+            { id: 'temporal-engine', label: 'CHRONOS_SINGULARITY', icon: Clock },
+        ]
+    },
+    {
+        group: 'SECURITY', sectors: [
+            { id: 'the-citadel', label: 'THE_IMPERIAL_BASTION', icon: HardDrive },
+            { id: 'digital-scouts', label: 'SHADOW_WATCH', icon: Radio },
+            { id: 'intelligence-nexus', label: 'INTELLIGENCE_NEXUS', icon: Search },
+            { id: 'nexus-protocol', label: 'NEXUS_UPLINK', icon: MessageSquare },
+        ]
+    },
+    {
+        group: 'FINANCE', sectors: [
+            { id: 'the-armory', label: 'SOVEREIGN_TREASURY', icon: Wallet },
+            { id: 'wealth-engine', label: 'ASSET_FORGE', icon: Zap },
+            { id: 'portfolio-analyst', label: 'PORTFOLIO_INTELLIGENCE', icon: BarChart3 },
+            { id: 'wealth-simulator', label: 'FLEET_STRESS_TEST', icon: Activity },
+            { id: 'whale-radar', label: 'DEEP_SEA_RADAR', icon: Radar },
+        ]
+    },
+    {
+        group: 'OPERATIONS', sectors: [
+            { id: 'chronos', label: 'LEGACY_TEMPORAL', icon: Calendar },
+            { id: 'sovereign-voice', label: 'VOICE_CORE', icon: Mic },
+            { id: 'mission-control', label: 'FIELD_COMMAND', icon: Target },
+            { id: 'automata-station', label: 'AUTOMATA_GRID', icon: Bot },
+            { id: 'enterprise-workspace', label: 'B2B_WORKSPACE', icon: LayoutGrid },
+            { id: 'admin-center', label: 'THRONE_ROOM', icon: Crown },
+        ]
+    },
 ];
 
