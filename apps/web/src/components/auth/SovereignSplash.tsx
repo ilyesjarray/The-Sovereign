@@ -44,7 +44,7 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
         if (state === 'INITIAL') {
             supabase.auth.getSession().then(({ data: { session } }) => {
                 if (session) {
-                    setState('GRANTED');
+                    setState('SCANNING');
                 }
             });
         }
