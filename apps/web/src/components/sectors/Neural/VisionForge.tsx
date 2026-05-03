@@ -34,16 +34,6 @@ export function VisionForge() {
     const [generatedImages, setGeneratedImages] = useState<{ url: string; prompt: string; model: string }[]>([]);
     const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
-    useEffect(() => {
-        // Load Puter.js dynamically
-        if (!document.querySelector('script[src="https://js.puter.com/v2/"]')) {
-            const script = document.createElement('script');
-            script.src = "https://js.puter.com/v2/";
-            script.async = true;
-            document.body.appendChild(script);
-        }
-    }, []);
-
     const handleGenerate = async () => {
         if (!prompt.trim()) return;
         if (typeof window === 'undefined' || !window.puter) {
