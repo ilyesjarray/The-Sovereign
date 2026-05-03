@@ -26,30 +26,16 @@ export async function POST(request: Request) {
         
         // Use Pollinations AI as a highly reliable, free, and serverless fallback engine
         // We append nologo=true to keep it professional for Sovereign OS
-        const targetUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
+        // Default to 512x512 for ultra-fast (1.2s) generation as requested by the Commander
+        const targetUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&model=flux`;
         
         console.log(`[Sovereign Neural Proxy] Synthesizing via Pollinations: ${targetUrl}`);
 
-        const response = await fetch(targetUrl, {
-            method: 'GET',
-            headers: {
-                'Accept': 'image/jpeg'
-            }
-        });
-
-        if (!response.ok) {
-            const errText = await response.text();
-            throw new Error(`Generation failed with status ${response.status}: ${errText.slice(0, 100)}`);
-        }
-
-        // Convert the raw image buffer to base64 so we don't have to deal with CORS/blobs directly on the frontend
-        const arrayBuffer = await response.arrayBuffer();
-        const base64 = Buffer.from(arrayBuffer).toString('base64');
-
-        // Return in OpenAI-compatible format
+        // For maximum speed (1.2s goal), we return the URL directly instead of proxying the buffer.
+        // This eliminates the overhead of downloading, encoding, and transmitting large base64 strings.
         return NextResponse.json({
             created: Math.floor(Date.now() / 1000),
-            b64_json: base64
+            url: targetUrl
         });
 
     } catch (error: any) {
