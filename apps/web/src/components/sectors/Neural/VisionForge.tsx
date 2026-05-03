@@ -27,7 +27,7 @@ const MODELS = [
 
 export function VisionForge() {
     const [prompt, setPrompt] = useState('');
-    const [selectedModel, setSelectedModel] = useState(MODELS[0].id);
+    const [selectedModel, setSelectedModel] = useState(MODELS[1].id); // Default to Flux Schnell (Free)
     const [quality, setQuality] = useState('standard');
     const [isGenerating, setIsGenerating] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -80,7 +80,18 @@ export function VisionForge() {
             
         } catch (err: any) {
             console.error('Generation Error:', err);
-            setError(err.message || 'SYNTHESIS_FAILED: Unable to generate image.');
+            
+            // Puter sometimes rejects with an object instead of an Error
+            let errorMsg = 'SYNTHESIS_FAILED: Unable to generate image.';
+            if (err && typeof err === 'object') {
+                if (err.status === 402) errorMsg = 'CREDIT_DEPLETED: Selected model requires a premium Puter balance.';
+                else if (err.message) errorMsg = err.message;
+                else errorMsg = JSON.stringify(err);
+            } else if (typeof err === 'string') {
+                errorMsg = err;
+            }
+
+            setError(errorMsg);
         } finally {
             setIsGenerating(false);
         }
@@ -154,7 +165,10 @@ export function VisionForge() {
                             </div>
 
                             <div className="space-y-3">
-                                <label className="text-[9px] font-black text-white/40 uppercase tracking-widest">Neural_Model</label>
+                                <label className="text-[9px] font-black text-white/40 uppercase tracking-widest flex items-center justify-between">
+                                    Neural_Model
+                                    <span className="text-[7px] text-amber-500/50">SOME REQUIRE CREDITS</span>
+                                </label>
                                 <select 
                                     value={selectedModel}
                                     onChange={(e) => setSelectedModel(e.target.value)}
