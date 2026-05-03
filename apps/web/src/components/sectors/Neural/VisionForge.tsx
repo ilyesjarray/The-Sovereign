@@ -43,16 +43,30 @@ export function VisionForge() {
             // Default to 1024x1024. Using direct client-side fetch prevents the Vercel datacenter IP from being rate-limited.
             const targetUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${seed}&nologo=true&model=${selectedModel}`;
             
-            const response = await fetch(targetUrl, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'image/jpeg'
-                }
-            });
+            let response = null;
+            let retries = 6;
+            let delayMs = 2000;
 
-            if (!response.ok) {
-                const errText = await response.text();
-                let errMsg = `Protocol Error ${response.status}`;
+            while (retries > 0) {
+                response = await fetch(targetUrl, {
+                    method: 'GET',
+                    headers: { 'Accept': 'image/jpeg' }
+                });
+
+                if (response.status === 429) {
+                    retries--;
+                    if (retries === 0) break;
+                    console.warn(`[Vision Forge] Pollinations queue locked. Retrying in ${delayMs/1000}s...`);
+                    await new Promise(r => setTimeout(r, delayMs));
+                    delayMs += 1500; // Exponential backoff to avoid spamming
+                    continue;
+                }
+                break;
+            }
+
+            if (!response || !response.ok) {
+                const errText = await response?.text() || 'No response';
+                let errMsg = `Protocol Error ${response?.status || 'Unknown'}`;
                 try {
                     const json = JSON.parse(errText);
                     errMsg = json.message || json.error || errMsg;
