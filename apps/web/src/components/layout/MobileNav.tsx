@@ -5,16 +5,16 @@ import {
     Binary, Sword, BrainCircuit, Clock, Users,
     HardDrive, ShieldAlert, Radio, Search, MessageSquare,
     Wallet, Zap, BarChart3, Activity, Radar,
-    Calendar, Mic, Target, Bot, LayoutGrid, Crown,
+    Calendar, Mic, Target, Bot, LayoutGrid, Crown, Eye,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const MOBILE_NAV_ITEMS = [
     { id: 'market-oracle', label: 'ORACLE', icon: Binary },
+    { id: 'vision-scout', label: 'SCOUT', icon: Eye },
+    { id: 'sovereign-social', label: 'SOCIAL', icon: Users },
+    { id: 'sovereign-vault', label: 'CRYPT', icon: ShieldAlert },
     { id: 'the-armory', label: 'TREASURY', icon: Wallet },
-    { id: 'digital-scouts', label: 'INTEL', icon: Radio },
-    { id: 'the-forge', label: 'FORGE', icon: BrainCircuit },
-    { id: 'mission-control', label: 'OPS', icon: Target },
 ];
 
 interface MobileNavProps {
