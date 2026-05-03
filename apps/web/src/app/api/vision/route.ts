@@ -7,8 +7,8 @@ export async function POST(request: Request) {
         // Extract parameters with defaults
         const prompt = body.prompt || "A futuristic cyberpunk cityscape";
         // Parse size if provided in format like "1024x1024", otherwise use defaults
-        let width = 1024;
-        let height = 1024;
+        let width = 512;
+        let height = 512;
         if (body.size) {
             const dims = body.size.split('x');
             if (dims.length === 2) {
