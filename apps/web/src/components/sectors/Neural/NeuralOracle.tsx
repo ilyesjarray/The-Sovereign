@@ -26,12 +26,7 @@ const MODES = [
     { id: 'code', label: 'CODE', icon: Code2, color: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/30', desc: 'Programming & Engineering' },
 ];
 
-const AI_SERVICES = [
-    { id: 'img-gen', label: 'GENERATE_IMAGE', icon: ImageIcon, color: 'text-pink-500' },
-    { id: 'vid-gen', label: 'GENERATE_VIDEO', icon: Video, color: 'text-violet-500' },
-    { id: 'data-analyze', label: 'ANALYZE_DATA', icon: BarChart, color: 'text-hyper-cyan' },
-    { id: 'doc-export', label: 'EXPORT_DOCS', icon: FileText, color: 'text-amber-500' },
-];
+
 
 const QUICK_PROMPTS: Record<string, string[]> = {
     executive: [
@@ -78,7 +73,6 @@ export function NeuralOracle() {
     const [currentMode, setCurrentMode] = useState(MODES[0]);
     const [isSeriousMode, setIsSeriousMode] = useState(true);
     const [isTyping, setIsTyping] = useState(false);
-    const [activeService, setActiveService] = useState<string | null>(null);
     const [copiedId, setCopiedId] = useState<number | null>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -87,28 +81,8 @@ export function NeuralOracle() {
         if (scrollRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
-    }, [messages, isTyping, activeService]);
+    }, [messages, isTyping]);
 
-    const handleServiceRequest = (serviceId: string) => {
-        setActiveService(serviceId);
-        setIsTyping(true);
-        setTimeout(() => {
-            let message = "";
-            switch (serviceId) {
-                case 'img-gen': message = "🎨 **IMAGE_GENERATION_CORE**: Initializing neural rendering. Parameters set for High-Fidelity Imperial Aesthetic."; break;
-                case 'vid-gen': message = "🎬 **VIDEO_SYNTHESIS_ACTIVE**: Framerate locked at 60fps. Cinematic lighting layers applied."; break;
-                case 'data-analyze': message = "📊 **DEEP_DATA_ANALYSIS**: Intercepting market signals. Cross-referencing 50+ global nodes."; break;
-                case 'doc-export': message = "📑 **IMPERIAL_DOCUMENTATION**: Compiling session logs into professional PDF/Markdown format."; break;
-            }
-            setMessages(prev => [...prev, {
-                role: 'assistant',
-                content: message,
-                timestamp: new Date()
-            }]);
-            setIsTyping(false);
-            setActiveService(null);
-        }, 1200);
-    };
 
     const handleSend = async (text?: string) => {
         const userMsg = (text || input).trim();
@@ -430,25 +404,6 @@ export function NeuralOracle() {
 
             {/* Input */}
             <div className="p-4 border-t border-white/5 bg-white/[0.01]">
-                {/* Service Center */}
-                <div className="flex gap-2 mb-3 overflow-x-auto pb-1 custom-scrollbar no-scrollbar">
-                    {AI_SERVICES.map(service => (
-                        <button
-                            key={service.id}
-                            onClick={() => handleServiceRequest(service.id)}
-                            disabled={isTyping}
-                            className={cn(
-                                "flex items-center gap-2 px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border shrink-0",
-                                activeService === service.id
-                                    ? "bg-white/10 border-white/20 text-white"
-                                    : "bg-white/[0.02] border-white/5 text-white/30 hover:bg-white/[0.05] hover:border-white/10"
-                            )}
-                        >
-                            <service.icon size={12} className={cn(service.color, activeService === service.id && "animate-pulse")} />
-                            {service.label}
-                        </button>
-                    ))}
-                </div>
 
                 <div className={cn(
                     "relative flex items-end gap-3 bg-white/[0.03] border rounded-2xl p-3 transition-all",

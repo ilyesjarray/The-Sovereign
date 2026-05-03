@@ -5,7 +5,7 @@ import {
     Binary, Sword, BrainCircuit, Clock, Users,
     HardDrive, ShieldAlert, Radio, Search, MessageSquare,
     Wallet, Zap, BarChart3, Activity, Radar,
-    Calendar, Mic, Target, Bot, LayoutGrid, Crown, Eye,
+    Calendar, Mic, Target, Bot, LayoutGrid, Crown, Eye, Image as ImageIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -79,7 +79,8 @@ export function MobileNav({ currentSector, onSectorChange, onExpandMenu }: Mobil
 export const ALL_MOBILE_SECTORS = [
     { group: 'CORE_OPERATIONAL', sectors: [
         { id: 'market-oracle', label: 'THE_HIGH_ORACLE', icon: Binary },
-        { id: 'vision-scout', label: 'VISION_SCOUT', icon: Search },
+        { id: 'vision-forge', label: 'VISION_FORGE', icon: ImageIcon },
+        { id: 'vision-scout', label: 'VISION_SCOUT', icon: Eye },
         { id: 'sovereign-social', label: 'COMMUNITY_PROTOCOL', icon: Users },
         { id: 'sovereign-vault', label: 'THE_CRYPT', icon: ShieldAlert },
     ]},

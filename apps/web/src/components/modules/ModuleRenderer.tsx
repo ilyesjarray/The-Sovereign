@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 
 const NeuralOracle = dynamic(() => import('@/components/sectors/Neural/NeuralOracle').then(mod => mod.NeuralOracle));
 const VisionScout = dynamic(() => import('@/components/sectors/Neural/VisionScout').then(mod => mod.VisionScout));
+const VisionForge = dynamic(() => import('@/components/sectors/Neural/VisionForge').then(mod => mod.VisionForge));
 const WarCouncil = dynamic(() => import('@/components/sectors/Neural/WarCouncil').then(mod => mod.WarCouncil));
 const ChronoGovernor = dynamic(() => import('@/components/sectors/Temporal/ChronoGovernor').then(mod => mod.ChronoGovernor));
 const WealthForge = dynamic(() => import('@/components/sectors/Wealth/WealthForge').then(mod => mod.WealthForge));
@@ -115,6 +116,8 @@ export function ModuleRenderer({ moduleId }: ModuleRendererProps) {
             return <ProductionAlertWrapper sectorName="Liaison_Core" moduleId={moduleId}><LiaisonCore /></ProductionAlertWrapper>;
         case 'vision-scout':
             return <VisionScout />;
+        case 'vision-forge':
+            return <VisionForge />;
         case 'community-nexus':
             return <ProductionAlertWrapper sectorName="Imperial_Community" moduleId={moduleId}><ImperialCommunity /></ProductionAlertWrapper>;
         case 'system-settings':
