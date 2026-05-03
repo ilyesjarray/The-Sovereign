@@ -118,7 +118,7 @@ export function ModuleRenderer({ moduleId }: ModuleRendererProps) {
         case 'vision-scout':
             return <VisionScout />;
         case 'vision-forge':
-            return <TierGuardWrapper sectorName="Vision_Forge" requiredTier="ULTRA"><VisionForge /></TierGuardWrapper>;
+            return <VisionForge />;
         case 'community-nexus':
             return <ProductionAlertWrapper sectorName="Imperial_Community" moduleId={moduleId}><ImperialCommunity /></ProductionAlertWrapper>;
         case 'system-settings':
