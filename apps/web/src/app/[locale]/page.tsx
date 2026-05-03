@@ -26,6 +26,7 @@ import { useSound } from '@/providers/SoundProvider';
 export default function LandingRoot() {
     const { playClick, toggleMusic } = useSound();
     const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+    const [splashFinished, setSplashFinished] = useState(false);
     const [showBriefing, setShowBriefing] = useState(false);
     const supabase = createClient();
 
@@ -36,20 +37,24 @@ export default function LandingRoot() {
                 setIsAuthorized(true);
             } else {
                 setIsAuthorized(false);
+                setSplashFinished(false);
             }
         });
 
         // Initial check
         supabase.auth.getSession().then(({ data: { session } }) => {
-            setIsAuthorized(!!session);
+            if (!session) {
+                setIsAuthorized(false);
+                setSplashFinished(false);
+            } else {
+                setIsAuthorized(true);
+            }
         });
 
         return () => subscription.unsubscribe();
     }, []);
 
-    if (isAuthorized === null) return null; // Prevent flicker
-
-    if (!isAuthorized) {
+    if (!isAuthorized || !splashFinished) {
         return (
             <div className="min-h-screen bg-black overflow-hidden hud-container">
                 <AnimatePresence mode="wait">
@@ -60,7 +65,7 @@ export default function LandingRoot() {
                         className="fixed inset-0 z-[1000]"
                     >
                         <SovereignSplash onComplete={() => {
-                            setIsAuthorized(true);
+                            setSplashFinished(true);
                             setShowBriefing(true);
                         }} />
                     </motion.div>
