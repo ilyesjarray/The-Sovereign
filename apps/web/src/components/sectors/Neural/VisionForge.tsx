@@ -36,40 +36,35 @@ export function VisionForge() {
         setError(null);
 
         try {
-            const response = await fetch('/api/vision', {
-                method: 'POST',
+            // Generate a random seed for uniqueness
+            const seed = Math.floor(Math.random() * 1000000000);
+            
+            // Construct the direct Pollinations URL
+            // Default to 1024x1024. Using direct client-side fetch prevents the Vercel datacenter IP from being rate-limited.
+            const targetUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${seed}&nologo=true&model=${selectedModel}`;
+            
+            const response = await fetch(targetUrl, {
+                method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    model: selectedModel,
-                    prompt: prompt,
-                    aspect_ratio: '1:1',
-                    n: 1
-                })
+                    'Accept': 'image/jpeg'
+                }
             });
 
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error || `SYNTHESIS_FAILED: Network Protocol Error ${response.status}`);
+                const errText = await response.text();
+                let errMsg = `Protocol Error ${response.status}`;
+                try {
+                    const json = JSON.parse(errText);
+                    errMsg = json.message || json.error || errMsg;
+                } catch {
+                    errMsg = errText.slice(0, 100);
+                }
+                throw new Error(`SYNTHESIS_FAILED: ${errMsg}`);
             }
 
-            const data = await response.json();
-            
-            // Parse standard OpenAI-like or base64 response
-            let imageUrl = '';
-            if (data.b64_json) {
-                imageUrl = `data:image/jpeg;base64,${data.b64_json}`;
-            } else if (data.data && data.data[0] && data.data[0].url) {
-                imageUrl = data.data[0].url;
-            } else if (data.url) {
-                imageUrl = data.url;
-            } else if (data.data && data.data[0] && data.data[0].b64_json) {
-                imageUrl = `data:image/png;base64,${data.data[0].b64_json}`;
-            } else {
-                console.error('Unexpected response format:', data);
-                throw new Error('Unrecognized response format from engine.');
-            }
+            // Convert the raw response into a blob URL so it can be rendered securely
+            const blob = await response.blob();
+            const imageUrl = URL.createObjectURL(blob);
 
             setGeneratedImages(prev => [{ url: imageUrl, prompt, model: selectedModel }, ...prev]);
 
