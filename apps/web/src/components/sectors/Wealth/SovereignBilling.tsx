@@ -10,7 +10,7 @@ const TIERS = [
     {
         id: 'STANDARD',
         name: 'STANDARD_SUITE',
-        price: '25',
+        price: '15',
         priceId: 'https://nowpayments.io/payment/?iid=4458788659',
         icon: Zap,
         color: 'text-hyper-cyan',
@@ -24,7 +24,7 @@ const TIERS = [
     {
         id: 'PREMIUM',
         name: 'PREMIUM_PROTOCOL',
-        price: '55',
+        price: '40',
         priceId: 'https://nowpayments.io/payment/?iid=5180468463',
         icon: Shield,
         color: 'text-hyper-cyan',
@@ -39,7 +39,7 @@ const TIERS = [
     {
         id: 'ULTRA',
         name: 'ULTRA_OVERLORD',
-        price: '99',
+        price: '90',
         priceId: 'https://nowpayments.io/payment/?iid=6375314481',
         icon: Crown,
         color: 'text-amber-400',

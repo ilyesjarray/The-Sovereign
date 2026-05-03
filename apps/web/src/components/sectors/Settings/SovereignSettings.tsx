@@ -99,20 +99,15 @@ export function SovereignSettings() {
         setIsSaving(false);
     };
 
-    const handleSubscribe = async (planId: string) => {
-        try {
-            const { data: { session } } = await supabase.auth.getSession();
-            const res = await fetch('/api/stripe/checkout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ planId, email: session?.user?.email })
-            });
-            const { url, error } = await res.json();
-            if (error) throw new Error(error);
-            if (url) window.location.href = url;
-        } catch (e) {
-            console.error('Subscription error:', e);
-            alert('Payment initialization failed. Ensure Stripe keys are valid.');
+    const handleSubscribe = (planId: string) => {
+        const PAYMENT_LINKS: Record<string, string> = {
+            'standard': 'https://nowpayments.io/payment/?iid=4458788659',
+            'premium': 'https://nowpayments.io/payment/?iid=5180468463',
+            'ultra': 'https://nowpayments.io/payment/?iid=6375314481'
+        };
+        const url = PAYMENT_LINKS[planId];
+        if (url) {
+            window.open(url, '_blank');
         }
     };
 
@@ -251,38 +246,57 @@ export function SovereignSettings() {
                                         Unlock the full potential of The Sovereign OS. Gain access to the AI Auto-Broker, Syndicate Creation, and Zero-Knowledge Enterprise Vault.
                                     </p>
 
-                                    <div className="grid grid-cols-2 gap-6">
+                                    <div className="grid lg:grid-cols-3 gap-6">
                                         <div className="p-8 rounded-2xl bg-white/[0.01] border border-white/10 hover:border-hyper-cyan/40 transition-colors flex flex-col">
                                             <div className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] mb-2">Standard</div>
-                                            <div className="text-3xl font-black text-white mb-6">$29<span className="text-sm text-white/30">/mo</span></div>
+                                            <div className="text-3xl font-black text-white mb-6">$15<span className="text-sm text-white/30">/mo</span></div>
                                             <ul className="space-y-3 mb-8 flex-1 text-xs text-white/60 font-bold tracking-widest uppercase">
+                                                <li>- Basic Neural Access</li>
                                                 <li>- 10GB Secure Vault</li>
                                                 <li>- Personal AI Scheduler</li>
-                                                <li>- Standard Community Chat</li>
+                                                <li>- Standard Intel Feed</li>
                                             </ul>
                                             <button
-                                                onClick={() => handleSubscribe('pro')}
+                                                onClick={() => handleSubscribe('standard')}
                                                 className="w-full py-4 border border-white/10 rounded-xl hover:bg-white/5 font-black text-[10px] uppercase tracking-widest text-white transition-colors"
                                             >
-                                                Initialize_Protocol
+                                                Initialize_Standard
                                             </button>
                                         </div>
 
-                                        <div className="p-8 rounded-2xl bg-hyper-cyan/10 border border-hyper-cyan/40 flex flex-col relative overflow-hidden shadow-[0_0_30px_rgba(0,243,255,0.1)]">
-                                            <div className="absolute top-4 right-4 text-[8px] font-black bg-hyper-cyan text-carbon-black px-3 py-1 rounded-full uppercase tracking-widest">Recommended</div>
-                                            <div className="text-[10px] font-black text-hyper-cyan uppercase tracking-[0.3em] mb-2">Elite Syndicate</div>
-                                            <div className="text-3xl font-black text-white mb-6">$99<span className="text-sm text-white/30">/mo</span></div>
+                                        <div className="p-8 rounded-2xl bg-hyper-cyan/5 border border-hyper-cyan/20 hover:border-hyper-cyan/40 transition-colors flex flex-col">
+                                            <div className="text-[10px] font-black text-hyper-cyan uppercase tracking-[0.3em] mb-2">Premium</div>
+                                            <div className="text-3xl font-black text-white mb-6">$40<span className="text-sm text-white/30">/mo</span></div>
+                                            <ul className="space-y-3 mb-8 flex-1 text-xs text-white/60 font-bold tracking-widest uppercase">
+                                                <li className="text-hyper-cyan/80">- Institutional Liquidity Decoder</li>
+                                                <li>- Whale Order Tracking</li>
+                                                <li>- Premium Intel Feeds</li>
+                                                <li>- 100GB Quantum Vault</li>
+                                            </ul>
+                                            <button
+                                                onClick={() => handleSubscribe('premium')}
+                                                className="w-full py-4 border border-hyper-cyan/30 rounded-xl hover:bg-hyper-cyan/10 font-black text-[10px] uppercase tracking-widest text-hyper-cyan transition-colors"
+                                            >
+                                                Initialize_Premium
+                                            </button>
+                                        </div>
+
+                                        <div className="p-8 rounded-2xl bg-amber-500/10 border border-amber-500/40 flex flex-col relative overflow-hidden shadow-[0_0_30px_rgba(245,158,11,0.1)]">
+                                            <div className="absolute top-4 right-4 text-[8px] font-black bg-amber-500 text-carbon-black px-3 py-1 rounded-full uppercase tracking-widest">Maximum Power</div>
+                                            <div className="text-[10px] font-black text-amber-500 uppercase tracking-[0.3em] mb-2">Ultra Overlord</div>
+                                            <div className="text-3xl font-black text-white mb-6">$90<span className="text-sm text-white/30">/mo</span></div>
                                             <ul className="space-y-3 mb-8 flex-1 text-xs text-white/80 font-bold tracking-widest uppercase">
-                                                <li className="text-hyper-cyan">- AI Auto-Broker (Trading Agent)</li>
-                                                <li className="text-hyper-cyan">- B2B Syndicate Control (Up to 10 users)</li>
-                                                <li>- 1TB Quantum-Secure Vault</li>
+                                                <li className="text-amber-500">- Real-Time NLP Sentiment Analyzer</li>
+                                                <li className="text-amber-500">- Full Llama 3.3 Overlord Access</li>
+                                                <li>- B2B Syndicate Control</li>
+                                                <li>- Unlimited Quantum Vault</li>
                                                 <li>- Priority AI Node Routing</li>
                                             </ul>
                                             <button
-                                                onClick={() => handleSubscribe('elite')}
-                                                className="w-full py-4 bg-hyper-cyan hover:bg-white text-carbon-black rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-neon-cyan"
+                                                onClick={() => handleSubscribe('ultra')}
+                                                className="w-full py-4 bg-amber-500 hover:bg-white text-carbon-black rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-neon-amber"
                                             >
-                                                Ascend_To_Elite
+                                                Ascend_To_Ultra
                                             </button>
                                         </div>
                                     </div>

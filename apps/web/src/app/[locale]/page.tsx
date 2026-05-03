@@ -137,6 +137,7 @@ function SovereignOS({ showBriefing, setShowBriefing }: { showBriefing: boolean,
         if (cmd === 'help') {
             addLog('system', 'SECTORS: NEURAL, TEMPORAL, WEALTH, OPS, VAULT, MISSIONS, INTEL, SIMULATOR, FORGE, VOICE, CITADEL, ARMORY, NEXUS, CHRONOS');
         } else if (cmd.includes('neural')) setCurrentSector('market-oracle');
+        else if (cmd.includes('billing') || cmd.includes('upgrade') || cmd.includes('pricing')) setCurrentSector('imperial-billing');
         else if (cmd.includes('temporal')) setCurrentSector('high-scheduler');
         else if (cmd.includes('wealth') || cmd.includes('simulation')) setCurrentSector('wealth-simulator');
         else if (cmd.includes('ops') || cmd.includes('missions')) setCurrentSector('mission-control');

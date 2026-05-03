@@ -36,6 +36,7 @@ const TemporalEngine = dynamic(() => import('@/components/sectors/Intelligence/T
 import { useState, useEffect } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { TierGuardWrapper } from '@/components/modules/TierGuardWrapper';
 
 function ProductionAlertWrapper({ children, sectorName, moduleId }: { children: React.ReactNode, sectorName: string, moduleId: string }) {
     const [acknowledged, setAcknowledged] = useState(false);
@@ -107,7 +108,7 @@ export function ModuleRenderer({ moduleId }: ModuleRendererProps) {
         
         // Sectors Under Construction
         case 'war-council':
-            return <ProductionAlertWrapper sectorName="Stratagem_Council" moduleId={moduleId}><WarCouncil /></ProductionAlertWrapper>;
+            return <ProductionAlertWrapper sectorName="Stratagem_Council" moduleId={moduleId}><TierGuardWrapper sectorName="Stratagem_Council" requiredTier="ULTRA"><WarCouncil /></TierGuardWrapper></ProductionAlertWrapper>;
         case 'high-scheduler':
             return <ProductionAlertWrapper sectorName="Chrono_Governor" moduleId={moduleId}><ChronoGovernor /></ProductionAlertWrapper>;
         case 'wealth-engine':
@@ -117,7 +118,7 @@ export function ModuleRenderer({ moduleId }: ModuleRendererProps) {
         case 'vision-scout':
             return <VisionScout />;
         case 'vision-forge':
-            return <VisionForge />;
+            return <TierGuardWrapper sectorName="Vision_Forge" requiredTier="ULTRA"><VisionForge /></TierGuardWrapper>;
         case 'community-nexus':
             return <ProductionAlertWrapper sectorName="Imperial_Community" moduleId={moduleId}><ImperialCommunity /></ProductionAlertWrapper>;
         case 'system-settings':
@@ -129,11 +130,11 @@ export function ModuleRenderer({ moduleId }: ModuleRendererProps) {
         case 'mission-control':
             return <ProductionAlertWrapper sectorName="Field_Command" moduleId={moduleId}><MissionControl /></ProductionAlertWrapper>;
         case 'digital-scouts':
-            return <ProductionAlertWrapper sectorName="Shadow_Watch" moduleId={moduleId}><DigitalScouts /></ProductionAlertWrapper>;
+            return <ProductionAlertWrapper sectorName="Shadow_Watch" moduleId={moduleId}><TierGuardWrapper sectorName="Shadow_Watch" requiredTier="ULTRA"><DigitalScouts /></TierGuardWrapper></ProductionAlertWrapper>;
         case 'whale-radar':
-            return <ProductionAlertWrapper sectorName="Deep_Sea_Radar" moduleId={moduleId}><WhaleRadar /></ProductionAlertWrapper>;
+            return <ProductionAlertWrapper sectorName="Deep_Sea_Radar" moduleId={moduleId}><TierGuardWrapper sectorName="Deep_Sea_Radar" requiredTier="PREMIUM"><WhaleRadar /></TierGuardWrapper></ProductionAlertWrapper>;
         case 'chronos':
-            return <ProductionAlertWrapper sectorName="Legacy_Temporal" moduleId={moduleId}><Chronos /></ProductionAlertWrapper>;
+            return <ProductionAlertWrapper sectorName="Legacy_Temporal" moduleId={moduleId}><TierGuardWrapper sectorName="Legacy_Temporal" requiredTier="STANDARD"><Chronos /></TierGuardWrapper></ProductionAlertWrapper>;
         case 'the-forge':
             return <ProductionAlertWrapper sectorName="Genesis_Engine" moduleId={moduleId}><TheForge /></ProductionAlertWrapper>;
         case 'wealth-simulator':
@@ -141,7 +142,7 @@ export function ModuleRenderer({ moduleId }: ModuleRendererProps) {
         case 'sovereign-voice':
             return <ProductionAlertWrapper sectorName="Voice_Core" moduleId={moduleId}><SovereignVoice /></ProductionAlertWrapper>;
         case 'the-citadel':
-            return <ProductionAlertWrapper sectorName="The_Imperial_Bastion" moduleId={moduleId}><TheCitadel /></ProductionAlertWrapper>;
+            return <ProductionAlertWrapper sectorName="The_Imperial_Bastion" moduleId={moduleId}><TierGuardWrapper sectorName="The_Imperial_Bastion" requiredTier="PREMIUM"><TheCitadel /></TierGuardWrapper></ProductionAlertWrapper>;
         case 'the-armory':
             return <ProductionAlertWrapper sectorName="Sovereign_Treasury" moduleId={moduleId}><TheArmory /></ProductionAlertWrapper>;
         case 'nexus-protocol':
@@ -151,9 +152,9 @@ export function ModuleRenderer({ moduleId }: ModuleRendererProps) {
         case 'intelligence-nexus':
             return <ProductionAlertWrapper sectorName="Intelligence_Nexus" moduleId={moduleId}><IntelligenceNexus /></ProductionAlertWrapper>;
         case 'portfolio-analyst':
-            return <ProductionAlertWrapper sectorName="Portfolio_Intelligence" moduleId={moduleId}><PortfolioAnalyst /></ProductionAlertWrapper>;
+            return <ProductionAlertWrapper sectorName="Portfolio_Intelligence" moduleId={moduleId}><TierGuardWrapper sectorName="Portfolio_Intelligence" requiredTier="STANDARD"><PortfolioAnalyst /></TierGuardWrapper></ProductionAlertWrapper>;
         case 'enterprise-workspace':
-            return <ProductionAlertWrapper sectorName="B2B_Workspace" moduleId={moduleId}><EnterpriseWorkspace /></ProductionAlertWrapper>;
+            return <ProductionAlertWrapper sectorName="B2B_Workspace" moduleId={moduleId}><TierGuardWrapper sectorName="B2B_Workspace" requiredTier="ULTRA"><EnterpriseWorkspace /></TierGuardWrapper></ProductionAlertWrapper>;
         case 'temporal-engine':
             return <ProductionAlertWrapper sectorName="Chronos_Singularity" moduleId={moduleId}><TemporalEngine /></ProductionAlertWrapper>;
         default:
