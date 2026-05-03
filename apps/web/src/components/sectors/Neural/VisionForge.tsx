@@ -14,7 +14,7 @@ declare global {
 const MODELS = [
     { id: 'flux', name: 'Flux Schnell (Standard)', group: 'Black Forest Labs' },
     { id: 'klein', name: 'Flux.2 Klein 4B (Fast)', group: 'Black Forest Labs' },
-    { id: 'kontext', name: 'Flux.1 Kontext', group: 'Black Forest Labs' },
+    { id: 'gptimage', name: 'GPT Image 1 Mini', group: 'OpenAI' },
     { id: 'gptimage-large', name: 'GPT Image 1.5', group: 'OpenAI' },
     { id: 'qwen-image', name: 'Qwen Image Plus', group: 'Alibaba' },
     { id: 'wan-image', name: 'Wan 2.7 Image', group: 'Alibaba' },
