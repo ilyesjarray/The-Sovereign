@@ -12,22 +12,23 @@ declare global {
 }
 
 const MODELS = [
-    { id: 'black-forest-labs/flux-1.1-pro', name: 'Flux 1.1 Pro', group: 'Black Forest Labs' },
-    { id: 'black-forest-labs/flux-schnell', name: 'Flux.1 Schnell', group: 'Black Forest Labs' },
-    { id: 'stabilityai/stable-diffusion-3-medium', name: 'Stable Diffusion 3', group: 'Stability AI' },
-    { id: 'dall-e-3', name: 'DALL-E 3', group: 'OpenAI' },
+    { id: 'flux-schnell', name: 'Flux.1 Schnell', group: 'Black Forest Labs' },
+    { id: 'flux-dev', name: 'Flux.1 Dev', group: 'Black Forest Labs' },
+    { id: 'flux-pro', name: 'Flux.1 Pro', group: 'Black Forest Labs' },
+    { id: 'sdxl', name: 'Stable Diffusion XL', group: 'Stability AI' },
     { id: 'gpt-image-2', name: 'GPT Image 2', group: 'OpenAI' },
-    { id: 'gemini-3.1-flash-image-preview', name: 'Gemini 3.1 Flash Image', group: 'Google' },
-    { id: 'gemini-3-pro-image-preview', name: 'Gemini 3 Pro Image', group: 'Google' },
-    { id: 'google/imagen-4.0-ultra', name: 'Imagen 4.0 Ultra', group: 'Google' },
-    { id: 'ideogram/ideogram-3.0', name: 'Ideogram 3.0', group: 'Ideogram' },
-    { id: 'RunDiffusion/Juggernaut-pro-flux', name: 'Juggernaut Pro Flux', group: 'RunDiffusion' },
-    { id: 'Lykon/DreamShaper', name: 'DreamShaper', group: 'Lykon' },
+];
+
+const PIXAZO_KEYS = [
+    '60805c7b304c4367995fd96537a9596e',
+    '4c9d632151594cf4bd43b96476510ea6',
+    'c12070df1c54419ebeded1402a9a3186'
 ];
 
 export function VisionForge() {
     const [prompt, setPrompt] = useState('');
-    const [selectedModel, setSelectedModel] = useState(MODELS[1].id); // Default to Flux Schnell (Free)
+    const [selectedModel, setSelectedModel] = useState(MODELS[0].id); // Default to Flux Schnell
+    const currentKeyIndex = React.useRef(0);
     const [quality, setQuality] = useState('standard');
     const [isGenerating, setIsGenerating] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -40,61 +41,75 @@ export function VisionForge() {
         setIsGenerating(true);
         setError(null);
 
-        try {
-            // Lazy load Puter.js on demand
-            if (typeof window !== 'undefined' && !window.puter) {
-                await new Promise((resolve, reject) => {
-                    const script = document.createElement('script');
-                    script.src = "https://js.puter.com/v2/";
-                    script.onload = resolve;
-                    script.onerror = () => reject(new Error('Failed to load Vision Core Engine'));
-                    document.body.appendChild(script);
+        let attempts = 0;
+        let success = false;
+
+        while (attempts < PIXAZO_KEYS.length && !success) {
+            try {
+                const apiKey = PIXAZO_KEYS[currentKeyIndex.current];
+                
+                const response = await fetch('https://pixazo.ai', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: selectedModel,
+                        prompt: prompt,
+                        aspect_ratio: '1:1',
+                        n: 1
+                    })
                 });
-            }
 
-            if (!window.puter) throw new Error('VISION_CORE_OFFLINE: Engine failed to initialize.');
-            const options: any = { model: selectedModel };
-            
-            // Add quality settings if supported by the model
-            if (selectedModel.startsWith('dall-e-3')) {
-                options.quality = quality === 'high' ? 'hd' : 'standard';
-            } else if (selectedModel.startsWith('gpt-image')) {
-                options.quality = quality === 'high' ? 'high' : quality === 'low' ? 'low' : 'medium';
-            }
+                if (response.status === 429) {
+                    console.warn(`[Pixazo] Key index ${currentKeyIndex.current} depleted. Rotating...`);
+                    currentKeyIndex.current = (currentKeyIndex.current + 1) % PIXAZO_KEYS.length;
+                    attempts++;
+                    continue;
+                }
 
-            const imageElement = await window.puter.ai.txt2img(prompt, options);
-            
-            // Convert the returned HTMLImageElement to a data URL so we can save and display it in our React state
-            const canvas = document.createElement('canvas');
-            canvas.width = imageElement.naturalWidth || imageElement.width;
-            canvas.height = imageElement.naturalHeight || imageElement.height;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-                ctx.drawImage(imageElement, 0, 0);
-                const dataUrl = canvas.toDataURL('image/png');
-                setGeneratedImages(prev => [{ url: dataUrl, prompt, model: selectedModel }, ...prev]);
-            } else {
-                // Fallback if canvas fails
-                setGeneratedImages(prev => [{ url: imageElement.src, prompt, model: selectedModel }, ...prev]);
-            }
-            
-        } catch (err: any) {
-            console.error('Generation Error:', err);
-            
-            // Puter sometimes rejects with an object instead of an Error
-            let errorMsg = 'SYNTHESIS_FAILED: Unable to generate image.';
-            if (err && typeof err === 'object') {
-                if (err.status === 402) errorMsg = 'CREDIT_DEPLETED: Selected model requires a premium Puter balance.';
-                else if (err.message) errorMsg = err.message;
-                else errorMsg = JSON.stringify(err);
-            } else if (typeof err === 'string') {
-                errorMsg = err;
-            }
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error?.message || `API Error: ${response.status}`);
+                }
 
-            setError(errorMsg);
-        } finally {
-            setIsGenerating(false);
+                const data = await response.json();
+                
+                // Parse standard OpenAI-like or base64 response
+                let imageUrl = '';
+                if (data.data && data.data[0] && data.data[0].url) {
+                    imageUrl = data.data[0].url;
+                } else if (data.url) {
+                    imageUrl = data.url;
+                } else if (data.data && data.data[0] && data.data[0].b64_json) {
+                    imageUrl = `data:image/png;base64,${data.data[0].b64_json}`;
+                } else {
+                    console.error('Unexpected response format:', data);
+                    throw new Error('Unrecognized response format from engine.');
+                }
+
+                setGeneratedImages(prev => [{ url: imageUrl, prompt, model: selectedModel }, ...prev]);
+                success = true;
+
+            } catch (err: any) {
+                console.error('Generation Error:', err);
+                
+                if (attempts >= PIXAZO_KEYS.length - 1) {
+                    setError(err.message || 'SYNTHESIS_FAILED: Unable to generate image.');
+                    break;
+                }
+                
+                attempts++;
+                currentKeyIndex.current = (currentKeyIndex.current + 1) % PIXAZO_KEYS.length;
+            }
         }
+
+        if (!success && attempts >= PIXAZO_KEYS.length && !error) {
+            setError('CREDIT_DEPLETED: All network pathways exhausted. Quota limits reached.');
+        }
+
+        setIsGenerating(false);
     };
 
     const downloadImage = (url: string, promptText: string) => {
@@ -182,27 +197,7 @@ export function VisionForge() {
                                 </select>
                             </div>
 
-                            {(selectedModel.startsWith('dall-e-3') || selectedModel.startsWith('gpt-image')) && (
-                                <div className="space-y-3">
-                                    <label className="text-[9px] font-black text-white/40 uppercase tracking-widest">Render_Quality</label>
-                                    <div className="grid grid-cols-3 gap-2">
-                                        {['low', 'standard', 'high'].map(q => (
-                                            <button
-                                                key={q}
-                                                onClick={() => setQuality(q)}
-                                                className={cn(
-                                                    "py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all border",
-                                                    quality === q 
-                                                        ? "bg-hyper-cyan/10 border-hyper-cyan text-hyper-cyan" 
-                                                        : "bg-black/40 border-white/5 text-white/30 hover:border-white/20"
-                                                )}
-                                            >
-                                                {q}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
+                            {/* Removed Puter Quality Settings */}
                         </div>
 
                         {error && (
