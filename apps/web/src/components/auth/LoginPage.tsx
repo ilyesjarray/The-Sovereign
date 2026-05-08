@@ -36,7 +36,7 @@ export default function LoginPage() {
             setError(error.message);
             setLoading(false);
         } else {
-            window.location.href = '/dashboard';
+            window.location.href = '/en';
         }
     };
 
@@ -132,7 +132,7 @@ export default function LoginPage() {
             if (authError) throw authError;
 
             // Successful login, wait for Next.js to redirect or push
-            window.location.href = '/dashboard';
+            window.location.href = '/en';
 
         } catch (err: any) {
             console.error('Web3 Login Error:', err);

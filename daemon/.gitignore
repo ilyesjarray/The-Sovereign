@@ -1,0 +1,26 @@
+# =====================================================
+# Sovereign Daemon — .gitignore
+# =====================================================
+
+# Environment variables (contains service_role key)
+.env
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Temp files (UI dumps)
+tmp/
+
+# Log files
+*.log
+
+# IDE
+.vscode/
+.idea/

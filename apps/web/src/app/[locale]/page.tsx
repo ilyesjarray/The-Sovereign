@@ -22,17 +22,35 @@ const LOCALES = [
 
 import { useSound } from '@/providers/SoundProvider';
 
+import { useRouter } from 'next/navigation';
+
 export default function LandingRoot() {
     const { playClick, toggleMusic } = useSound();
     const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
     const [splashFinished, setSplashFinished] = useState(false);
+    const router = useRouter();
     const supabase = createClient();
 
     useEffect(() => {
+        const checkActivation = async (userId: string) => {
+            const { data } = await supabase
+                .from('users_activation')
+                .select('status')
+                .eq('user_id', userId)
+                .eq('status', 'active')
+                .single();
+                
+            if (data) {
+                setIsAuthorized(true);
+            } else {
+                router.push('/en/activate');
+            }
+        };
+
         // Listen to auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             if (session) {
-                setIsAuthorized(true);
+                checkActivation(session.user.id);
             } else {
                 setIsAuthorized(false);
                 setSplashFinished(false);
@@ -45,12 +63,12 @@ export default function LandingRoot() {
                 setIsAuthorized(false);
                 setSplashFinished(false);
             } else {
-                setIsAuthorized(true);
+                checkActivation(session.user.id);
             }
         });
 
         return () => subscription.unsubscribe();
-    }, []);
+    }, [router, supabase]);
 
     if (!isAuthorized || !splashFinished) {
         return (
