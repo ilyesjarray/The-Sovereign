@@ -566,10 +566,10 @@ ORDER BY a.created_at DESC;
 GRANT SELECT ON public.activation_logs TO service_role;
 
 -- Realtime
-DO  BEGIN
+DO $$ BEGIN
     ALTER PUBLICATION supabase_realtime ADD TABLE public.users_activation;
 EXCEPTION WHEN duplicate_object THEN null;
-END ;
+END $$;
 
 -- Grants
 GRANT USAGE ON SCHEMA public TO authenticated;
