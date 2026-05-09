@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="/oracle/manifest.json">
+<link rel="icon" href="/icon-192.svg">
+<link rel="apple-touch-icon" href="/icon-192.svg">
+<title>Oracle</title>
+<link rel="stylesheet" href="/oracle/style.css">
+</head>
+<body>
+<div id="app">
+  <!-- Install Banner -->
+  <div class="install-banner" id="installBanner">
+    <span>⚡ Install Oracle App</span>
+    <button class="install-btn" id="installBtn">Install</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-bar">
+    <div class="tab active" data-tab="chat">Oracle<span class="dot"></span></div>
+    <div class="tab" data-tab="scout">Scout</div>
+    <div class="tab" data-tab="forge">Forge</div>
+    <div class="tab" data-tab="vision">Vision</div>
+  </div>
+
+  <!-- ORACLE CHAT -->
+  <div class="panel active" id="panel-chat">
+    <div class="modes" id="modeBar"></div>
+    <div class="chat-msgs" id="chatMsgs"></div>
+    <div class="input-bar">
+      <textarea id="chatInput" rows="1" placeholder="Message Oracle..."></textarea>
+      <div class="send-btn" id="sendBtn">▶</div>
+    </div>
+  </div>
+
+  <!-- DIGITAL SCOUT -->
+  <div class="panel" id="panel-scout">
+    <div class="scout-list" id="scoutList">
+      <div class="empty">Scanning frequencies...</div>
+    </div>
+    <div class="scan-btn" id="scanBtn">⚡ Initiate Global Scan</div>
+  </div>
+
+  <!-- VISION FORGE (Image Gen) -->
+  <div class="panel" id="panel-forge">
+    <div class="forge-input">
+      <textarea id="forgePrompt" rows="2" placeholder="Describe the image to generate..."></textarea>
+      <select id="forgeModel">
+        <option value="flux">Flux Schnell</option>
+        <option value="klein">Flux.2 Klein 4B</option>
+        <option value="gptimage">GPT Image 1 Mini</option>
+        <option value="gptimage-large">GPT Image 1.5</option>
+        <option value="qwen-image">Qwen Image Plus</option>
+        <option value="wan-image">Wan 2.7 Image</option>
+      </select>
+      <button class="forge-btn" id="forgeBtn">Generate</button>
+    </div>
+    <div class="forge-area">
+      <div class="gallery" id="gallery"></div>
+    </div>
+  </div>
+
+  <!-- VISION SCOUT (Camera/Image Analysis) -->
+  <div class="panel" id="panel-vision">
+    <div class="vision-input">
+      <label class="file-label" for="visionFile">📷 Upload Image for Analysis</label>
+      <input type="file" id="visionFile" accept="image/*" capture="environment" style="display:none">
+      <img id="visionPreview" class="vision-preview" style="display:none">
+      <textarea id="visionPrompt" rows="2" placeholder="What do you want to know about this image?"></textarea>
+      <button class="forge-btn" id="visionBtn">Analyze</button>
+    </div>
+    <div class="vision-area">
+      <div id="visionResult"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Fullscreen overlay for images -->
+<div class="fullscreen-overlay" id="fsOverlay" style="display:none">
+  <img id="fsImg" src="">
+</div>
+
+<script src="/oracle/app.js"></script>
+</body>
+</html>
