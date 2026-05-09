@@ -447,7 +447,18 @@ export function NeuralOracle() {
                             <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">No Content Limits</span>
                         </div>
                     </div>
-                    <span className="text-[8px] font-mono text-white/10">Llama3.3-70B | 70B params</span>
+                    <div className="flex items-center gap-3">
+                        <span className="text-[8px] font-mono text-white/10">Llama3.3-70B | 70B params</span>
+                        <a
+                            href="/oracle/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-hyper-cyan/10 border border-hyper-cyan/30 text-hyper-cyan hover:bg-hyper-cyan hover:text-carbon-black transition-all"
+                        >
+                            <Sparkles size={10} />
+                            <span className="text-[8px] font-black uppercase tracking-widest">Install App</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
