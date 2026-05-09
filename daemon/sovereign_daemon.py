@@ -382,7 +382,7 @@ class SupabaseManager:
         try:
             update_data: Dict = {
                 "status": status,
-                "processed_at": datetime.utcnow().isoformat(),
+                "processed_at": datetime.now(tz=__import__('datetime').timezone.utc).isoformat(),
             }
             if failure_reason:
                 update_data["failure_reason"] = failure_reason
@@ -443,10 +443,13 @@ class SovereignDaemon:
         """
         activation_id = task["activation_id"]
         pin_code = task["activation_pin_code"]
+        user_name = task.get("activation_user_name", "Unknown")
+        user_email = task.get("activation_user_email", "Unknown")
         masked_pin = f"{'*' * 10}{pin_code[-4:]}"
 
         logger.info(f"{'=' * 60}")
         logger.info(f"PROCESSING ACTIVATION: {activation_id[:8]}...")
+        logger.info(f"USER: {user_name} ({user_email})")
         logger.info(f"PIN: {masked_pin}")
         logger.info(f"{'=' * 60}")
 
@@ -525,7 +528,7 @@ class SovereignDaemon:
         # Step 10: Clean up
         self.adb.cleanup()
 
-        logger.info(f"Task {activation_id[:8]}... completed: {status.upper()}")
+        logger.info(f"Task {activation_id[:8]}... completed: {status.upper()} | {user_name} ({user_email})")
         return status == "active"
 
     def run(self):
