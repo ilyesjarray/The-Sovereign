@@ -40,3 +40,5 @@ Thumbs.db
 
 # Capacitor build
 android/app/build/
+usb_driver/
+UniversalAdbDriverSetup.msi
