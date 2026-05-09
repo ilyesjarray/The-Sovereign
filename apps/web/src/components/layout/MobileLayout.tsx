@@ -8,6 +8,7 @@ import { MobileNav, ALL_MOBILE_SECTORS } from './MobileNav';
 import { ModuleRenderer } from '@/components/modules/ModuleRenderer';
 import { useSound } from '@/providers/SoundProvider';
 import { NeuralBriefing } from '@/components/modules/NeuralBriefing';
+import { MobileSettings } from './MobileSettings';
 
 interface MobileLayoutProps {}
 
@@ -97,7 +98,11 @@ export function MobileLayout({}: MobileLayoutProps) {
             {/* Main Content Area */}
             <main className="flex-1 pt-14 pb-16 overflow-hidden">
                 <div className="h-full overflow-y-auto">
-                    <ModuleRenderer moduleId={currentSector} />
+                    {currentSector === 'system-settings' ? (
+                        <MobileSettings />
+                    ) : (
+                        <ModuleRenderer moduleId={currentSector} />
+                    )}
                 </div>
             </main>
 
