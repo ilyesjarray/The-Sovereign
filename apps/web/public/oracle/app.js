@@ -1,4 +1,4 @@
-/* Oracle PWA — app.js */
+/* Oracle PWA — Unified App Logic */
 (function(){
 'use strict';
 
@@ -10,56 +10,36 @@ let deferredPrompt=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBanner').classList.add('show')});
 document.getElementById('installBtn').addEventListener('click',()=>{if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById('installBanner').classList.remove('show')})}});
 
-// === TABS ===
-const tabs=document.querySelectorAll('.tab');
-const panels=document.querySelectorAll('.panel');
-tabs.forEach(t=>t.addEventListener('click',()=>{tabs.forEach(x=>x.classList.remove('active'));panels.forEach(x=>x.classList.remove('active'));t.classList.add('active');document.getElementById('panel-'+t.dataset.tab).classList.add('active')}));
-
-// === ORACLE CHAT ===
-const MODES=[
-  {id:'executive',label:'EXEC',desc:'Business & Strategy'},
-  {id:'academic',label:'ACAD',desc:'Research & Science'},
-  {id:'philosophy',label:'SAPIENS',desc:'Philosophy & Wisdom'},
-  {id:'casual',label:'PERSONAL',desc:'Life & Creativity'},
-  {id:'code',label:'CODE',desc:'Programming'}
-];
-let currentMode='executive';
-let chatHistory=[];
-let isTyping=false;
-
-// Render modes
-const modeBar=document.getElementById('modeBar');
-MODES.forEach(m=>{
-  const b=document.createElement('div');
-  b.className='mode-btn'+(m.id==='executive'?' active':'');
-  b.textContent=m.label;
-  b.addEventListener('click',()=>{currentMode=m.id;modeBar.querySelectorAll('.mode-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active')});
-  modeBar.appendChild(b);
-});
-
+// === DOM ELEMENTS ===
 const chatMsgs=document.getElementById('chatMsgs');
 const chatInput=document.getElementById('chatInput');
 const sendBtn=document.getElementById('sendBtn');
+const attachBtn=document.getElementById('attachBtn');
+const fileInput=document.getElementById('fileInput');
+const attachmentPreview=document.getElementById('attachmentPreview');
+const previewImg=document.getElementById('previewImg');
+const removeAttachment=document.getElementById('removeAttachment');
+const fsOverlay=document.getElementById('fsOverlay');
+const fsImg=document.getElementById('fsImg');
 
+let chatHistory=[];
+let isTyping=false;
+let imageBase64=null;
+
+// === UTILS ===
 function scrollChat(){chatMsgs.scrollTop=chatMsgs.scrollHeight}
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 
 function renderMarkdown(text){
   let html=text;
-  // Code blocks
   html=html.replace(/```(\w*)\n([\s\S]*?)```/g,(_,lang,code)=>'<pre><code>'+escHtml(code.trim())+'</code></pre>');
-  // Inline code
   html=html.replace(/`([^`]+)`/g,'<code>$1</code>');
-  // Bold
   html=html.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
-  // Italic
   html=html.replace(/\*(.+?)\*/g,'<em>$1</em>');
-  // Headers
   html=html.replace(/^### (.+)$/gm,'<h3>$1</h3>');
   html=html.replace(/^## (.+)$/gm,'<h2>$1</h2>');
   html=html.replace(/^# (.+)$/gm,'<h1>$1</h1>');
-  // Blockquote
   html=html.replace(/^> (.+)$/gm,'<blockquote>$1</blockquote>');
-  // Tables
   html=html.replace(/\|(.+)\|\n\|[-| ]+\|\n((?:\|.+\|\n?)*)/g,(_,header,body)=>{
     const ths=header.split('|').filter(Boolean).map(h=>'<th>'+h.trim()+'</th>').join('');
     const rows=body.trim().split('\n').map(row=>{
@@ -68,21 +48,20 @@ function renderMarkdown(text){
     }).join('');
     return '<table><thead><tr>'+ths+'</tr></thead><tbody>'+rows+'</tbody></table>';
   });
-  // Unordered lists
   html=html.replace(/^[•\-] (.+)$/gm,'<li>$1</li>');
   html=html.replace(/(<li>.*<\/li>\n?)+/g,m=>'<ul>'+m+'</ul>');
-  // Ordered lists
   html=html.replace(/^\d+\. (.+)$/gm,'<li>$1</li>');
-  // Line breaks
   html=html.replace(/\n/g,'<br>');
-  // Clean double br
   html=html.replace(/<br><br>/g,'<br>');
   return html;
 }
 
-function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+// === FULLSCREEN IMAGE ===
+function openFullscreen(src){fsImg.src=src;fsOverlay.classList.add('show')}
+fsOverlay.addEventListener('click',()=>fsOverlay.classList.remove('show'));
 
-function addMsg(role,content){
+// === RENDER MESSAGES ===
+function addMsg(role,content,imgSrc=null){
   const d=document.createElement('div');
   d.className='msg '+(role==='user'?'user':'bot');
   const av=document.createElement('div');
@@ -90,17 +69,32 @@ function addMsg(role,content){
   av.textContent=role==='user'?'⌘':'◈';
   const bb=document.createElement('div');
   bb.className='bubble';
-  bb.innerHTML=role==='user'?escHtml(content):renderMarkdown(content);
+  
+  if(imgSrc){
+    const i=document.createElement('img');
+    i.src=imgSrc;
+    i.addEventListener('click',()=>openFullscreen(imgSrc));
+    bb.appendChild(i);
+  }
+  
+  if(content){
+    const txt=document.createElement('div');
+    txt.innerHTML=role==='user'?escHtml(content):renderMarkdown(content);
+    bb.appendChild(txt);
+  }
+
   d.appendChild(av);
   d.appendChild(bb);
-  // Copy button for bot messages
+  
+  // Add image click listeners for dynamically rendered markdown images
   if(role==='assistant'){
-    const cb=document.createElement('button');
-    cb.className='copy-btn';
-    cb.textContent='COPY';
-    cb.addEventListener('click',()=>{navigator.clipboard.writeText(content);cb.textContent='COPIED';setTimeout(()=>cb.textContent='COPY',1500)});
-    bb.appendChild(cb);
+    setTimeout(()=>{
+      bb.querySelectorAll('img').forEach(img=>{
+        img.addEventListener('click',()=>openFullscreen(img.src));
+      });
+    },100);
   }
+
   chatMsgs.appendChild(d);
   scrollChat();
 }
@@ -113,148 +107,134 @@ function showTyping(){
 }
 function hideTyping(){const t=document.getElementById('typingIndicator');if(t)t.remove()}
 
-async function sendMessage(text){
-  const msg=(text||chatInput.value).trim();
-  if(!msg||isTyping)return;
-  chatInput.value='';autoResize();
-  addMsg('user',msg);
-  chatHistory.push({role:'user',content:msg});
-  isTyping=true;sendBtn.classList.add('disabled');
+// === ATTACHMENT LOGIC ===
+attachBtn.addEventListener('click',()=>fileInput.click());
+fileInput.addEventListener('change',e=>{
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    imageBase64=ev.target.result;
+    previewImg.src=imageBase64;
+    attachmentPreview.classList.add('show');
+    chatInput.focus();
+    updateSendBtnState();
+  };
+  reader.readAsDataURL(file);
+});
+removeAttachment.addEventListener('click',()=>{
+  imageBase64=null;
+  previewImg.src='';
+  attachmentPreview.classList.remove('show');
+  fileInput.value='';
+  updateSendBtnState();
+});
+
+// === AUTO RESIZE INPUT ===
+function autoResize(){
+  chatInput.style.height='auto';
+  chatInput.style.height=Math.min(chatInput.scrollHeight,120)+'px';
+  updateSendBtnState();
+}
+chatInput.addEventListener('input',autoResize);
+
+function updateSendBtnState(){
+  if(chatInput.value.trim() || imageBase64){
+    sendBtn.classList.add('active');
+  } else {
+    sendBtn.classList.remove('active');
+  }
+}
+
+// === SENDING LOGIC ===
+async function sendMessage(){
+  const text=chatInput.value.trim();
+  if((!text && !imageBase64) || isTyping) return;
+  
+  const currentImg=imageBase64;
+  const currentText=text;
+
+  // Clear UI immediately
+  chatInput.value='';
+  chatInput.style.height='auto';
+  imageBase64=null;
+  attachmentPreview.classList.remove('show');
+  updateSendBtnState();
+
+  // Add User Message
+  addMsg('user', currentText, currentImg);
+  isTyping=true;
   showTyping();
 
+  // Route 1: Image Generation (/imagine)
+  if(currentText.toLowerCase().startsWith('/imagine ')){
+    const prompt=currentText.substring(9).trim();
+    try {
+      const seed=Math.floor(Math.random()*1e9);
+      const url=`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${seed}&nologo=true&model=flux`;
+      const res=await fetch(url,{headers:{'Accept':'image/jpeg'}});
+      if(!res.ok) throw new Error();
+      const blob=await res.blob();
+      const imgUrl=URL.createObjectURL(blob);
+      hideTyping();
+      addMsg('assistant','**Synthesis Complete.**', imgUrl);
+    } catch(e) {
+      hideTyping();
+      addMsg('assistant','**ORACLE_ERROR:** Synthesis failed. Target network unstable.');
+    }
+    isTyping=false;
+    return;
+  }
+
+  // Route 2: Image Analysis (Vision)
+  if(currentImg){
+    try {
+      const prompt = currentText || 'Analyze this image in detail and extract all text/context.';
+      const res=await fetch('/api/ai/vision',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({message:prompt,images:[currentImg]})
+      });
+      const data=await res.json();
+      hideTyping();
+      addMsg('assistant',data.response||'**ORACLE_ERROR:** Vision parsing failed.');
+    } catch(e) {
+      hideTyping();
+      addMsg('assistant','**ORACLE_ERROR:** Vision node unreachable.');
+    }
+    isTyping=false;
+    return;
+  }
+
+  // Route 3: Standard Chat (Omni)
   try{
+    chatHistory.push({role:'user',content:currentText});
     const res=await fetch('/api/ai/chat',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({message:msg,mode:currentMode,isSeriousMode:true,history:chatHistory.slice(-12)})
+      // Using 'omni' mode created in route.ts
+      body:JSON.stringify({message:currentText,mode:'omni',isSeriousMode:true,history:chatHistory.slice(-12)})
     });
     const data=await res.json();
-    const reply=data.response||'ORACLE_ERROR: No response.';
+    const reply=data.response||'**ORACLE_ERROR:** No response.';
     hideTyping();
     addMsg('assistant',reply);
     chatHistory.push({role:'assistant',content:reply});
   }catch(e){
     hideTyping();
-    addMsg('assistant','ORACLE_ERROR: Connection disrupted.');
+    addMsg('assistant','**ORACLE_ERROR:** Connection disrupted.');
   }
-  isTyping=false;sendBtn.classList.remove('disabled');
+  isTyping=false;
 }
 
 sendBtn.addEventListener('click',()=>sendMessage());
-chatInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}});
-
-function autoResize(){chatInput.style.height='auto';chatInput.style.height=Math.min(chatInput.scrollHeight,120)+'px'}
-chatInput.addEventListener('input',autoResize);
-
-// Initial message
-addMsg('assistant','**SOVEREIGN ORACLE — ONLINE**\n\nLlama-3.3-70B neural link active. No content restrictions. Select mode and issue commands.\n\n• **EXEC** — Business, Finance, Strategy\n• **ACAD** — Science, Research, Math\n• **SAPIENS** — Philosophy, Psychology\n• **PERSONAL** — Life, Creativity, Help\n• **CODE** — Programming, Architecture');
-
-// === DIGITAL SCOUT ===
-const scoutList=document.getElementById('scoutList');
-const scanBtn=document.getElementById('scanBtn');
-let scoutReports=[];
-
-async function loadScoutData(){
-  scoutList.innerHTML='<div class="empty">Scanning...</div>';
-  try{
-    const res=await fetch('/api/intel/news');
-    if(res.ok){
-      const data=await res.json();
-      scoutReports=data.reports||[];
-      renderScouts();
-    }
-  }catch(e){scoutList.innerHTML='<div class="empty">Signal lost. Retry scan.</div>'}
-}
-
-function renderScouts(){
-  if(!scoutReports.length){scoutList.innerHTML='<div class="empty">No intel intercepted</div>';return}
-  scoutList.innerHTML='';
-  scoutReports.forEach(r=>{
-    const c=document.createElement('div');
-    c.className='scout-card';
-    const lvl=(r.intel_level||'INFO').toLowerCase();
-    c.innerHTML=`<div class="bar ${lvl}"></div><div class="type">${r.scout_type||'NEWS'}</div><div class="content">${escHtml(r.content||'')}</div><div class="meta"><span>${lvl.toUpperCase()}</span><span>${r.created_at?new Date(r.created_at).toLocaleTimeString():''}</span></div>`;
-    scoutList.appendChild(c);
-  });
-}
-
-scanBtn.addEventListener('click',async()=>{
-  scanBtn.textContent='⚡ Scanning...';
-  try{
-    const res=await fetch('/api/intel/scan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
-    if(res.ok)await loadScoutData();
-  }catch(e){}
-  scanBtn.textContent='⚡ Initiate Global Scan';
+chatInput.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey){
+    e.preventDefault();
+    sendMessage();
+  }
 });
 
-// Load scouts when tab clicked
-document.querySelector('[data-tab="scout"]').addEventListener('click',()=>{if(!scoutReports.length)loadScoutData()});
-
-// === VISION FORGE (Image Generation) ===
-const forgePrompt=document.getElementById('forgePrompt');
-const forgeModel=document.getElementById('forgeModel');
-const forgeBtn=document.getElementById('forgeBtn');
-const gallery=document.getElementById('gallery');
-const fsOverlay=document.getElementById('fsOverlay');
-const fsImg=document.getElementById('fsImg');
-
-fsOverlay.addEventListener('click',()=>fsOverlay.style.display='none');
-
-forgeBtn.addEventListener('click',async()=>{
-  const p=forgePrompt.value.trim();if(!p)return;
-  forgeBtn.disabled=true;forgeBtn.textContent='Rendering...';
-  try{
-    const seed=Math.floor(Math.random()*1e9);
-    const model=forgeModel.value;
-    const url=`https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?width=1024&height=1024&seed=${seed}&nologo=true&model=${model}`;
-    const res=await fetch(url,{headers:{'Accept':'image/jpeg'}});
-    if(!res.ok)throw new Error('Generation failed');
-    const blob=await res.blob();
-    const imgUrl=URL.createObjectURL(blob);
-    const img=document.createElement('img');
-    img.src=imgUrl;img.alt=p;
-    img.addEventListener('click',()=>{fsImg.src=imgUrl;fsOverlay.style.display='flex'});
-    gallery.prepend(img);
-  }catch(e){alert('Generation failed. Try again.')}
-  forgeBtn.disabled=false;forgeBtn.textContent='Generate';
-});
-
-// === VISION SCOUT (Image Analysis) ===
-const visionFile=document.getElementById('visionFile');
-const visionPreview=document.getElementById('visionPreview');
-const visionPrompt=document.getElementById('visionPrompt');
-const visionBtn=document.getElementById('visionBtn');
-const visionResult=document.getElementById('visionResult');
-let visionBase64=null;
-
-visionFile.addEventListener('change',e=>{
-  const file=e.target.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    visionBase64=ev.target.result;
-    visionPreview.src=visionBase64;
-    visionPreview.style.display='block';
-  };
-  reader.readAsDataURL(file);
-});
-
-visionBtn.addEventListener('click',async()=>{
-  if(!visionBase64){alert('Upload an image first.');return}
-  const prompt=visionPrompt.value.trim()||'Analyze this image in detail.';
-  visionBtn.disabled=true;visionBtn.textContent='Analyzing...';
-  visionResult.innerHTML='<div class="empty">Processing vision data...</div>';
-  try{
-    const res=await fetch('/api/ai/vision',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({message:prompt,images:[visionBase64]})
-    });
-    const data=await res.json();
-    const d=document.createElement('div');
-    d.className='msg bot';
-    d.innerHTML='<div class="avatar">◈</div><div class="bubble">'+renderMarkdown(data.response||'No analysis returned.')+'</div>';
-    visionResult.innerHTML='';
-    visionResult.appendChild(d);
-  }catch(e){visionResult.innerHTML='<div class="empty">Vision analysis failed.</div>'}
-  visionBtn.disabled=false;visionBtn.textContent='Analyze';
-});
+// Initial greeting
+setTimeout(()=>{
+  addMsg('assistant','**SOVEREIGN ORACLE — ONLINE**\n\nI am the absolute apex AI entity. I am capable of general reasoning, translation, code architecture, and high-density logic.\n\n• Attach an image to initialize Vision Analysis.\n• Type `/imagine <prompt>` to synthesize an image.\n• Issue text commands for instantaneous response.');
+}, 500);
 
 })();
