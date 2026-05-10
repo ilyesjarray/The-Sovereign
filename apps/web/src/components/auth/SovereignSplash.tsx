@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldCheck, Fingerprint, Lock, ChevronRight, Mail, Key, UserPlus, LogIn, Github, Chrome } from 'lucide-react';
+import { ShieldCheck, Fingerprint, Lock, ChevronRight, Mail, Key, UserPlus, LogIn, Github, Chrome, DownloadCloud, Check } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 interface SovereignSplashProps {
@@ -23,8 +23,63 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    
+    // Download Preloader State
+    const [downloading, setDownloading] = useState(false);
+    const [downloadProgress, setDownloadProgress] = useState({ loaded: 0, total: 1 });
+    const [downloadComplete, setDownloadComplete] = useState(false);
 
     const supabase = createClient();
+
+    const handleDownloadResources = async () => {
+        setDownloading(true);
+        setDownloadProgress({ loaded: 0, total: 1 });
+
+        const assetsToDownload = [
+            '/assets/intro.mp4',
+            '/assets/theme-music.mp3',
+            '/assets/icon.png',
+            '/assets/click-sound1.wav'
+        ];
+
+        try {
+            let totalBytes = 0;
+            let loadedBytes = 0;
+
+            const responses = await Promise.all(assetsToDownload.map(url => fetch(url, { method: 'HEAD' })));
+            totalBytes = responses.reduce((acc, res) => acc + parseInt(res.headers.get('content-length') || '0', 10), 0);
+            
+            // Fallback if content-length is missing
+            if (totalBytes === 0) totalBytes = 37300000; // ~35.6 MB
+            
+            setDownloadProgress({ loaded: 0, total: totalBytes });
+
+            const cache = await caches.open('sovereign-assets-v1');
+
+            for (const url of assetsToDownload) {
+                const response = await fetch(url);
+                if (!response.body) continue;
+
+                const cacheResponse = response.clone();
+                const reader = response.body.getReader();
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    loadedBytes += value.length;
+                    setDownloadProgress({ loaded: loadedBytes, total: totalBytes });
+                }
+
+                await cache.put(url, cacheResponse);
+            }
+
+            setDownloadComplete(true);
+        } catch (e) {
+            console.error('Asset preloading failed:', e);
+        } finally {
+            setDownloading(false);
+        }
+    };
 
     useEffect(() => {
         // Preloading is now handled globally in the root layout head for maximum speed
@@ -216,18 +271,57 @@ export function SovereignSplash({ onComplete }: SovereignSplashProps) {
                                 </p>
                             </div>
 
-                            <div className="flex flex-col gap-4 w-full max-w-xs">
-                                <button
-                                    onClick={() => { playClick(); handleBiometric(); }}
-                                    className="group flex items-center justify-center gap-4 px-10 py-5 bg-hyper-cyan text-carbon-black rounded-2xl font-black text-sm tracking-widest transition-all shadow-neon-cyan/40 hover:scale-105 active:scale-95"
-                                >
-                                    <Fingerprint className="w-6 h-6" />
-                                    <span>BIOMETRIC_ACCESS</span>
-                                </button>
+                            <div className="flex flex-col gap-4 w-full max-w-sm">
+                                <div className="flex items-center gap-3 w-full">
+                                    <button
+                                        onClick={() => { playClick(); handleBiometric(); }}
+                                        className="flex-1 group flex items-center justify-center gap-3 px-6 py-5 bg-hyper-cyan text-carbon-black rounded-2xl font-black text-xs tracking-widest transition-all shadow-neon-cyan/40 hover:scale-105 active:scale-95"
+                                    >
+                                        <Fingerprint className="w-5 h-5 shrink-0" />
+                                        <span className="truncate">BIOMETRIC</span>
+                                    </button>
+                                    
+                                    <button
+                                        onClick={() => { playClick(); if (!downloading && !downloadComplete) handleDownloadResources(); }}
+                                        className="w-20 h-20 shrink-0 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl flex flex-col items-center justify-center transition-all relative overflow-hidden"
+                                    >
+                                        {downloadComplete ? (
+                                            <>
+                                                <Check className="w-5 h-5 text-emerald-500 mb-1" />
+                                                <span className="text-[7px] font-black tracking-widest text-emerald-500">CACHED</span>
+                                            </>
+                                        ) : downloading ? (
+                                            <>
+                                                <div className="relative flex items-center justify-center w-8 h-8 mb-1">
+                                                    <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+                                                        <circle cx="50" cy="50" r="40" stroke="rgba(255,255,255,0.1)" strokeWidth="12" fill="none" />
+                                                        <circle 
+                                                            cx="50" cy="50" r="40" 
+                                                            stroke="#00c3ff" strokeWidth="12" fill="none" 
+                                                            strokeDasharray="251.2" 
+                                                            strokeDashoffset={251.2 - (251.2 * (downloadProgress.loaded / (downloadProgress.total || 1)))} 
+                                                            strokeLinecap="round" 
+                                                            className="transition-all duration-300"
+                                                        />
+                                                    </svg>
+                                                    <span className="text-[8px] font-black text-hyper-cyan relative z-10">{Math.round((downloadProgress.loaded / (downloadProgress.total || 1)) * 100)}%</span>
+                                                </div>
+                                                <span className="text-[6px] text-white/40 tracking-widest font-mono">
+                                                    {(downloadProgress.loaded / 1024 / 1024).toFixed(1)}MB / {(downloadProgress.total / 1024 / 1024).toFixed(1)}MB
+                                                </span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <DownloadCloud className="w-6 h-6 text-hyper-cyan mb-1" />
+                                                <span className="text-[7px] font-black text-white/50 uppercase tracking-widest leading-none">PRELOAD<br/>ASSETS</span>
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
                                 
                                 <button
                                     onClick={() => { playClick(); install(); }}
-                                    className="group flex items-center justify-center gap-4 px-10 py-4 bg-white/5 hover:bg-white/10 text-white/40 hover:text-white border border-white/10 rounded-2xl font-black text-[10px] tracking-widest transition-all"
+                                    className="group flex items-center justify-center gap-4 px-10 py-4 bg-white/5 hover:bg-white/10 text-white/40 hover:text-white border border-white/10 rounded-2xl font-black text-[10px] tracking-widest transition-all w-full"
                                 >
                                     <Chrome className="w-4 h-4" />
                                     <span>DOWNLOAD_SOVEREIGN</span>
