@@ -139,6 +139,43 @@ export function SovereignSecurity() {
             const cssEl = document.getElementById('sovereign-security-css');
             if (cssEl) cssEl.remove();
         };
+    useEffect(() => {
+        if (isBypassed) return;
+
+        let intervalId: NodeJS.Timeout;
+
+        const checkVersion = async () => {
+            // Ignore updates if we're already on the updating page
+            if (window.location.pathname.includes('/updating')) return;
+
+            try {
+                const res = await fetch(`/api/version?t=${Date.now()}`);
+                if (!res.ok) return;
+                
+                const data = await res.json();
+                const liveVersion = data.version;
+                if (!liveVersion || liveVersion === 'dev-local') return;
+
+                const localVersion = localStorage.getItem('sovereign_version');
+                
+                if (!localVersion) {
+                    // First time load, just set it
+                    localStorage.setItem('sovereign_version', liveVersion);
+                } else if (localVersion !== liveVersion) {
+                    // Mismatch! Force update
+                    console.warn(`VERSION MISMATCH: Local(${localVersion}) vs Live(${liveVersion}). Forcing update.`);
+                    window.location.href = `/en/updating?v=${liveVersion}`;
+                }
+            } catch (err) {
+                // Silently fail if network is down
+            }
+        };
+
+        // Check immediately on mount, then every 60 seconds
+        checkVersion();
+        intervalId = setInterval(checkVersion, 60000);
+
+        return () => clearInterval(intervalId);
     }, [isBypassed]);
 
     return null;

@@ -3,12 +3,16 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
+import { useSearchParams } from 'next/navigation';
+
 export default function UpdatingPage() {
     const [status, setStatus] = useState<'IDLE' | 'UPDATING' | 'SUCCESS'>('IDLE');
-    const CURRENT_VERSION = 'v2.0.0-tier3'; // Must match SovereignSecurity.tsx
-
+    const searchParams = useSearchParams();
+    
     const installUpdates = async () => {
         setStatus('UPDATING');
+        // Extract version from URL, fallback to generating a new timestamp if missing
+        const newVersion = searchParams.get('v') || Date.now().toString();
 
         try {
             // 1. Unregister Service Workers
@@ -32,7 +36,7 @@ export default function UpdatingPage() {
             sessionStorage.clear();
 
             // 4. Set new version
-            localStorage.setItem('sovereign_version', CURRENT_VERSION);
+            localStorage.setItem('sovereign_version', newVersion);
 
             // 5. Redirect back to home
             setTimeout(() => {
@@ -45,7 +49,7 @@ export default function UpdatingPage() {
         } catch (e) {
             console.error('Update failed:', e);
             // Fallback to just setting version and redirecting
-            localStorage.setItem('sovereign_version', CURRENT_VERSION);
+            localStorage.setItem('sovereign_version', newVersion);
             window.location.replace('/');
         }
     };
