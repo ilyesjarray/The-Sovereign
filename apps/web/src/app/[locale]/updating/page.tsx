@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 
 import { useSearchParams } from 'next/navigation';
 
-export default function UpdatingPage() {
+function UpdatingContent() {
     const [status, setStatus] = useState<'IDLE' | 'UPDATING' | 'SUCCESS'>('IDLE');
     const searchParams = useSearchParams();
     
@@ -130,5 +130,17 @@ export default function UpdatingPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function UpdatingPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex flex-col items-center justify-center min-h-screen bg-black text-[#00c3ff] font-mono tracking-widest text-sm">
+                <div className="animate-pulse">INITIALIZING UPDATE SEQUENCE...</div>
+            </div>
+        }>
+            <UpdatingContent />
+        </Suspense>
     );
 }
