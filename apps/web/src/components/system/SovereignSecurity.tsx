@@ -139,6 +139,8 @@ export function SovereignSecurity() {
             const cssEl = document.getElementById('sovereign-security-css');
             if (cssEl) cssEl.remove();
         };
+    }, [isBypassed]);
+
     useEffect(() => {
         if (isBypassed) return;
 
