@@ -9,9 +9,9 @@ import './MaintenanceOverlay.css';
    ============================================================ */
 const ASSET_BASE = '/seydraassets';
 
-const ARCHITECT_PANEL = `${ASSET_BASE}/seydraguide.png`;
-const BANNER_TOP = `${ASSET_BASE}/seydrapaneltop.png`;
-const BANNER_BOTTOM = `${ASSET_BASE}/seydrapanelbottom.png`;
+const ARCHITECT_PANEL = `${ASSET_BASE}/seydraguide.webp`;
+const BANNER_TOP = `${ASSET_BASE}/seydrapaneltop.webp`;
+const BANNER_BOTTOM = `${ASSET_BASE}/seydrapanelbottom.webp`;
 // seydrapanel.png used only for layout analysis — not rendered
 // starsbottom1/2/3.png — galaxy layers removed, replaced with solid black
 const SFX_POPUP = `${ASSET_BASE}/popup.mp3`;
