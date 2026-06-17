@@ -1,0 +1,890 @@
+/* ============================================================
+   SEYDRA MAINTENANCE OVERLAY — CSS MATRIX v3
+   Isolated curtain layer. z-index: 999999.
+   GPU-accelerated transforms only. Zero layout thrash.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* ============================================================
+   -1. SITE CONTENT SUPPRESSION
+   Hide everything behind the overlay so SovereignSplash
+   and other content never flash through.
+   The .seydra-site-reveal class restores it on bypass only.
+   ============================================================ */
+[data-seydra-site-content] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ============================================================
+   0. ROOT / OVERLAY SHELL
+   ============================================================ */
+.seydra-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #000;
+  opacity: 0;
+  pointer-events: all;
+  will-change: opacity;
+}
+
+/* Phase: environment fade-in (3s) */
+.seydra-overlay.env-fadein {
+  animation: seydra-env-fadein 3s linear forwards;
+}
+
+@keyframes seydra-env-fadein {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Phase: Khawla bypass fade-out (0.8s) */
+.seydra-overlay.khawla-dismiss {
+  animation: seydra-dismiss 0.8s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes seydra-dismiss {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+/* ============================================================
+   1. BACKGROUND CONTAINER
+   ============================================================ */
+.seydra-parallax-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: #000;
+}
+
+/* Nebula atmosphere tint */
+.seydra-nebula-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 80%, rgba(0, 57, 180, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 100% 80% at 50% 100%, rgba(0, 20, 60, 0.575) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* ============================================================
+   2. CHARACTER: SEYDRA GUIDE — STATIC + GLOW
+   ============================================================ */
+.seydra-character {
+  position: absolute;
+  z-index: 10;
+  left: 2%;
+  bottom: 0;
+  height: 100vh;
+  max-height: 1100px;
+  width: auto;
+  object-fit: contain;
+  pointer-events: none;
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  will-change: filter;
+  animation: seydra-glow-pulse 3s ease-in-out infinite;
+}
+
+@keyframes seydra-glow-pulse {
+
+  0%,
+  100% {
+    filter:
+      drop-shadow(0 0 20px rgba(0, 120, 255, 0.35)) drop-shadow(0 0 50px rgba(0, 80, 200, 0.15));
+  }
+
+  50% {
+    filter:
+      drop-shadow(0 0 35px rgba(0, 150, 255, 0.55)) drop-shadow(0 0 80px rgba(0, 100, 255, 0.25)) drop-shadow(0 0 120px rgba(0, 60, 200, 0.1));
+  }
+}
+
+/* ============================================================
+   3. SPLIT-BANNER SYSTEM
+   Open scene timings (CSS):
+     Stage 1: banner-transit  0.4s
+     Stage 2: split           0.6s
+     Stage 3: content-reveal  0.8s
+   ============================================================ */
+.seydra-banner-assembly {
+  position: absolute;
+  z-index: 20;
+  top: 50%;
+  right: 10%;
+  transform: translate3d(120%, -50%, 0);
+  width: clamp(240px, 26vw, 380px);
+  will-change: transform;
+  opacity: 0;
+}
+
+/* Stage 1: Transit from off-screen RIGHT to final position */
+.seydra-banner-assembly.banner-transit:not(.banner-closing) {
+  animation: seydra-banner-transit 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes seydra-banner-transit {
+  0% {
+    opacity: 1;
+    transform: translate3d(120%, -50%, 0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate3d(0, -50%, 0);
+  }
+}
+
+/* Volumetric backlight glow (real luminess glowing) */
+.seydra-banner-luminosity {
+  position: absolute;
+  inset: -15%;
+  background: radial-gradient(circle, rgba(0, 162, 255, 0.18) 0%, rgba(0, 100, 255, 0.05) 50%, transparent 70%);
+  filter: blur(50px);
+  z-index: 11;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  animation: seydra-luminess-pulse 6s ease-in-out infinite alternate;
+}
+
+@keyframes seydra-luminess-pulse {
+  0% {
+    opacity: 0.6;
+    transform: scale(0.96);
+  }
+
+  100% {
+    opacity: 1.0;
+    transform: scale(1.04);
+  }
+}
+
+
+/* Banner halves wrapper */
+.seydra-banner-halves {
+  position: relative;
+  width: 100%;
+}
+
+/* Top half */
+.seydra-banner-top {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  display: block;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  pointer-events: none;
+}
+
+.seydra-banner-top img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Bottom half */
+.seydra-banner-bottom {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  display: block;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  pointer-events: none;
+}
+
+.seydra-banner-bottom img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Stage 2: Split open */
+.seydra-banner-top.split-open:not(.split-closing) {
+  animation: seydra-split-top 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.seydra-banner-bottom.split-open:not(.split-closing) {
+  animation: seydra-split-bottom 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes seydra-split-top {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(0, -80px, 0);
+  }
+}
+
+@keyframes seydra-split-bottom {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(0, 80px, 0);
+  }
+}
+
+/* ============================================================
+   4. INTERIOR CONTENT
+   ============================================================ */
+.seydra-interior {
+  position: absolute;
+  z-index: 12;
+  top: 50%;
+  left: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  width: 84%;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+
+.seydra-interior.content-reveal:not(.content-closing) {
+  animation: seydra-content-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes seydra-content-reveal {
+  0% {
+    opacity: 0;
+    transform: translate3d(-50%, -45%, 0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate3d(-50%, -50%, 0);
+    pointer-events: auto;
+  }
+}
+
+/* Primary headline */
+.seydra-headline {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: clamp(0.9rem, 1.6vw, 1.35rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fff;
+  margin-bottom: 0.6rem;
+  line-height: 1.2;
+  animation: seydra-text-glow-live 4s ease-in-out infinite;
+}
+
+/* Glowing accent line */
+.seydra-divider {
+  width: 55%;
+  height: 1.5px;
+  margin: 0.5rem auto 0.8rem;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(0, 150, 255, 0.5) 20%,
+      rgba(0, 174, 255, 0.9) 50%,
+      rgba(0, 150, 255, 0.5) 80%,
+      transparent 100%);
+  border: none;
+  animation: seydra-divider-glow-live 4s ease-in-out infinite;
+}
+
+/* Teaser paragraph */
+.seydra-teaser {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 300;
+  font-size: clamp(0.6rem, 0.8vw, 0.75rem);
+  line-height: 1.65;
+  color: rgba(180, 210, 255, 0.8);
+  max-width: 380px;
+  margin: 0 auto 1rem;
+  letter-spacing: 0.02em;
+}
+
+/* ============================================================
+   5. CONFIRM BUTTON
+   ============================================================ */
+.seydra-confirm-btn--styled {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid rgba(0, 150, 255, 0.35);
+  background: linear-gradient(135deg,
+      rgba(0, 30, 80, 0.5) 0%,
+      rgba(0, 60, 140, 0.35) 50%,
+      rgba(0, 30, 80, 0.5) 100%);
+  padding: 0.5rem 1.8rem;
+  margin-top: 0.4rem;
+  outline: none;
+  border-radius: 3px;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 600;
+  font-size: clamp(0.55rem, 0.75vw, 0.65rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(0, 200, 255, 0.85);
+  will-change: transform, box-shadow;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow:
+    0 0 12px rgba(0, 120, 255, 0.12),
+    inset 0 0 15px rgba(0, 80, 200, 0.08);
+  overflow: hidden;
+}
+
+.seydra-confirm-btn--styled::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(0, 150, 255, 0.1) 50%,
+      transparent 100%);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.seydra-confirm-btn--styled:hover {
+  transform: scale(1.06) translate3d(0, -2px, 0);
+  border-color: rgba(0, 200, 255, 0.65);
+  box-shadow:
+    0 0 25px rgba(0, 150, 255, 0.25),
+    0 0 50px rgba(0, 100, 255, 0.12),
+    inset 0 0 25px rgba(0, 100, 255, 0.12);
+  color: #fff;
+}
+
+.seydra-confirm-btn--styled:hover::before {
+  transform: translateX(100%);
+}
+
+.seydra-confirm-btn--styled:active {
+  transform: scale(0.97) translate3d(0, 1px, 0);
+  box-shadow: 0 0 8px rgba(0, 120, 255, 0.15);
+}
+
+/* ============================================================
+   7. WEBSITE CONTENT FADE-IN (behind overlay on bypass only)
+   ============================================================ */
+.seydra-site-reveal {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  animation: seydra-site-fadein 0.8s ease-out forwards;
+}
+
+@keyframes seydra-site-fadein {
+  from {
+    opacity: 0.3;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   8. RESPONSIVE BREAKPOINTS
+   ============================================================ */
+@media (max-width: 1200px) {
+  .seydra-character {
+    left: 1%;
+    height: 85vh;
+    max-height: 950px;
+  }
+
+  .seydra-banner-assembly {
+    width: clamp(240px, 35vw, 420px);
+  }
+
+  .seydra-banner-assembly.banner-split .seydra-banner-backing {
+    top: -100px;
+    bottom: -100px;
+  }
+
+  @keyframes seydra-split-top {
+    0% {
+      transform: translate3d(0, 0, 0);
+    }
+
+    100% {
+      transform: translate3d(0, -100px, 0);
+    }
+  }
+
+  @keyframes seydra-split-bottom {
+    0% {
+      transform: translate3d(0, 0, 0);
+    }
+
+    100% {
+      transform: translate3d(0, 100px, 0);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .seydra-character {
+    left: -2%;
+    height: 65vh;
+    max-height: 600px;
+    opacity: 0.4;
+  }
+
+  .seydra-banner-assembly {
+    right: 5%;
+    width: clamp(220px, 50vw, 360px);
+  }
+
+  .seydra-banner-assembly.banner-split .seydra-banner-backing {
+    top: -80px;
+    bottom: -80px;
+  }
+
+  @keyframes seydra-split-top {
+    0% {
+      transform: translate3d(0, 0, 0);
+    }
+
+    100% {
+      transform: translate3d(0, -80px, 0);
+    }
+  }
+
+  @keyframes seydra-split-bottom {
+    0% {
+      transform: translate3d(0, 0, 0);
+    }
+
+    100% {
+      transform: translate3d(0, 80px, 0);
+    }
+  }
+
+  .seydra-headline {
+    font-size: clamp(0.8rem, 3.5vw, 1.2rem);
+  }
+
+  .seydra-teaser {
+    font-size: clamp(0.55rem, 2vw, 0.7rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .seydra-character {
+    display: none;
+  }
+
+  .seydra-banner-assembly {
+    right: 50%;
+    transform: translate3d(50%, -50%, 0);
+    width: clamp(240px, 88vw, 380px);
+  }
+
+  .seydra-banner-assembly.banner-transit {
+    animation-name: seydra-banner-transit-mobile;
+  }
+
+  .seydra-banner-assembly.banner-split .seydra-banner-backing {
+    top: -75px;
+    bottom: -75px;
+  }
+
+  @keyframes seydra-banner-transit-mobile {
+    0% {
+      opacity: 1;
+      transform: translate3d(120%, -50%, 0);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translate3d(50%, -50%, 0);
+    }
+  }
+
+  @keyframes seydra-split-top {
+    0% {
+      transform: translate3d(0, 0, 0);
+    }
+
+    100% {
+      transform: translate3d(0, -75px, 0);
+    }
+  }
+
+  @keyframes seydra-split-bottom {
+    0% {
+      transform: translate3d(0, 0, 0);
+    }
+
+    100% {
+      transform: translate3d(0, 75px, 0);
+    }
+  }
+
+  .seydra-interior {
+    width: 88%;
+  }
+}
+
+/* ============================================================
+   8.5. CLOSING SCENE — EXACT SLOW REVERSE OF OPEN SCENE
+   
+   Open sequence (for reference):
+     1. content-reveal:  0.8s
+     2. split:           0.6s  
+     3. banner-transit:   0.4s
+   
+   Close sequence (reverse, with slow cinematic pacing):
+     Step 1 (0.0s):  Content fades out         — 0.8s (reverse of content-reveal)
+     Step 2 (0.9s):  Panels merge              — 0.6s (reverse of split)
+     Step 3 (1.6s):  Banner drifts off-screen  — 0.4s (reverse of banner-transit)
+   
+   Total close animation: ~2.0s
+   Background stays solid black — NO overlay fade.
+   Redirect fires at 2.5s (after close completes).
+   ============================================================ */
+
+/* Step 1 (0.0s): Content fades out — 0.4s (snappy & sequential) */
+.seydra-interior.content-reveal.content-closing {
+  animation: seydra-content-close 0.4s cubic-bezier(0.25, 1, 0.5, 1) both;
+  pointer-events: none;
+}
+
+/* Step 2 (0.4s): Panels merge — 0.4s (snappy & sequential) */
+.seydra-banner-top.split-open.split-closing {
+  animation: seydra-split-top-close 0.4s cubic-bezier(0.76, 0, 0.24, 1) 0.4s both;
+}
+
+.seydra-banner-bottom.split-open.split-closing {
+  animation: seydra-split-bottom-close 0.4s cubic-bezier(0.76, 0, 0.24, 1) 0.4s both;
+}
+
+/* Step 3 (0.8s): Banner drifts off-screen right — 0.4s (snappy & sequential) */
+.seydra-banner-assembly.banner-transit.banner-closing {
+  animation: seydra-banner-transit-close 0.4s cubic-bezier(0.76, 0, 0.24, 1) 0.8s both;
+}
+
+/* NO overlay fade-out — background stays solid black until redirect */
+.seydra-overlay.env-fadein.closing {
+  pointer-events: none;
+  /* Keep opacity: 1 from env-fadein. No additional animation. */
+}
+
+/* Character fades out gently during close */
+.seydra-overlay.closing .seydra-character {
+  animation: seydra-character-close 0.6s ease-out 0.6s both;
+}
+
+@keyframes seydra-character-close {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+/* Keyframes — explicit from/to anchors at fill positions */
+@keyframes seydra-content-close {
+  from {
+    opacity: 1;
+    transform: translate3d(-50%, -50%, 0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate3d(-50%, -45%, 0);
+  }
+}
+
+@keyframes seydra-split-top-close {
+  from {
+    transform: translate3d(0, -120px, 0);
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes seydra-split-bottom-close {
+  from {
+    transform: translate3d(0, 80px, 0);
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes seydra-banner-transit-close {
+  from {
+    transform: translate3d(0, -50%, 0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translate3d(120%, -50%, 0);
+    opacity: 0;
+  }
+}
+
+/* Responsive: match close `from` to breakpoint-specific open offsets */
+@media (max-width: 1200px) {
+  @keyframes seydra-split-top-close {
+    from {
+      transform: translate3d(0, -100px, 0);
+    }
+
+    to {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @keyframes seydra-split-bottom-close {
+    from {
+      transform: translate3d(0, 100px, 0);
+    }
+
+    to {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  @keyframes seydra-split-top-close {
+    from {
+      transform: translate3d(0, -80px, 0);
+    }
+
+    to {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @keyframes seydra-split-bottom-close {
+    from {
+      transform: translate3d(0, 80px, 0);
+    }
+
+    to {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  @keyframes seydra-split-top-close {
+    from {
+      transform: translate3d(0, -75px, 0);
+    }
+
+    to {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @keyframes seydra-split-bottom-close {
+    from {
+      transform: translate3d(0, 75px, 0);
+    }
+
+    to {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  .seydra-banner-assembly.banner-transit.banner-closing {
+    animation-name: seydra-banner-transit-close-mobile;
+  }
+
+  @keyframes seydra-banner-transit-close-mobile {
+    from {
+      transform: translate3d(50%, -50%, 0);
+      opacity: 1;
+    }
+
+    to {
+      transform: translate3d(120%, -50%, 0);
+      opacity: 0;
+    }
+  }
+}
+
+/* ============================================================
+   9. FORCE LANDSCAPE ON MOBILE (PORTRAIT → ROTATED VIEW)
+   When the device is in portrait mode (height > width),
+   rotate the entire overlay and gate 90° to simulate
+   landscape, matching the PC experience exactly.
+   ============================================================ */
+@media (orientation: portrait) and (max-width: 1024px) {
+
+  .seydra-overlay,
+  .seydra-gate {
+    transform: rotate(90deg);
+    transform-origin: top left;
+    width: 100vh;
+    height: 100vw;
+    top: 0;
+    left: 100vw;
+    position: fixed;
+  }
+}
+
+/* ============================================================
+   10. PREFERS-REDUCED-MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .seydra-overlay.env-fadein {
+    animation-duration: 0.5s;
+  }
+
+  .seydra-character {
+    animation: none !important;
+    filter:
+      drop-shadow(0 0 25px rgba(0, 120, 255, 0.4)) drop-shadow(0 0 60px rgba(0, 80, 200, 0.18));
+  }
+
+  .seydra-banner-assembly.banner-transit {
+    animation-duration: 0.2s;
+  }
+
+  .seydra-banner-top.split-open,
+  .seydra-banner-bottom.split-open {
+    animation-duration: 0.2s;
+  }
+
+  .seydra-interior.content-reveal.content-closing,
+  .seydra-banner-top.split-open.split-closing,
+  .seydra-banner-bottom.split-open.split-closing,
+  .seydra-banner-assembly.banner-transit.banner-closing {
+    animation-duration: 0.1s !important;
+    animation-delay: 0s !important;
+  }
+
+  .seydra-banner-luminosity {
+    animation: none !important;
+    opacity: 0.8 !important;
+  }
+
+  .seydra-headline {
+    animation: none !important;
+    text-shadow:
+      0 0 15px rgba(0, 150, 255, 0.5),
+      0 0 30px rgba(0, 100, 255, 0.25) !important;
+  }
+
+  .seydra-divider {
+    animation: none !important;
+    box-shadow: 0 0 10px rgba(0, 150, 255, 0.4) !important;
+  }
+}
+
+/* ============================================================
+   11. INTERACTIVE INITIALIZATION GATE (BROWSER AUTOPLAY GATE)
+   ============================================================ */
+.seydra-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 1000000;
+  background: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.seydra-gate-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.seydra-gate-text {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(0.9rem, 2vw, 1.25rem);
+  letter-spacing: 0.25em;
+  color: #00c8ff;
+  text-shadow: 0 0 10px rgba(0, 200, 255, 0.4);
+  margin: 0;
+  animation: seydra-text-pulse 2s ease-in-out infinite;
+}
+
+.seydra-gate-subtext {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(0.65rem, 1.2vw, 0.85rem);
+  letter-spacing: 0.15em;
+  color: rgba(180, 210, 255, 0.5);
+  text-transform: uppercase;
+}
+
+@keyframes seydra-text-pulse {
+
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   12. LUMINOUS GLOW KEYFRAMES
+   ============================================================ */
+@keyframes seydra-text-glow-live {
+
+  0%,
+  100% {
+    text-shadow:
+      0 0 10px rgba(255, 255, 255, 0.35),
+      0 0 20px rgba(180, 210, 255, 0.15);
+  }
+
+  50% {
+    text-shadow:
+      0 0 16px rgba(255, 255, 255, 0.55),
+      0 0 32px rgba(180, 210, 255, 0.28);
+  }
+}
+
+@keyframes seydra-divider-glow-live {
+
+  0%,
+  100% {
+    box-shadow: 0 0 8px rgba(180, 210, 255, 0.2);
+    opacity: 0.7;
+  }
+
+  50% {
+    box-shadow: 0 0 15px rgba(180, 210, 255, 0.45);
+    opacity: 1;
+  }
+}
