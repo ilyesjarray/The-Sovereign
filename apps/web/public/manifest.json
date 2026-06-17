@@ -1,7 +1,7 @@
 {
-    "name": "The Sovereign",
-    "short_name": "Sovereign",
-    "description": "Elite Financial Intelligence Platform",
+    "name": "SEYDRA",
+    "short_name": "Seydra",
+    "description": "SEYDRA - Where Imagination Becomes Reality",
     "start_url": "/",
     "display": "fullscreen",
     "background_color": "#000000",
@@ -32,8 +32,8 @@
     "related_applications": [
         {
             "platform": "play",
-            "url": "https://play.google.com/store/apps/details?id=com.thesovereign.app",
-            "id": "com.thesovereign.app"
+            "url": "https://play.google.com/store/apps/details?id=com.seydra.app",
+            "id": "com.seydra.app"
         }
     ],
     "background_sync": {
