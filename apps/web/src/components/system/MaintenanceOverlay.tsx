@@ -86,7 +86,7 @@ export function MaintenanceOverlay() {
 
     const start2Audio = new Audio(SFX_START2);
     start2Audio.preload = 'auto';
-    start2Audio.volume = 0.8;
+    start2Audio.volume = 0.5;
     start2Audio.loop = true;
     audioStart2Ref.current = start2Audio;
 
@@ -124,7 +124,7 @@ export function MaintenanceOverlay() {
 
     // Play start2.mp3 immediately, loop forever
     if (audioStart2Ref.current) {
-      audioStart2Ref.current.volume = 0.8;
+      audioStart2Ref.current.volume = 0.5;
       audioStart2Ref.current.loop = true;
       audioStart2Ref.current.play().catch((err) => {
         console.warn('start2 play failed:', err);
