@@ -113,6 +113,32 @@ export function MaintenanceOverlay() {
     if (unlockInitiatedRef.current) return;
     unlockInitiatedRef.current = true;
 
+    // Force fullscreen mode
+    const docEl = document.documentElement as HTMLElement & {
+      webkitRequestFullscreen?: () => Promise<void>;
+      msRequestFullscreen?: () => void;
+    };
+    const requestFS =
+      docEl.requestFullscreen?.bind(docEl) ||
+      docEl.webkitRequestFullscreen?.bind(docEl) ||
+      docEl.msRequestFullscreen?.bind(docEl);
+
+    if (requestFS) {
+      requestFS().then(() => {
+        // Lock to landscape after entering fullscreen
+        const orientation = screen.orientation as ScreenOrientation & {
+          lock?: (type: string) => Promise<void>;
+        };
+        if (orientation?.lock) {
+          orientation.lock('landscape').catch(() => {
+            // Orientation lock not supported or denied — CSS rotation fallback handles it
+          });
+        }
+      }).catch(() => {
+        // Fullscreen denied (e.g. desktop browsers may block without gesture)
+      });
+    }
+
     // Play start1.mp3 immediately
     if (audioStart1Ref.current) {
       audioStart1Ref.current.volume = 1.0;
