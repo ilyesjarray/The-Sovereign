@@ -805,6 +805,9 @@
 
 /* ============================================================
    11. INTERACTIVE INITIALIZATION GATE (BROWSER AUTOPLAY GATE)
+   
+   The entire gate is now a clickable zone that covers 100% of
+   the viewport. Touch and click interactions work anywhere.
    ============================================================ */
 .seydra-gate {
   position: fixed;
@@ -816,6 +819,12 @@
   justify-content: center;
   cursor: pointer;
   user-select: none;
+  width: 100vw;
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  box-sizing: border-box;
 }
 
 .seydra-gate-content {
@@ -824,6 +833,7 @@
   flex-direction: column;
   align-items: center;
   gap: 1.2rem;
+  pointer-events: none;
 }
 
 .seydra-gate-text {
