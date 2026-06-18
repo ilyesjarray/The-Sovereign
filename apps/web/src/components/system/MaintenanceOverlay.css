@@ -1,5 +1,5 @@
 /* ============================================================
-   SEYDRA MAINTENANCE OVERLAY — CSS MATRIX v4
+   SEYDRA MAINTENANCE OVERLAY — CSS MATRIX v5
    Isolated curtain layer. z-index: 999999.
    GPU-accelerated transforms only. Zero layout thrash.
    Mobile-first responsive with proper portrait/landscape handling.
@@ -16,6 +16,9 @@ html, body {
   margin: 0;
   padding: 0;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ============================================================
@@ -563,20 +566,6 @@ html, body {
 
 /* ============================================================
    8.5. CLOSING SCENE — EXACT SLOW REVERSE OF OPEN SCENE
-   
-   Open sequence (for reference):
-     1. content-reveal:  0.8s
-     2. split:           0.6s  
-     3. banner-transit:   0.4s
-   
-   Close sequence (reverse, with slow cinematic pacing):
-     Step 1 (0.0s):  Content fades out         — 0.8s (reverse of content-reveal)
-     Step 2 (0.9s):  Panels merge              — 0.6s (reverse of split)
-     Step 3 (1.6s):  Banner drifts off-screen  — 0.4s (reverse of banner-transit)
-   
-   Total close animation: ~2.0s
-   Background stays solid black — NO overlay fade.
-   Redirect fires at 2.5s (after close completes).
    ============================================================ */
 
 /* Step 1 (0.0s): Content fades out — 0.4s (snappy & sequential) */
@@ -749,32 +738,7 @@ html, body {
 }
 
 /* ============================================================
-   9. MOBILE PORTRAIT MODE HANDLING
-   Auto-rotate portrait to landscape view for better UX.
-   When device is in portrait, rotate the entire view 90°.
-   ============================================================ */
-@media (orientation: portrait) and (max-width: 1024px) {
-  html, body {
-    width: 100vh;
-    height: 100vw;
-  }
-
-  .seydra-overlay,
-  .seydra-gate {
-    width: 100vh;
-    height: 100vw;
-    position: fixed;
-    top: 0;
-    left: 0;
-    transform: rotate(90deg);
-    transform-origin: 0 0;
-    margin: 0;
-    padding: 0;
-  }
-}
-
-/* ============================================================
-   10. PREFERS-REDUCED-MOTION
+   9. PREFERS-REDUCED-MOTION
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
   .seydra-overlay.env-fadein {
@@ -823,10 +787,11 @@ html, body {
 }
 
 /* ============================================================
-   11. INTERACTIVE INITIALIZATION GATE (BROWSER AUTOPLAY GATE)
+   10. INTERACTIVE INITIALIZATION GATE (BROWSER AUTOPLAY GATE)
    
    The entire gate is a fullscreen clickable zone.
    Touch, click, and keyboard interactions all work anywhere.
+   Portrait mode users see centered content at correct viewport.
    ============================================================ */
 .seydra-gate {
   position: fixed;
@@ -847,6 +812,7 @@ html, body {
   touch-action: manipulation;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
+  -webkit-font-smoothing: antialiased;
 }
 
 .seydra-gate:active {
@@ -894,7 +860,7 @@ html, body {
 }
 
 /* ============================================================
-   12. LUMINOUS GLOW KEYFRAMES
+   11. LUMINOUS GLOW KEYFRAMES
    ============================================================ */
 @keyframes seydra-text-glow-live {
 
@@ -923,5 +889,21 @@ html, body {
   50% {
     box-shadow: 0 0 15px rgba(180, 210, 255, 0.45);
     opacity: 1;
+  }
+}
+
+/* ============================================================
+   12. MOBILE PORTRAIT DETECTION
+   No rotation needed - use native viewport and flexbox centering.
+   The gate is already centered with flexbox on html/body.
+   ============================================================ */
+@supports (aspect-ratio: 1) {
+  @media (orientation: portrait) and (max-width: 1024px) {
+    /* Portrait mode: content is already centered via flexbox
+       No rotation transformation needed - browsers handle viewport correctly */
+    .seydra-gate {
+      width: 100%;
+      height: 100%;
+    }
   }
 }
