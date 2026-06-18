@@ -113,7 +113,7 @@ export function MaintenanceOverlay() {
     if (unlockInitiatedRef.current) return;
     unlockInitiatedRef.current = true;
 
-    // Force fullscreen mode
+    // Force fullscreen mode (best effort — mobile browsers may restrict this)
     const docEl = document.documentElement as HTMLElement & {
       webkitRequestFullscreen?: () => Promise<void>;
       msRequestFullscreen?: () => void;
@@ -124,18 +124,15 @@ export function MaintenanceOverlay() {
       docEl.msRequestFullscreen?.bind(docEl);
 
     if (requestFS) {
-      requestFS().then(() => {
-        // Lock to landscape after entering fullscreen
-        const orientation = screen.orientation as ScreenOrientation & {
-          lock?: (type: string) => Promise<void>;
-        };
-        if (orientation?.lock) {
-          orientation.lock('landscape').catch(() => {
-            // Orientation lock not supported or denied — CSS rotation fallback handles it
-          });
-        }
-      }).catch(() => {
-        // Fullscreen denied (e.g. desktop browsers may block without gesture)
+      requestFS().catch(() => {
+        // Fullscreen denied — continue anyway, viewport will handle display
+      });
+    }
+
+    // Attempt to lock orientation to landscape (non-blocking; fallback to CSS)
+    if (window.screen?.orientation?.lock) {
+      window.screen.orientation.lock('landscape').catch(() => {
+        // Orientation lock not supported or denied — CSS fallback handles it
       });
     }
 
@@ -296,9 +293,17 @@ export function MaintenanceOverlay() {
       <div
         className="seydra-gate"
         onClick={handleUnlock}
-        onTouchStart={(e) => {
+        onTouchEnd={(e) => {
           e.preventDefault();
           handleUnlock();
+        }}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleUnlock();
+          }
         }}
       >
         <div className="seydra-gate-content">
