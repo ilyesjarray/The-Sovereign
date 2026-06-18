@@ -130,8 +130,12 @@ export function MaintenanceOverlay() {
     }
 
     // Attempt to lock orientation to landscape (non-blocking; fallback to CSS)
-    if (window.screen?.orientation?.lock) {
-      window.screen.orientation.lock('landscape').catch(() => {
+    const screenOrientation = window.screen?.orientation as
+      | (ScreenOrientation & { lock?: (type: string) => Promise<void> })
+      | undefined;
+    
+    if (screenOrientation?.lock) {
+      screenOrientation.lock('landscape').catch(() => {
         // Orientation lock not supported or denied — CSS fallback handles it
       });
     }
